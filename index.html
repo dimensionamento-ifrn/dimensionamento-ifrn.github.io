@@ -90,8 +90,12 @@ input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
 .grp{margin-bottom:22px}
 .grp-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 6px 10px;flex-wrap:wrap}
 .ulist{display:flex;flex-direction:column;gap:8px}
-.urow{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:12px 16px;display:grid;grid-template-columns:minmax(150px,1.1fr) minmax(160px,1.4fr) auto 130px;gap:14px;align-items:center}
+.urow{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:12px 16px;display:grid;grid-template-columns:minmax(140px,1fr) minmax(150px,1.3fr) auto 172px;gap:14px;align-items:center}
 .urow.out{opacity:.72}
+.gsaldo,.rsaldo{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.rsaldo{margin-top:6px;justify-content:center;width:100%}.gsaldo{margin-left:auto}
+.sml{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--fg-3)}
+.smn{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;padding:2px 9px 2px 3px;border-radius:999px;background:var(--soft-2)}.smn .lvdot{width:18px;height:18px;font-size:10px}.smn.zero{opacity:.55}.smn.neg{background:var(--bad-bg);color:var(--bad)}
+.stw{min-width:0}
 .urow.hit-ref{background:var(--ok-bg);box-shadow:inset 0 0 0 2px var(--ok),var(--shadow)}
 .urow.hit-meta{box-shadow:inset 0 0 0 2px var(--ok),var(--shadow)}
 .lg.hl{margin-top:-6px}.hsw{display:inline-block;width:18px;height:12px;border-radius:4px}.hsw.ref{background:var(--ok-bg);box-shadow:inset 0 0 0 2px var(--ok)}.hsw.meta{box-shadow:inset 0 0 0 2px var(--ok)}.hsw.out{background:var(--soft-2);opacity:.8}
@@ -547,15 +551,17 @@ function stepMetas(){
   ${S.confirm==="clearAloc"?`<div class="toast" style="margin:12px 0 0">Apagar toda a distribuição desta proposta? <button class="danger" data-act="clearAlocYes">Apagar</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`:""}</div>`;
   return h;
 }
+function saldoMini(p,cls){return `<span class="${cls}"><span class="sml">saldo</span>${LV.map(l=>`<span class="smn ${p.sd[l]<0?"neg":p.sd[l]===0?"zero":""}" title="Saldo nível ${l}"><span class="lvdot lv-${l}">${l}</span>${p.sd[l]}</span>`).join("")}</span>`}
 function stepNiveis(){
+  const P0=pool();
   let h=`<div class="row" style="justify-content:space-between;margin-bottom:12px"><div class="row">${groupingSelect("selGrpB")}</div><div class="row"><button data-act="auto">Distribuir pelas metas</button></div></div>${legend()}<div class="lg hl"><span><i class="hsw ref"></i>Já completa a tipologia (referência)</span><span><i class="hsw meta"></i>Já atinge a meta</span><span><i class="hsw out"></i>Fora da meta</span></div>`;
   for(const g of groups()){
     const tot=g.units.reduce((a,u)=>a+sum3(alocOf(u.id)),0);
-    h+=`<section class="grp"><div class="grp-h"><h3>${esc(g.nome)}</h3><span class="muted">${tot} vaga${tot===1?"":"s"} nova${tot===1?"":"s"} neste grupo</span></div><div class="ulist">`;
+    h+=`<section class="grp"><div class="grp-h"><h3>${esc(g.nome)}</h3><span class="muted">${tot} vaga${tot===1?"":"s"} nova${tot===1?"":"s"} neste grupo</span>${saldoMini(P0,"gsaldo")}</div><div class="ulist">`;
     for(const u of g.units){const i=info(u);
       h+=`<div class="urow ${i.hitRef?"hit-ref":i.hitMeta?"hit-meta":i.excl?"out":""}"><div class="uname">${esc(u.nome)}<div class="muted">${esc(u.sigla)} · ref. ${trip(i.ref)}${i.vaT?` · ${i.vaT} vaga${i.vaT>1?"s":""} existente${i.vaT>1?"s":""}`:""}</div></div>
       <div>${pbar(i)}<div class="pnum">${i.occT} ocupados${i.vaT?` + ${i.vaT} existentes`:""}${i.noT?` + <b>${i.noT} novas</b> (${LV.filter(l=>i.no[l]).map(l=>l+" "+i.no[l]).join(", ")})`:""} = <b>${i.tot}</b> de ${i.refT}${i.meta!==null?` · meta ${i.meta}`:""}</div></div>
-      <div class="steppers">${LV.map(l=>`<div class="stp"><span class="lvdot lv-${l}" aria-hidden="true">${l}</span><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="-1" aria-label="Menos ${l} em ${esc(u.nome)}">−</button><input type="number" min="0" id="al-${esc(u.id)}-${l}" aria-label="${esc(u.nome)} nível ${l}" data-act="aloc" data-id="${esc(u.id)}" data-l="${l}" value="${i.no[l]}"><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="1" aria-label="Mais ${l} em ${esc(u.nome)}">+</button></div>`).join("")}</div>
+      <div class="stw"><div class="steppers">${LV.map(l=>`<div class="stp"><span class="lvdot lv-${l}" aria-hidden="true">${l}</span><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="-1" aria-label="Menos ${l} em ${esc(u.nome)}">−</button><input type="number" min="0" id="al-${esc(u.id)}-${l}" aria-label="${esc(u.nome)} nível ${l}" data-act="aloc" data-id="${esc(u.id)}" data-l="${l}" value="${i.no[l]}"><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="1" aria-label="Mais ${l} em ${esc(u.nome)}">+</button></div>`).join("")}</div>${saldoMini(P0,"rsaldo")}</div>
       <div class="ustat"><span class="chip ${i.st.c}">${esc(i.st.t)}</span><label><input type="checkbox" id="ex-${esc(u.id)}" data-act="excl" data-id="${esc(u.id)}"${i.excl?" checked":""}>excluir da meta</label></div></div>`;}
     h+=`</div></section>`;
   }
