@@ -251,7 +251,7 @@ table.plain input.n{width:60px}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 (function(){
-const SB_URL="https://oagqaozbjgawnivdhdqv.supabase.co",SB_KEY="sb_publishable_Kqcp8ui6OTIFFL1LBSvirQ_OO-SQzbV",LOGIN="acesso@dimensionamento-ifrn.app",BUCKET="propostas-campi";
+const SB_URL="https://oagqaozbjgawnivdhdqv.supabase.co",SB_KEY="sb_publishable_Kqcp8ui6OTIFFL1LBSvirQ_OO-SQzbV",LOGIN="acesso@dimensionamento-ifrn.app";
 const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}});window.__sb=sb;
 const listeners={};let chan=null;
 function ensureChan(){if(chan)return;chan=sb.channel("docs").on("postgres_changes",{event:"*",schema:"public",table:"docs"},p=>{const c=(p.new&&p.new.collection)||(p.old&&p.old.collection);(listeners[c]||[]).forEach(f=>f());(listeners["*"]||[]).forEach(f=>f())}).subscribe()}
@@ -265,10 +265,8 @@ const db={
     onSnapshot(cb,err){const load=async()=>{const {data:r,error}=await sb.from("docs").select("data").eq("collection",c).eq("id",id).maybeSingle();if(error){err&&err({code:error.message});return}cb(snapDoc(id,r))};load();on(c,load);return()=>{}}}},
   collection(c){return{onSnapshot(cb,err){const load=async()=>{const {data:rs,error}=await sb.from("docs").select("id,data").eq("collection",c);if(error){err&&err({code:error.message});return}cb({docs:rs.map(r=>snapDoc(r.id,r))})};load();on(c,load);return()=>{}}}}
 };
-const assets={async upload(file){const path=Date.now()+"-"+file.name.replace(/[^\w.\-]+/g,"_");const {error}=await sb.storage.from(BUCKET).upload(path,file,{upsert:true,contentType:file.type||"application/pdf"});if(error)throw error;return{id:path,url:""}},
-  async open(path){const w=window.open("","_blank");const {data,error}=await sb.storage.from(BUCKET).createSignedUrl(path,600);if(error){w&&w.close();throw error}if(w)w.location=data.signedUrl;else location.href=data.signedUrl}};
 let ready;const gate=new Promise(r=>ready=r);
-window.claude={use:async n=>{await gate;return n==="db"?db:n==="assets"?assets:null}};
+window.claude={use:async n=>{await gate;return n==="db"?db:null}};
 async function start(){const {data}=await sb.auth.getSession();if(data.session){document.getElementById("login").hidden=true;document.getElementById("app").hidden=false;ready()}else{document.getElementById("login").hidden=false;document.getElementById("pw").focus()}}
 document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();const b=document.getElementById("loginBtn"),m=document.getElementById("loginMsg");b.disabled=true;m.textContent="Verificando…";
   const {error}=await sb.auth.signInWithPassword({email:LOGIN,password:document.getElementById("pw").value});b.disabled=false;
@@ -577,18 +575,16 @@ async function importCampusFile(file,uidv){
       for(const x of pm.postos){const k=normC(x.cargo);const a=agg[k]||(agg[k]={cargo:niceC(x.cargo),nivel:x.nivel,qtd:0,set:[]});a.qtd++;a.set.push(x.dir+"/"+x.setor)}
       S.impC.linhas=Object.entries(agg).map(([k,a])=>({cargo:a.cargo,nivel:a.nivel,qtd:a.qtd,estrategico:est.has(k),obs:[...new Set(a.set)].join(", ")}));
       S.impC.estrategicos=pm.estr.map(e=>niceC(e.cargo));S.impC.metodo=`Lido pelo modelo padrão: ${pm.postos.length} postos no Quadro 2 e ${pm.estr.length} cargos estratégicos no Quadro 1`;
-      if(S.assets){try{setProg("Guardando o PDF…");const up=await S.assets.upload(file);S.impC.assetId=up.id;S.impC.url=up.url}catch(_){}}
       setProg("");render();return;
     }
     setProg("Lendo a proposta do campus com IA…");S.impC.metodo="Lido com IA (o arquivo não segue o modelo padrão)";
     const u=S.base.unidades.find(x=>x.id===uidv);
     const r=await askJSON(`O texto abaixo foi extraído da proposta de dimensionamento de servidores técnico-administrativos (TAE) apresentada pelo ${u?.nome||"campus"} do IFRN. Identifique o quadro DESEJADO/PROPOSTO de cargos TAE: para cada cargo, a quantidade total que o campus pretende ter. Se o documento trouxer quantidade atual e desejada (ou necessidade), use a desejada total; se trouxer só o acréscimo pedido, some-o à quantidade atual quando ela constar. Informe o nível de classificação (C, D ou E) conforme o documento ou o PCCTAE (Lei 11.091/2005). Responda somente com um array JSON de objetos {"cargo":"...","nivel":"D","qtd":4,"atual":3,"obs":"..."} (atual e obs opcionais). Ignore docentes.\n\nTEXTO:\n${text.slice(0,120000)}`);
     S.impC.linhas=(Array.isArray(r)?r:[]).filter(x=>x&&x.cargo).map(x=>({cargo:niceC(x.cargo),nivel:String(x.nivel||"").toUpperCase().slice(0,1),qtd:n(x.qtd),atualDoc:x.atual===undefined?null:n(x.atual),obs:String(x.obs||"")}));
-    if(S.assets){try{setProg("Guardando o PDF…");const up=await S.assets.upload(file);S.impC.assetId=up.id;S.impC.url=up.url}catch(_){}}
   }catch(e){S.impC.erro=e.message||String(e.code||e);S.impC.linhas=S.impC.linhas||[]}
   setProg("");render();
 }
-async function saveCampus(){const c=S.impC;const doc={unidade:c.u,arquivo:c.arquivo||"",assetId:c.assetId||"",url:c.url||"",importadoEm:new Date().toISOString(),estrategicos:c.estrategicos||[],linhas:c.linhas.filter(l=>l.cargo)};S.desej[c.u]=doc;S.impC=null;render();
+async function saveCampus(){const c=S.impC;const doc={unidade:c.u,arquivo:c.arquivo||"",importadoEm:new Date().toISOString(),estrategicos:c.estrategicos||[],linhas:c.linhas.filter(l=>l.cargo)};S.desej[c.u]=doc;S.impC=null;render();
   if(S.db){try{await S.db.doc("desejado/"+c.u).set(doc);flash("Proposta do campus salva","ok")}catch(e){flash("Não foi possível salvar: "+(e.message||e.code),"warn")}}}
 
 /* comparação e definição */
@@ -641,7 +637,7 @@ function viewDefinir(){
   return h;
 }
 function viewQuadro(){
-  let h=`<div class="card"><div class="card-h" style="margin:0"><div><div class="eyebrow">Quadro atual de cargos</div><h2>Base de servidores por unidade</h2><div class="muted">Envie a planilha (xlsx, xls, csv) ou o PDF exportado do SUAP/SIAPE com os servidores TAE. O PDF é lido com IA e revisado por você antes de gravar.</div></div><label class="filebtn"><input type="file" id="fQuadro" accept=".xlsx,.xls,.csv,.ods,.pdf" data-act="fQuadro">Enviar base de servidores</label></div>${S.quadro?`<div class="muted" style="margin-top:10px">Base atual: ${esc(S.quadro.arquivo||"")} · importada em ${new Date(S.quadro.importadoEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})} · ${S.quadro.linhas.reduce((a,r)=>a+n(r.qtd),0)} servidores</div>`:""}</div>`;
+  let h=`<div class="card"><div class="card-h" style="margin:0"><div><div class="eyebrow">Quadro atual de cargos</div><h2>Base de servidores por unidade</h2><div class="muted">Envie a planilha (xlsx, xls, csv) ou o PDF exportado do SUAP/SIAPE com os servidores TAE. O PDF é lido com IA e revisado por você antes de gravar. O arquivo não é armazenado: só os dados extraídos ficam salvos.</div></div><label class="filebtn"><input type="file" id="fQuadro" accept=".xlsx,.xls,.csv,.ods,.pdf" data-act="fQuadro">Enviar base de servidores</label></div>${S.quadro?`<div class="muted" style="margin-top:10px">Base atual: ${esc(S.quadro.arquivo||"")} · importada em ${new Date(S.quadro.importadoEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})} · ${S.quadro.linhas.reduce((a,r)=>a+n(r.qtd),0)} servidores</div>`:""}</div>`;
   if(S.prog)h+=`<div class="toast ok" id="prog">${esc(S.prog)}</div>`;
   const I=S.imp;
   if(I){
@@ -662,7 +658,7 @@ function viewQuadro(){
 }
 function viewCampi(){
   const sel=S.upUnit||S.base.unidades[0]?.id;
-  let h=`<div class="card upcard"><div><div class="eyebrow">Propostas dos campi</div><h2>Enviar a proposta de dimensionamento de um campus</h2><div class="muted">Relatório em PDF no modelo da DIGPE (Quadro 2 – modelo ideal) ou planilha. O sistema lê os postos por cargo e você revisa antes de gravar.</div></div>
+  let h=`<div class="card upcard"><div><div class="eyebrow">Propostas dos campi</div><h2>Enviar a proposta de dimensionamento de um campus</h2><div class="muted">Relatório em PDF no modelo da DIGPE (Quadro 2 – modelo ideal) ou planilha. O sistema lê os postos por cargo e você revisa antes de gravar. O arquivo não é armazenado: só os dados extraídos ficam salvos.</div></div>
   <div class="upform"><label class="small" for="upUnit">Unidade</label><select id="upUnit" data-act="upUnit">${S.base.unidades.map(u=>`<option value="${esc(u.id)}"${u.id===sel?" selected":""}>${esc(u.nome)}${S.desej[u.id]?" (já enviada)":""}</option>`).join("")}</select>
   <label class="filebtn big"><input type="file" id="fUp" accept=".pdf,.xlsx,.xls,.csv" data-act="fCampus" data-id="${esc(sel)}">Escolher arquivo da proposta</label><button class="ghost" data-act="cManual" data-id="${esc(sel)}">Digitar manualmente</button></div></div>`;
   if(S.prog)h+=`<div class="toast ok" id="prog">${esc(S.prog)}</div>`;
@@ -673,7 +669,7 @@ function viewCampi(){
   h+=`<div class="row" style="margin-bottom:12px">${groupingSelect("selGrpCp")}</div>`;
   for(const g of groups()){h+=`<section class="grp"><div class="grp-h"><h3>${esc(g.nome)}</h3></div><div class="qgrid">`;
     for(const u of g.units){const d=S.desej[u.id];const tot=d?d.linhas.reduce((a,l)=>a+n(l.qtd),0):0;
-      h+=`<article class="qcard"><div class="qhead" style="cursor:default"><span><b>${esc(u.nome)}</b>${d?`<span class="muted"> · ${d.linhas.length} cargos · ${tot} desejados</span>`:'<span class="muted"> · sem proposta</span>'}</span><span class="row">${d?`<span class="chip ok">Recebida</span>`:`<span class="chip mute">Pendente</span>`}${d&&d.assetId?`<button class="ghost" data-act="openPdf" data-id="${esc(d.assetId)}">Abrir PDF</button>`:""}<label class="filebtn sm"><input type="file" id="fC-${esc(u.id)}" accept=".pdf,.xlsx,.xls,.csv" data-act="fCampus" data-id="${esc(u.id)}">${d?"Substituir":"Enviar PDF"}</label>${d?`<button class="ghost" data-act="cEdit" data-id="${esc(u.id)}">Editar</button>`:`<button class="ghost" data-act="cManual" data-id="${esc(u.id)}">Digitar</button>`}</span></div></article>`}
+      h+=`<article class="qcard"><div class="qhead" style="cursor:default"><span><b>${esc(u.nome)}</b>${d?`<span class="muted"> · ${d.linhas.length} cargos · ${tot} desejados</span>`:'<span class="muted"> · sem proposta</span>'}</span><span class="row">${d?`<span class="chip ok">Recebida</span>`:`<span class="chip mute">Pendente</span>`}<label class="filebtn sm"><input type="file" id="fC-${esc(u.id)}" accept=".pdf,.xlsx,.xls,.csv" data-act="fCampus" data-id="${esc(u.id)}">${d?"Substituir":"Enviar PDF"}</label>${d?`<button class="ghost" data-act="cEdit" data-id="${esc(u.id)}">Editar</button>`:`<button class="ghost" data-act="cManual" data-id="${esc(u.id)}">Digitar</button>`}</span></div></article>`}
     h+=`</div></section>`}
   return h;
 }
@@ -740,7 +736,6 @@ document.addEventListener("click",e=>{
     case "inc":{S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[b.dataset.l]=Math.max(0,n(o[b.dataset.l])+n(b.dataset.d));markDirty();break}
     case "aprov":{const p=propById(id);if(!p)break;const on=!p.aprovada;const ch=[];S.props.forEach(x=>{const nv=x.id===id?on:(on?false:!!x.aprovada);if(!!x.aprovada!==nv){x.aprovada=nv;ch.push(x)}});if(S.curId&&ch.find(x=>x.id===S.curId)&&S.cur)S.cur.aprovada=propById(S.curId).aprovada;if(on)S.defPropId=id;render();if(S.db)(async()=>{for(const x of ch){try{await S.db.doc("propostas/"+x.id).update({aprovada:!!x.aprovada})}catch(e){flash("Não foi possível gravar a aprovação.","warn")}}})();break}
     case "defSave":saveDefs();break;
-    case "openPdf":S.assets?.open(id).catch(()=>flash("Não foi possível abrir o PDF.","warn"));break;
     case "logout":window.__sb?.auth.signOut().then(()=>location.reload());break;
     case "defUnit":S.defUnit=id;render();break;
     case "sugerir":sugerir(id);break;
@@ -755,7 +750,7 @@ document.addEventListener("click",e=>{
     case "cCancel":S.impC=null;render();break;
     case "cAdd":S.impC.linhas.push({cargo:"",nivel:"",qtd:1,obs:""});render();break;
     case "cDel":S.impC.linhas.splice(n(id),1);render();break;
-    case "cEdit":{const d=S.desej[id];S.impC={u:id,arquivo:d.arquivo,assetId:d.assetId,url:d.url,linhas:clone(d.linhas)};render();window.scrollTo(0,0);break}
+    case "cEdit":{const d=S.desej[id];S.impC={u:id,arquivo:d.arquivo,estrategicos:d.estrategicos||[],linhas:clone(d.linhas)};render();window.scrollTo(0,0);break}
     case "cManual":S.impC={u:id,arquivo:"",linhas:[{cargo:"",nivel:"",qtd:1,obs:""}]};render();window.scrollTo(0,0);break;
     case "genAll":S.confirm="genAll";render();break;
     case "genAllYes":S.base.unidades.forEach(u=>genCargos(u.id));S.confirm=null;markDirty();break;
@@ -820,7 +815,6 @@ render();
   if(!db){S.dbState="none";render();$("#status").innerHTML=`<div class="toast">Não foi possível conectar ao banco de dados. Verifique a conexão e recarregue a página.</div>`;return}
   S.db=db;
   window.claude.use("sample").then(x=>{S.sample=x}).catch(()=>{});
-  window.claude.use("assets").then(x=>{S.assets=x}).catch(()=>{});
   db.doc("quadro/atual").onSnapshot(sn=>{if(sn.exists){S.quadro=clone(sn.data());render()}},()=>{});
   db.collection("desejado").onSnapshot(qs=>{S.desej={};qs.docs.forEach(d=>S.desej[d.id]=clone(d.data()));render()},()=>{});
   db.collection("definicoes").onSnapshot(qs=>{if(S.defDirty)return;S.defs={};qs.docs.forEach(d=>S.defs[d.id]=clone(d.data()));render()},()=>{});
