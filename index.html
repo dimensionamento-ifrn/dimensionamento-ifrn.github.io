@@ -221,6 +221,15 @@ table.plain input.n{width:60px}
 .pchips{display:flex;flex-wrap:wrap;gap:8px}.pchip{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border-radius:999px;padding:5px 12px 5px 5px;font-size:13px}.pchip.sm{font-size:12px;padding:3px 10px 3px 3px}.pchip.sm .lvdot{width:18px;height:18px;font-size:10px}
 .rlist{display:flex;flex-direction:column;gap:6px}.rrow{display:grid;grid-template-columns:220px minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--soft);border-radius:14px;padding:8px 12px}.rr-n{display:flex;align-items:center;justify-content:space-between;gap:8px}.rr-c{display:flex;flex-wrap:wrap;gap:6px}
 @media (max-width:760px){.crow2{grid-template-columns:minmax(0,1fr);gap:8px}.c2a{flex-direction:row;justify-content:space-between}.rrow{grid-template-columns:minmax(0,1fr)}.defbar{flex-direction:column;align-items:stretch}.defbar .row{justify-content:space-between}}
+.cmphead{display:grid;gap:12px}
+.cmpk{background:var(--soft);border-radius:18px;padding:14px 16px;border-top:5px solid;display:flex;flex-direction:column;gap:10px;min-width:0}
+.cmpl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.cmpm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.cmpm div{background:var(--surface);border-radius:12px;padding:6px;text-align:center;display:flex;flex-direction:column}.cmpm b{font-size:17px;font-weight:800}.cmpm span{font-size:11px;color:var(--fg-3)}
+.letter{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;color:#fff;font-weight:800;font-size:13px;flex:none}
+.cmpt th{vertical-align:top;padding:8px 10px;min-width:170px}.cmpt th .thn{color:var(--fg);font-size:12.5px;margin-top:4px;white-space:normal}.cmpt th.cu,.cmpt td.cu{min-width:190px;text-align:left}
+.cmpt td{vertical-align:top}.cmpt tr.dif td{background:var(--warn-bg)}.cmpt tr.dif td.cu{background:var(--warn-bg)}
+.cc{display:flex;flex-direction:column;align-items:center;gap:4px}.ccn{display:flex;align-items:baseline;gap:6px}.ccn b{font-size:20px;font-weight:800;color:var(--accent-ink)}.ccn b.z{color:var(--fg-3)}.ccn span{font-size:11.5px;color:var(--fg-2)}.ccf{font-size:12px;color:var(--fg-2)}
+.cmpt tr.sub td{background:transparent;color:var(--fg-2);font-size:12px;padding-top:4px}
+@media (max-width:760px){.cmphead{grid-template-columns:minmax(0,1fr)!important}}
 .star{color:var(--vag);font-size:14px}
 .lnk{color:var(--accent-ink);font-weight:600;font-size:12.5px}
 .clist{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:8px}
@@ -426,18 +435,27 @@ function viewProntas(){
   }
   h+=`</div>`;
   if(S.focusId&&propById(S.focusId))h+=panoramaHTML(propById(S.focusId),propById(S.focusId).nome);
-  const C=S.cmp.map(propById).filter(Boolean);
-  if(C.length){
-    h+=`<div class="card"><div class="card-h"><div><div class="eyebrow">Comparação</div><h2>Vagas novas por unidade</h2><div class="muted">Verde: atinge a meta · vermelho: abaixo da meta · cinza: sem meta. Abaixo do número, o total previsto.</div></div><div class="row">${groupingSelect("selGrpCmp")}</div></div><div class="cmp"><table><thead><tr><th>Unidade</th>${C.map(p=>`<th>${esc(p.nome)}</th>`).join("")}</tr></thead><tbody>`;
-    for(const g of G){
-      h+=`<tr class="gh"><td colspan="${C.length+1}">${esc(g.nome)}</td></tr>`;
-      for(const u of g.units){h+=`<tr><td>${esc(u.nome)}</td>${C.map(p=>{const i=info(u,p);const cls=i.noT?(i.meta===null?"mute":(i.tot>=i.meta?"ok":"bad")):(i.meta!==null&&i.tot<i.meta?"bad":"z");return `<td><span class="cell"><span class="pill ${cls}" title="C ${i.no.C} · D ${i.no.D} · E ${i.no.E}">${i.noT?"+"+i.noT:"–"}</span>${i.noT?`<small><b>${LV.filter(l=>i.no[l]).map(l=>l+" "+i.no[l]).join(" · ")}</b></small>`:""}<small>${i.tot}/${i.refT}${i.meta!==null?" · meta "+i.meta:""}</small></span></td>`}).join("")}</tr>`}
-      h+=`<tr><td style="background:transparent;color:var(--fg-3)">Subtotal</td>${C.map(p=>`<td style="background:transparent"><b>${g.units.reduce((a,u)=>a+sum3(alocOf(u.id,p)),0)}</b></td>`).join("")}</tr>`;
-    }
-    h+=`</tbody></table></div></div>`;
+  const C=S.cmp.map(propById).filter(Boolean);const LET="ABCDEFGH";const PC=["var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)","var(--g6)"];
+  h+=`<div class="card"><div class="card-h"><div><div class="eyebrow">Comparação</div><h2>Comparar propostas</h2><div class="muted">Marque "Comparar" nos cartões acima. Cada proposta recebe uma letra, usada nas colunas abaixo.</div></div><div class="row">${groupingSelect("selGrpCmp")}<label class="small"><input type="checkbox" id="cmpDiff" data-act="cmpDiff"${S.cmpDiff?" checked":""}> só unidades em que as propostas diferem</label></div></div>`;
+  if(!C.length){h+=`<div class="muted">Nenhuma proposta marcada para comparar.</div></div>`;return h}
+  h+=`<div class="cmphead" style="grid-template-columns:repeat(${C.length},minmax(0,1fr))">${C.map((p,ix)=>{const s=stats(p);return `<div class="cmpk" style="border-top-color:${PC[ix%PC.length]}"><div class="cmpl"><span class="letter" style="background:${PC[ix%PC.length]}">${LET[ix]}</span><b>${esc(p.nome)}</b>${p.aprovada?'<span class="chip ok">Aprovada</span>':""}</div><div class="cmpm"><div><b>${s.aloc}</b><span>vagas alocadas</span></div><div><b>${s.ok} de ${s.meta}</b><span>atingem a meta</span></div><div><b>${s.def}</b><span>falta p/ referência</span></div></div></div>`}).join("")}</div>`;
+  if(C.length<2)h+=`<div class="toast" style="margin-top:12px">Marque pelo menos duas propostas para ver as diferenças lado a lado.</div>`;
+  h+=`<div class="cmp" style="margin-top:14px"><table class="cmpt"><thead><tr><th class="cu">Unidade<br><span class="muted">hoje = ocupados + vagas já existentes</span></th>${C.map((p,ix)=>`<th><span class="letter" style="background:${PC[ix%PC.length]}">${LET[ix]}</span><div class="thn">${esc(p.nome)}</div><div class="muted">recebe → fica com</div></th>`).join("")}</tr></thead><tbody>`;
+  let shown=0;
+  for(const g of G){
+    const rows=g.units.filter(u=>{if(!S.cmpDiff||C.length<2)return true;const v=C.map(p=>trip(alocOf(u.id,p)));return v.some(x=>x!==v[0])});
+    if(!rows.length)continue;
+    h+=`<tr class="gh"><td colspan="${C.length+1}">${esc(g.nome)}</td></tr>`;
+    for(const u of rows){shown++;const i0=info(u,C[0]);const vals=C.map(p=>trip(alocOf(u.id,p)));const diff=C.length>1&&vals.some(x=>x!==vals[0]);
+      h+=`<tr class="${diff?"dif":""}"><td class="cu"><b>${esc(u.nome)}</b>${diff?' <span class="chip warn">difere</span>':""}<div class="muted">hoje ${i0.occT+i0.vaT} · ref. ${i0.refT}</div></td>${C.map(p=>{const i=info(u,p);const st=i.excl?["mute","fora da meta"]:i.meta!==null?(i.tot>=i.meta?["ok","atinge a meta "+i.meta]:["bad","abaixo da meta "+i.meta+" ("+(i.tot-i.meta)+")"]):["mute","sem meta"];
+        return `<td><div class="cc"><div class="ccn">${i.noT?`<b>+${i.noT}</b><span>${LV.filter(l=>i.no[l]).map(l=>l+" "+i.no[l]).join(" · ")}</span>`:`<b class="z">0</b><span>não recebe</span>`}</div><div class="ccf">fica com <b>${i.tot}</b> de ${i.refT}</div><span class="chip ${st[0]}">${st[1]}</span></div></td>`}).join("")}</tr>`}
+    h+=`<tr class="sub"><td class="cu">Subtotal ${esc(g.nome)}</td>${C.map(p=>`<td><b>+${g.units.reduce((a,u)=>a+sum3(alocOf(u.id,p)),0)}</b></td>`).join("")}</tr>`;
   }
+  if(!shown)h+=`<tr><td colspan="${C.length+1}" class="muted" style="text-align:center;padding:20px">As propostas marcadas distribuem as vagas da mesma forma em todas as unidades.</td></tr>`;
+  h+=`</tbody></table></div></div>`;
   return h;
 }
+
 
 /* ---------- tela: construir ---------- */
 function viewConstruir(){
@@ -888,6 +906,7 @@ document.addEventListener("change",e=>{
   switch(a){
     case "defProp":if(S.defDirty)saveDefs();S.defPropId=t.value;S.defState=null;S.defSavedAt=null;render();break;
     case "defAll":S.defAll=t.checked;render();break;
+    case "cmpDiff":S.cmpDiff=t.checked;render();break;
     case "upUnit":S.upUnit=t.value;render();break;
     case "dset":setDef(t.dataset.u,t.dataset.c,t.dataset.l,n(t.value));render();break;
     case "fQuadro":if(t.files[0])importQuadroFile(t.files[0]);break;
