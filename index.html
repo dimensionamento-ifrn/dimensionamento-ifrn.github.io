@@ -209,6 +209,18 @@ table.plain input.n{width:60px}
 .mrow-f .stp input{width:36px!important}.mrow-f .stp button{width:30px!important;height:30px!important}
 @media (max-width:760px){.dtab{display:none}.mlist{display:flex}.budget{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bud{flex-direction:column;align-items:center;text-align:center;gap:4px;padding:10px 6px}.bud b{font-size:20px}.bud .muted{font-size:11px}}
 .dgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dgrid div{background:var(--soft);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}.dgrid span{font-size:11.5px;color:var(--fg-3);font-weight:600}.dgrid b{overflow-wrap:anywhere}@media (max-width:600px){.dgrid{grid-template-columns:minmax(0,1fr)}}
+.defbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.savest{font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px}.savest.ok{background:var(--ok-bg);color:var(--ok)}.savest.pend{background:var(--soft-2);color:var(--fg-2)}.savest.err{background:var(--bad-bg);color:var(--bad)}
+.seg{display:inline-flex;background:var(--soft-2);border-radius:999px;padding:3px}.seg button{background:transparent;padding:6px 14px;font-size:13px;color:var(--fg-2)}.seg button[aria-selected=true]{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.legend2{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:11.5px;color:var(--fg-3);margin-bottom:12px}.legend2 b{color:var(--fg-2)}
+.lvblock{margin-top:16px}.lvhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;margin-bottom:8px}.lvhead .muted{font-weight:500}
+.crow2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1.6fr) auto;gap:12px;align-items:center;background:var(--soft);border-radius:16px;padding:10px 14px;margin-bottom:6px;border:2px solid transparent}
+.crow2.on{border-color:var(--accent);background:var(--surface)}
+.c2n{min-width:0}.c2s{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.c2s span{background:var(--surface);border-radius:10px;padding:4px;text-align:center;font-size:10.5px;color:var(--fg-3);display:flex;flex-direction:column}.crow2.on .c2s span{background:var(--soft)}.c2s b{font-size:15px;color:var(--fg)}.c2s .negb b{color:var(--bad)}
+.c2a{display:flex;flex-direction:column;align-items:center;gap:2px}.c2a .stp input{width:36px}
+.pchips{display:flex;flex-wrap:wrap;gap:8px}.pchip{display:inline-flex;align-items:center;gap:6px;background:var(--soft);border-radius:999px;padding:5px 12px 5px 5px;font-size:13px}.pchip.sm{font-size:12px;padding:3px 10px 3px 3px}.pchip.sm .lvdot{width:18px;height:18px;font-size:10px}
+.rlist{display:flex;flex-direction:column;gap:6px}.rrow{display:grid;grid-template-columns:220px minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--soft);border-radius:14px;padding:8px 12px}.rr-n{display:flex;align-items:center;justify-content:space-between;gap:8px}.rr-c{display:flex;flex-wrap:wrap;gap:6px}
+@media (max-width:760px){.crow2{grid-template-columns:minmax(0,1fr);gap:8px}.c2a{flex-direction:row;justify-content:space-between}.rrow{grid-template-columns:minmax(0,1fr)}.defbar{flex-direction:column;align-items:stretch}.defbar .row{justify-content:space-between}}
 .star{color:var(--vag);font-size:14px}
 .lnk{color:var(--accent-ink);font-weight:600;font-size:12.5px}
 .clist{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:8px}
@@ -619,42 +631,110 @@ function unitRows(u,P){
   return Object.values(rows).sort((a,b)=>(a.nivel||"Z").localeCompare(b.nivel||"Z")||((b.desejado??0)-b.atual)-((a.desejado??0)-a.atual)||a.cargo.localeCompare(b.cargo));
 }
 function defBudget(u,P){const av=alocOf(u.id,P);const used={C:0,D:0,E:0};for(const d of defsOf(P.id).unidades[u.id]?.linhas||[])if(used[d.nivel]!==undefined)used[d.nivel]+=n(d.qtd);const rest={};LV.forEach(l=>rest[l]=av[l]-used[l]);return{av,used,rest}}
-function setDef(uidv,cargo,nivel,q){const P=defProp();const d=defsOf(P.id);const U=d.unidades[uidv]||(d.unidades[uidv]={linhas:[]});const k=normC(cargo);const ex=U.linhas.find(l=>normC(l.cargo)===k);if(ex){ex.qtd=Math.max(0,q);ex.nivel=nivel||ex.nivel}else if(q>0)U.linhas.push({cargo:niceC(cargo),nivel,qtd:q});U.linhas=U.linhas.filter(l=>n(l.qtd)>0||l.manual);S.defDirty=true}
+function setDef(uidv,cargo,nivel,q){const P=defProp();const d=defsOf(P.id);const U=d.unidades[uidv]||(d.unidades[uidv]={linhas:[]});const k=normC(cargo);const ex=U.linhas.find(l=>normC(l.cargo)===k);if(ex){ex.qtd=Math.max(0,q);ex.nivel=nivel||ex.nivel}else if(q>0)U.linhas.push({cargo:niceC(cargo),nivel,qtd:q});U.linhas=U.linhas.filter(l=>n(l.qtd)>0||l.manual);touchDef()}
 function sugerir(uidv){const P=defProp();const u=S.base.unidades.find(x=>x.id===uidv);const b=defBudget(u,P);const rows=unitRows(u,P);let semGap={};
   for(const l of LV){let rem=b.rest[l];while(rem>0){const c=rows.filter(r=>r.nivel===l&&r.desejado!==null).map(r=>({r,g:r.desejado-r.atual-r.exist-r.def})).filter(x=>x.g>0).sort((a,b)=>b.g-a.g)[0];if(!c)break;c.r.def++;setDef(uidv,c.r.cargo,l,c.r.def);rem--}if(rem>0)semGap[l]=rem}
   const left=Object.entries(semGap).map(([l,q])=>`${q} ${l}`).join(", ");
   flash(left?`Sugestão aplicada. Ficaram sem cargo indicado: ${left}, porque a proposta do campus não aponta mais falta nesses níveis.`:"Sugestão aplicada a partir da proposta do campus.","ok");render();
 }
-async function saveDefs(){const P=defProp();if(!P)return;S.defDirty=false;render();if(!S.db)return;try{await S.db.doc("definicoes/"+P.id).set(clone(defsOf(P.id)));flash("Definição de cargos salva","ok")}catch(e){S.defDirty=true;render();flash("Não foi possível salvar: "+(e.message||e.code),"warn")}}
 
 function noBase(){return !S.base}
+/* ---------- definição de cargos: salvamento automático, tela e PDF ---------- */
+let defTimer=null;
+function touchDef(){S.defDirty=true;S.defState="pend";clearTimeout(defTimer);defTimer=setTimeout(saveDefs,900)}
+async function saveDefs(){const P=defProp();if(!P)return;clearTimeout(defTimer);S.defState="saving";render();
+  if(!S.db){S.defState="local";render();return}
+  try{const d=defsOf(P.id);d.proposta=P.nome;d.atualizadaEm=new Date().toISOString();await S.db.doc("definicoes/"+P.id).set(clone(d));S.defDirty=false;S.defState="ok";S.defSavedAt=new Date()}catch(e){S.defState="err";S.defErr=e.message||e.code}
+  render();}
+function defStatus(P){const st=S.defState;
+  if(st==="pend"||st==="saving")return `<span class="savest pend">Salvando…</span>`;
+  if(st==="err")return `<span class="savest err">Não foi possível salvar: ${esc(S.defErr||"")}</span>`;
+  if(st==="local")return `<span class="savest err">Sem conexão com o banco: alterações só nesta tela</span>`;
+  const at=S.defSavedAt||(defsOf(P.id).atualizadaEm?new Date(defsOf(P.id).atualizadaEm):null);
+  return `<span class="savest ok">Salvo automaticamente${at?" às "+at.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):""}</span>`}
+function defUnits(P){return S.base.unidades.filter(u=>sum3(alocOf(u.id,P))||sum3(vagasOf(u.id)))}
+function chosenOf(u,P){return (defsOf(P.id).unidades[u.id]?.linhas||[]).filter(l=>n(l.qtd)>0)}
 function viewDefinir(){
   const P=defProp();
-  let h=`<div class="card"><div class="card-h" style="margin:0"><div><div class="eyebrow">Definição de cargos</div><h2>Quais cargos ocupar as vagas da proposta</h2><div class="muted">Parte do quantitativo aprovado para cada unidade e compara o quadro atual com a proposta do campus.</div></div><div class="row"><label class="small" for="defProp">Proposta de dimensionamento</label><select id="defProp" data-act="defProp">${S.props.map(p=>`<option value="${esc(p.id)}"${P&&P.id===p.id?" selected":""}>${esc(p.nome)}${p.aprovada?" (aprovada)":""}</option>`).join("")||"<option>Nenhuma proposta</option>"}</select>${S.defDirty?'<span class="dirty">Alterações não salvas</span>':""}<button class="pri" data-act="defSave"${P?"":" disabled"}>Salvar definição</button></div></div></div>`;
+  let h=`<div class="card"><div class="card-h" style="margin:0"><div style="min-width:0"><div class="eyebrow">Definição de cargos</div><h2>Proposta de cargos para as vagas</h2><div class="muted">As escolhas ficam gravadas junto da proposta de dimensionamento selecionada.</div></div>
+  <div class="row"><label class="small" for="defProp">Proposta de dimensionamento</label><select id="defProp" data-act="defProp">${S.props.map(p=>`<option value="${esc(p.id)}"${P&&P.id===p.id?" selected":""}>${esc(p.nome)}${p.aprovada?" (aprovada)":""}</option>`).join("")||"<option>Nenhuma proposta</option>"}</select></div></div>
+  ${P?`<div class="defbar">${defStatus(P)}<div class="row"><div class="seg" role="tablist"><button role="tab" aria-selected="${S.defView!=="resumo"}" data-act="defView" data-id="unidade">Por unidade</button><button role="tab" aria-selected="${S.defView==="resumo"}" data-act="defView" data-id="resumo">Resumo da proposta</button></div><button class="pri" data-act="defPdf">Gerar PDF</button></div></div>`:""}</div>`;
   if(!P)return h+`<div class="empty">Salve uma proposta em Dimensionamento para definir os cargos.</div>`;
-  if(!P.aprovada)h+=`<div class="toast">Esta proposta ainda não está marcada como aprovada. Você pode trabalhar nela, mas confira se é a versão final.</div>`;
-  if(!S.quadro)h+=`<div class="toast">O quadro atual de cargos ainda não foi importado. Importe a base de servidores em "Quadro atual" para a coluna Atual ficar completa.</div>`;
-  const units=S.base.unidades.filter(u=>sum3(alocOf(u.id,P))||sum3(vagasOf(u.id)));
-  if(!S.defUnit||!units.find(u=>u.id===S.defUnit))S.defUnit=units[0]?.id||null;
-  const T={av:0,used:0};
-  h+=`<div class="card"><div class="card-h"><h2>Unidades com vagas a definir</h2><span class="muted">Escolha a unidade para detalhar</span></div><div class="uchips">${units.map(u=>{const b=defBudget(u,P);const av=sum3(b.av),us=sum3(b.used);T.av+=av;T.used+=us;const st=av===0?"mute":us===av?"ok":us>av?"bad":"warn";return `<button class="uchip ${S.defUnit===u.id?"sel":""}" data-act="defUnit" data-id="${esc(u.id)}"><span class="uc-n">${esc(u.nome)}</span><span class="chip ${st}">${us}/${av}</span>${S.desej[u.id]?'<span class="uc-f" title="Proposta do campus recebida">PDF</span>':""}</button>`}).join("")}</div><div class="muted" style="margin-top:10px">Definidas ${T.used} de ${T.av} vagas novas nesta proposta.</div></div>`;
+  if(!P.aprovada)h+=`<div class="toast">Esta proposta de dimensionamento ainda não está marcada como aprovada.</div>`;
+  if(!S.quadro)h+=`<div class="toast">O quadro atual ainda não foi importado: a coluna "Tem hoje" fica zerada até você enviar a base de servidores.</div>`;
+  return h+(S.defView==="resumo"?defResumo(P):defUnidade(P));
+}
+function defUnidade(P){
+  const units=defUnits(P);if(!S.defUnit||!units.find(u=>u.id===S.defUnit))S.defUnit=units[0]?.id||null;
+  let h=`<div class="card"><div class="card-h"><h2>1. Escolha a unidade</h2><span class="muted">número = vagas novas com cargo escolhido / vagas novas recebidas</span></div><div class="uchips">${units.map(u=>{const b=defBudget(u,P);const av=sum3(b.av),us=sum3(b.used);const st=av===0?"mute":us===av?"ok":us>av?"bad":"warn";return `<button class="uchip ${S.defUnit===u.id?"sel":""}" data-act="defUnit" data-id="${esc(u.id)}"><span class="uc-n">${esc(u.nome)}</span><span class="chip ${st}">${us}/${av}</span></button>`}).join("")}</div></div>`;
   const u=S.base.unidades.find(x=>x.id===S.defUnit);if(!u)return h;
-  const b=defBudget(u,P);const rows=unitRows(u,P);const dj=S.desej[u.id];const i=info(u,P);
-  h+=`<div class="card"><div class="card-h"><div><div class="eyebrow">${esc(u.sigla)}</div><h2>${esc(u.nome)}</h2><div class="muted">Previsto na proposta: ${i.tot} de ${i.refT} · ${i.vaT} vaga(s) existente(s) · ${dj?`proposta do campus: ${esc(dj.arquivo||"cadastrada")}`:"sem proposta do campus"}</div></div><div class="row"><button data-act="sugerir" data-id="${esc(u.id)}"${dj?"":" disabled title='Importe a proposta do campus primeiro'"}>Sugerir pela proposta do campus</button><button class="ghost" data-act="defClear" data-id="${esc(u.id)}">Limpar</button></div></div>
-  <div class="budget">${LV.map(l=>`<div class="bud"><span class="lvdot lv-${l}">${l}</span><div><b class="${b.rest[l]<0?"neg":""}">${b.rest[l]}</b> <span class="muted">restam</span><div class="muted">${b.used[l]} definidas de ${b.av[l]}</div></div></div>`).join("")}</div>
-  <div class="cmp dtab"><table><thead><tr><th>Cargo</th><th>Nível</th><th>Atual</th><th>Campus deseja</th><th>Vagas existentes</th><th>Falta</th><th>Definir</th><th>Após</th></tr></thead><tbody>`;
-  for(const r of rows){const gap=r.desejado===null?null:r.desejado-r.atual-r.exist;const apos=r.atual+r.exist+r.def;const can=LV.includes(r.nivel);
-    h+=`<tr><td title="${esc(r.set||"")}">${r.est?'<span class="star" title="Cargo estratégico para o campus">★</span> ':""}${esc(r.cargo)}</td><td>${r.nivel?`<span class="lvdot lv-${r.nivel==="A"||r.nivel==="B"?"C":r.nivel}">${r.nivel}</span>`:`<span class="muted">?</span>`}</td><td>${r.atual||"–"}</td><td>${r.desejado??'<span class="muted">–</span>'}</td><td>${r.exist||"–"}</td><td>${gap===null?"–":gap>0?`<span class="pill bad">${gap}</span>`:`<span class="pill ok">${gap<0?"+"+(-gap):"0"}</span>`}</td>
-    <td>${can?`<div class="stp"><button data-act="dinc" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" data-d="-1" aria-label="Menos ${esc(r.cargo)}">−</button><input type="number" min="0" id="df-${esc(u.id)}-${esc(r.k.replace(/ /g,"_"))}" aria-label="Definir ${esc(r.cargo)}" data-act="dset" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" value="${r.def}"><button data-act="dinc" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" data-d="1" aria-label="Mais ${esc(r.cargo)}">+</button></div>`:'<span class="muted">sem nível</span>'}</td><td><b>${apos}</b>${r.desejado!==null?` <span class="muted">/ ${r.desejado}</span>`:""}</td></tr>`}
-  h+=`</tbody></table></div><div class="mlist">${rows.map(r=>{const gap=r.desejado===null?null:r.desejado-r.atual-r.exist;const apos=r.atual+r.exist+r.def;const can=LV.includes(r.nivel);return `<div class="mrow"><div class="mrow-h"><span class="mrow-t">${r.est?'<span class="star">★</span> ':""}${esc(r.cargo)}</span>${r.nivel?`<span class="lvdot lv-${r.nivel==="A"||r.nivel==="B"?"C":r.nivel}">${r.nivel}</span>`:""}</div><div class="mstats"><span><b>${r.atual}</b>atual</span><span><b>${r.desejado??"–"}</b>campus</span><span><b>${r.exist}</b>existentes</span><span class="${gap>0?"neg":""}"><b>${gap===null?"–":gap>0?gap:0}</b>falta</span></div><div class="mrow-f">${can?`<div class="stp"><button data-act="dinc" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" data-d="-1" aria-label="Menos ${esc(r.cargo)}">−</button><input type="number" min="0" id="dm-${esc(u.id)}-${esc(r.k.replace(/ /g,"_"))}" aria-label="Definir ${esc(r.cargo)}" data-act="dset" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" value="${r.def}"><button data-act="dinc" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" data-d="1" aria-label="Mais ${esc(r.cargo)}">+</button></div>`:'<span class="muted">sem nível</span>'}<span class="small">após: <b>${apos}</b>${r.desejado!==null?" / "+r.desejado:""}</span></div></div>`}).join("")}</div><div class="muted" style="margin-top:8px">★ cargo estratégico indicado pelo campus · passe o mouse no cargo para ver os setores pedidos.</div><div class="row" style="margin-top:12px"><input type="text" list="dlCargos" id="newCargo" placeholder="Outro cargo" aria-label="Outro cargo" style="min-width:240px"><select id="newCargoL" aria-label="Nível do cargo">${LV.map(l=>`<option${l==="D"?" selected":""}>${l}</option>`).join("")}</select><button data-act="defAdd" data-id="${esc(u.id)}">Incluir cargo</button></div>`;
-  const vs=S.base.vagas.filter(v=>v.unidade===u.id);
-  if(vs.length)h+=`<div style="margin-top:16px"><div class="eyebrow" style="margin-bottom:6px">Códigos vagos já existentes nesta unidade</div><div class="toggles">${vs.map(v=>`<span class="tog" title="${esc(v.obs)}">${esc(v.codigo)} · ${esc(niceC(v.cargo))}</span>`).join("")}</div></div>`;
-  h+=`</div>`;
-  const res={};for(const uu of S.base.unidades)for(const d of defsOf(P.id).unidades[uu.id]?.linhas||[]){if(!n(d.qtd))continue;const k=d.nivel+"|"+normC(d.cargo);res[k]=res[k]||{cargo:niceC(d.cargo),nivel:d.nivel,q:0,us:[]};res[k].q+=n(d.qtd);res[k].us.push(uu.sigla+" "+d.qtd)}
-  const rr=Object.values(res).sort((a,b)=>a.nivel.localeCompare(b.nivel)||b.q-a.q);
-  h+=`<div class="card"><h2 style="margin-bottom:10px">Resumo do IFRN nesta proposta</h2>${rr.length?`<div class="cmp"><table><thead><tr><th>Cargo</th><th>Nível</th><th>Vagas</th><th>Unidades</th></tr></thead><tbody>${rr.map(r=>`<tr><td>${esc(r.cargo)}</td><td><span class="lvdot lv-${r.nivel}">${r.nivel}</span></td><td><b>${r.q}</b></td><td style="white-space:normal;text-align:left">${esc(r.us.join(", "))}</td></tr>`).join("")}</tbody></table></div>`:'<div class="muted">Nenhum cargo definido ainda.</div>'}</div>`;
+  const b=defBudget(u,P);const rows=unitRows(u,P);const dj=S.desej[u.id];const vs=S.base.vagas.filter(v=>v.unidade===u.id&&v.considerar!==false);
+  h+=`<div class="card"><div class="card-h"><div><div class="eyebrow">${esc(u.sigla)}</div><h2>2. Vagas de ${esc(u.nome)} nesta proposta</h2></div><div class="row"><button data-act="sugerir" data-id="${esc(u.id)}"${dj?"":" disabled title='Envie a proposta do campus primeiro'"}>Preencher pela proposta do campus</button><button class="ghost" data-act="defClear" data-id="${esc(u.id)}">Limpar escolhas</button></div></div>
+  <div class="budget">${LV.map(l=>`<div class="bud"><span class="lvdot lv-${l}">${l}</span><div><b class="${b.rest[l]<0?"neg":""}">${b.rest[l]}</b> <span class="muted">a escolher</span><div class="muted">${b.used[l]} de ${b.av[l]} vagas novas já com cargo</div></div></div>`).join("")}</div>
+  <div class="muted">${vs.length?`Além das novas, a unidade já tem ${vs.length} código(s) vago(s) com cargo definido: ${vs.map(v=>esc(niceC(v.cargo))).join(", ")}.`:"A unidade não tem outros códigos vagos."} ${dj?`Proposta do campus: ${esc(dj.arquivo||"cadastrada")}.`:"O campus ainda não enviou proposta."}</div></div>`;
+  h+=`<div class="card"><div class="card-h"><h2>3. Escolha os cargos</h2><label class="small"><input type="checkbox" id="defAll" data-act="defAll"${S.defAll?" checked":""}> mostrar também cargos sem falta</label></div>
+  <div class="legend2"><span><b>Tem hoje</b> servidores no cargo</span><span><b>Campus pede</b> total desejado na proposta do campus</span><span><b>Vagas existentes</b> códigos já vagos no cargo</span><span><b>Falta</b> campus pede − tem hoje − vagas existentes</span><span><b>Novas</b> vagas desta proposta para o cargo</span></div>`;
+  for(const l of [...LV,""]){
+    const rs=rows.filter(r=>(l?r.nivel===l:!LV.includes(r.nivel))&&(S.defAll||r.def>0||(r.desejado!==null&&r.desejado-r.atual-r.exist>0)));
+    if(!rs.length&&!(l&&b.av[l]))continue;
+    h+=`<div class="lvblock"><div class="lvhead">${l?`<span class="lvdot lv-${l}">${l}</span> Nível ${l}`:"Cargos sem nível identificado"}${l?`<span class="muted">${b.av[l]} vaga(s) nova(s) · ${b.used[l]} escolhida(s) · <b class="${b.rest[l]<0?"neg":""}">${b.rest[l]} a escolher</b></span>`:""}</div>`;
+    if(!rs.length)h+=`<div class="muted" style="padding:8px 4px">Nenhum cargo com falta neste nível. Marque "mostrar também cargos sem falta" ou inclua um cargo abaixo.</div>`;
+    for(const r of rs){const gap=r.desejado===null?null:r.desejado-r.atual-r.exist;const can=LV.includes(r.nivel);
+      h+=`<div class="crow2 ${r.def?"on":""}"><div class="c2n">${r.est?'<span class="star" title="Cargo estratégico indicado pelo campus">★</span> ':""}<b>${esc(r.cargo)}</b>${r.set?`<div class="muted">${esc(r.set)}</div>`:""}</div>
+      <div class="c2s"><span><b>${r.atual}</b>tem hoje</span><span><b>${r.desejado??"–"}</b>campus pede</span><span><b>${r.exist}</b>vagas exist.</span><span class="${gap>0?"negb":""}"><b>${gap===null?"–":Math.max(0,gap)}</b>falta</span></div>
+      <div class="c2a">${can?`<div class="stp"><button data-act="dinc" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" data-d="-1" aria-label="Menos ${esc(r.cargo)}">−</button><input type="number" min="0" id="df-${esc(u.id)}-${esc(r.k.replace(/ /g,"_"))}" aria-label="Vagas novas para ${esc(r.cargo)}" data-act="dset" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" value="${r.def}"><button data-act="dinc" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" data-d="1" aria-label="Mais ${esc(r.cargo)}">+</button></div><span class="muted">novas</span>`:'<span class="muted">sem nível</span>'}</div></div>`}
+    h+=`</div>`;
+  }
+  h+=`<div class="row" style="margin-top:12px"><input type="text" list="dlCargos" id="newCargo" placeholder="Incluir outro cargo" aria-label="Incluir outro cargo" style="min-width:240px;flex:1"><select id="newCargoL" aria-label="Nível do cargo">${LV.map(l=>`<option${l==="D"?" selected":""}>${l}</option>`).join("")}</select><button data-act="defAdd" data-id="${esc(u.id)}">Incluir</button></div></div>`;
+  const ch=chosenOf(u,P);
+  h+=`<div class="card"><h2 style="margin-bottom:10px">4. Proposta de cargos de ${esc(u.nome)}</h2>${ch.length?`<div class="pchips">${LV.map(l=>ch.filter(x=>x.nivel===l).map(x=>`<span class="pchip"><span class="lvdot lv-${l}">${l}</span><b>${n(x.qtd)}</b> × ${esc(x.cargo)}</span>`).join("")).join("")}</div>`:'<div class="muted">Nenhum cargo escolhido ainda.</div>'}
+  ${sum3(b.rest)>0?`<div class="toast" style="margin:12px 0 0">Ainda faltam ${LV.filter(l=>b.rest[l]>0).map(l=>b.rest[l]+" vaga(s) de nível "+l).join(" e ")} sem cargo.</div>`:sum3(b.av)?`<div class="toast ok" style="margin:12px 0 0">Todas as vagas novas desta unidade têm cargo definido.</div>`:""}</div>`;
   return h;
 }
+function defResumo(P){
+  const units=defUnits(P);const T={av:0,us:0};
+  let h=`<div class="card"><div class="card-h"><h2>Resumo por unidade</h2><span class="muted">vagas novas com cargo escolhido / recebidas</span></div><div class="rlist">`;
+  for(const g of groups()){const us=g.units.filter(u=>units.includes(u));if(!us.length)continue;h+=`<div class="pgt">${esc(g.nome)}</div>`;
+    for(const u of us){const b=defBudget(u,P);const av=sum3(b.av),ok=sum3(b.used);T.av+=av;T.us+=ok;const ch=chosenOf(u,P);
+      h+=`<div class="rrow"><div class="rr-n"><b>${esc(u.nome)}</b><span class="chip ${av===0?"mute":ok===av?"ok":ok>av?"bad":"warn"}">${ok}/${av}</span></div><div class="rr-c">${ch.length?ch.map(x=>`<span class="pchip sm"><span class="lvdot lv-${x.nivel}">${x.nivel}</span>${n(x.qtd)} × ${esc(x.cargo)}</span>`).join(""):'<span class="muted">sem cargos escolhidos</span>'}</div><button class="ghost" data-act="defGo" data-id="${esc(u.id)}">Editar</button></div>`}}
+  h+=`</div><div class="muted" style="margin-top:10px">Total: ${T.us} de ${T.av} vagas novas com cargo escolhido.</div></div>`;
+  const res=defTotals(P);
+  h+=`<div class="card"><h2 style="margin-bottom:10px">Total do IFRN por cargo</h2>${res.length?`<div class="cmp"><table><thead><tr><th>Cargo</th><th>Nível</th><th>Vagas</th><th>Unidades</th></tr></thead><tbody>${res.map(r=>`<tr><td>${esc(r.cargo)}</td><td><span class="lvdot lv-${r.nivel}">${r.nivel}</span></td><td><b>${r.q}</b></td><td style="white-space:normal;text-align:left">${esc(r.us.join(", "))}</td></tr>`).join("")}</tbody></table></div>`:'<div class="muted">Nenhum cargo escolhido ainda.</div>'}</div>`;
+  return h;
+}
+function defTotals(P){const res={};for(const uu of S.base.unidades)for(const d of chosenOf(uu,P)){const k=d.nivel+"|"+normC(d.cargo);res[k]=res[k]||{cargo:niceC(d.cargo),nivel:d.nivel,q:0,us:[]};res[k].q+=n(d.qtd);res[k].us.push(uu.sigla+" "+d.qtd)}return Object.values(res).sort((a,b)=>a.nivel.localeCompare(b.nivel)||b.q-a.q)}
+const JSPDF="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",JSPDFAT="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js";
+async function defPdf(){
+  const P=defProp();if(!P)return;flash("Gerando o PDF…","ok");
+  try{await loadScript(JSPDF);await loadScript(JSPDFAT)}catch(e){flash("Não foi possível carregar o gerador de PDF.","warn");return}
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4"});const W=doc.internal.pageSize.getWidth();const green=[27,138,76];
+  const now=new Date();
+  doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(110);doc.text("MINISTÉRIO DA EDUCAÇÃO · IFRN · DIGPE · DIDEPE",14,14);
+  doc.setFontSize(16);doc.setTextColor(20);doc.text("Proposta de definição de cargos TAE",14,23);
+  doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(60);
+  doc.text(`Proposta de dimensionamento: ${P.nome}${P.aprovada?" (aprovada)":""}`,14,30);
+  doc.text(`Gerado em ${now.toLocaleDateString("pt-BR")} às ${now.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})}`,14,35);
+  const units=defUnits(P);let tAv=0,tUs=0;units.forEach(u=>{const b=defBudget(u,P);tAv+=sum3(b.av);tUs+=sum3(b.used)});
+  doc.text(`Vagas novas com cargo definido: ${tUs} de ${tAv}`,14,40);
+  const tot=defTotals(P);
+  doc.autoTable({startY:46,head:[["Cargo","Nível","Vagas","Unidades"]],body:tot.map(r=>[r.cargo,r.nivel,r.q,r.us.join(", ")]),styles:{fontSize:8.5,cellPadding:1.8},headStyles:{fillColor:green},columnStyles:{1:{halign:"center",cellWidth:14},2:{halign:"center",cellWidth:14}},margin:{left:14,right:14},didDrawPage:()=>{}});
+  let y=doc.lastAutoTable.finalY+8;
+  for(const u of units){const b=defBudget(u,P);const rows=unitRows(u,P).filter(r=>r.def>0);const vs=S.base.vagas.filter(v=>v.unidade===u.id&&v.considerar!==false);
+    if(y>250){doc.addPage();y=18}
+    doc.setFont("helvetica","bold");doc.setFontSize(11.5);doc.setTextColor(20);doc.text(u.nome,14,y);
+    doc.setFont("helvetica","normal");doc.setFontSize(8.5);doc.setTextColor(90);
+    doc.text(`Vagas novas: ${LV.map(l=>l+" "+b.av[l]).join(" · ")}   |   Com cargo: ${sum3(b.used)} de ${sum3(b.av)}${sum3(b.rest)>0?"   |   A definir: "+LV.filter(l=>b.rest[l]>0).map(l=>l+" "+b.rest[l]).join(" · "):""}`,14,y+5);
+    let yy=y+8;
+    if(vs.length){const t=doc.splitTextToSize("Códigos vagos já existentes: "+vs.map(v=>v.codigo+" "+niceC(v.cargo)).join("; "),W-28);doc.text(t,14,yy+1);yy+=t.length*3.6+1}
+    if(rows.length)doc.autoTable({startY:yy,head:[["Cargo","Nível","Tem hoje","Campus pede","Vagas exist.","Novas"]],body:rows.map(r=>[r.cargo,r.nivel,r.atual,r.desejado??"–",r.exist,r.def]),styles:{fontSize:8.5,cellPadding:1.6},headStyles:{fillColor:[230,238,230],textColor:20},columnStyles:{1:{halign:"center",cellWidth:13},2:{halign:"center",cellWidth:19},3:{halign:"center",cellWidth:26},4:{halign:"center",cellWidth:24},5:{halign:"center",cellWidth:16,fontStyle:"bold"}},margin:{left:14,right:14}});
+    else{doc.text("Nenhum cargo definido para as vagas novas.",14,yy+2);doc.lastAutoTable={finalY:yy+4}}
+    y=doc.lastAutoTable.finalY+8;}
+  const pages=doc.internal.getNumberOfPages();for(let i=1;i<=pages;i++){doc.setPage(i);doc.setFontSize(8);doc.setTextColor(140);doc.text(`Dimensionamento TAE IFRN · página ${i} de ${pages}`,W-14,290,{align:"right"})}
+  const blob=doc.output("blob");const name=("Proposta de cargos - "+P.nome).replace(/[\\/:*?"<>|]+/g,"-")+".pdf";
+  if(S.downloads){try{await S.downloads.save({filename:name,data:blob});flash("PDF gerado","ok")}catch(e){if(e&&e.code!=="dismissed")flash("O PDF não foi salvo.","warn")}return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);flash("PDF gerado","ok");
+}
+
 function viewQuadro(){
   let h=`<div class="card"><div class="card-h" style="margin:0"><div><div class="eyebrow">Quadro atual de cargos</div><h2>Base de servidores por unidade</h2><div class="muted">Envie a planilha (xlsx, xls, csv) ou o PDF exportado do SUAP/SIAPE com os servidores TAE. O PDF é lido com IA e revisado por você antes de gravar. O arquivo não é armazenado: só os dados extraídos ficam salvos.</div></div><label class="filebtn"><input type="file" id="fQuadro" accept=".xlsx,.xls,.csv,.ods,.pdf" data-act="fQuadro">Enviar base de servidores</label></div>${S.quadro?`<div class="muted" style="margin-top:10px">Base atual: ${esc(S.quadro.arquivo||"")} · importada em ${new Date(S.quadro.importadoEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})} · ${S.quadro.linhas.reduce((a,r)=>a+n(r.qtd),0)} servidores</div>`:""}</div>`;
   if(S.prog)h+=`<div class="toast ok" id="prog">${esc(S.prog)}</div>`;
@@ -758,13 +838,15 @@ document.addEventListener("click",e=>{
     case "exclT":{const s=new Set(S.cur.excluidas||[]);s.has(id)?s.delete(id):s.add(id);S.cur.excluidas=[...s];markDirty();break}
     case "inc":{S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[b.dataset.l]=Math.max(0,n(o[b.dataset.l])+n(b.dataset.d));markDirty();break}
     case "aprov":{const p=propById(id);if(!p)break;const on=!p.aprovada;const ch=[];S.props.forEach(x=>{const nv=x.id===id?on:(on?false:!!x.aprovada);if(!!x.aprovada!==nv){x.aprovada=nv;ch.push(x)}});if(S.curId&&ch.find(x=>x.id===S.curId)&&S.cur)S.cur.aprovada=propById(S.curId).aprovada;if(on)S.defPropId=id;render();if(S.db)(async()=>{for(const x of ch){try{await S.db.doc("propostas/"+x.id).update({aprovada:!!x.aprovada})}catch(e){flash("Não foi possível gravar a aprovação.","warn")}}})();break}
-    case "defSave":saveDefs();break;
     case "logout":window.__sb?.auth.signOut().then(()=>location.reload());break;
     case "defUnit":S.defUnit=id;render();break;
     case "sugerir":sugerir(id);break;
-    case "defClear":{const P=defProp();if(P){defsOf(P.id).unidades[id]={linhas:[]};S.defDirty=true;render()}break}
+    case "defClear":{const P=defProp();if(P){defsOf(P.id).unidades[id]={linhas:[]};touchDef();render()}break}
+    case "defView":S.defView=id;render();break;
+    case "defGo":S.defView="unidade";S.defUnit=id;render();window.scrollTo(0,0);break;
+    case "defPdf":defPdf();break;
     case "dinc":{const P=defProp();if(!P)break;const k=normC(b.dataset.c);const cur=n((defsOf(P.id).unidades[b.dataset.u]?.linhas||[]).find(l=>normC(l.cargo)===k)?.qtd);setDef(b.dataset.u,b.dataset.c,b.dataset.l,cur+n(b.dataset.d));render();break}
-    case "defAdd":{const P=defProp();const c=$("#newCargo")?.value.trim();if(!P||!c)break;const d=defsOf(P.id);const U=d.unidades[id]||(d.unidades[id]={linhas:[]});if(!U.linhas.find(l=>normC(l.cargo)===normC(c)))U.linhas.push({cargo:niceC(c),nivel:$("#newCargoL").value,qtd:0,manual:true});S.defDirty=true;render();break}
+    case "defAdd":{const P=defProp();const c=$("#newCargo")?.value.trim();if(!P||!c)break;const d=defsOf(P.id);const U=d.unidades[id]||(d.unidades[id]={linhas:[]});if(!U.linhas.find(l=>normC(l.cargo)===normC(c)))U.linhas.push({cargo:niceC(c),nivel:$("#newCargoL").value,qtd:0,manual:true});touchDef();render();break}
     case "impRead":sheetToRec();render();break;
     case "duvDec":{const I=S.imp;I.items[I.duv[I.duvIx]].dec=id;if(I.duvIx<I.duv.length-1)I.duvIx++;else aggItems();render();break}
     case "duvBack":if(S.imp.duvIx>0)S.imp.duvIx--;render();break;
@@ -804,7 +886,8 @@ document.addEventListener("click",e=>{
 document.addEventListener("change",e=>{
   const t=e.target;const a=t.dataset.act;if(!a)return;const id=t.dataset.id,f=t.dataset.f,B=S.base;
   switch(a){
-    case "defProp":S.defPropId=t.value;render();break;
+    case "defProp":if(S.defDirty)saveDefs();S.defPropId=t.value;S.defState=null;S.defSavedAt=null;render();break;
+    case "defAll":S.defAll=t.checked;render();break;
     case "upUnit":S.upUnit=t.value;render();break;
     case "dset":setDef(t.dataset.u,t.dataset.c,t.dataset.l,n(t.value));render();break;
     case "fQuadro":if(t.files[0])importQuadroFile(t.files[0]);break;
@@ -840,6 +923,7 @@ render();
   if(!db){S.dbState="none";render();$("#status").innerHTML=`<div class="toast">Não foi possível conectar ao banco de dados. Verifique a conexão e recarregue a página.</div>`;return}
   S.db=db;
   window.claude.use("sample").then(x=>{S.sample=x}).catch(()=>{});
+  window.claude.use("downloads").then(x=>{S.downloads=x}).catch(()=>{});
   db.doc("quadro/atual").onSnapshot(sn=>{if(sn.exists){S.quadro=clone(sn.data());render()}},()=>{});
   db.collection("desejado").onSnapshot(qs=>{S.desej={};qs.docs.forEach(d=>S.desej[d.id]=clone(d.data()));render()},()=>{});
   db.collection("definicoes").onSnapshot(qs=>{if(S.defDirty)return;S.defs={};qs.docs.forEach(d=>S.defs[d.id]=clone(d.data()));render()},()=>{});
