@@ -113,11 +113,17 @@ input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
 .dock{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:20;background:var(--surface);border-radius:20px;box-shadow:0 6px 24px rgba(0,0,0,.14);padding:10px 14px;margin-bottom:18px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
 .dk-saldo,.dk-act{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .dk-l{font-size:12px;font-weight:700;color:var(--fg-3);text-transform:uppercase;letter-spacing:.04em}
-.dk-n{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 5px;border-radius:999px;background:var(--soft-2);font-size:16px}
-.dk-n.zero{opacity:.6}.dk-n.neg{background:var(--bad-bg);color:var(--bad)}
+.dock{border:2px solid var(--accent)}.dock.done{border-color:var(--ok)}
+.dk-saldo{gap:10px!important}
+.dk-tt{display:flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:16px;background:var(--accent);color:var(--accent-fg)}.dk-tt b{font-size:30px;font-weight:800;line-height:1;min-width:46px;text-align:center}.dk-tt span{font-size:12px;font-weight:700;line-height:1.25;text-transform:uppercase;letter-spacing:.03em}
+.dock.done .dk-tt{background:var(--ok-bg);color:var(--ok)}
+.dk-n{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:16px;background:var(--soft-2)}.dk-n b{font-size:26px;font-weight:800;line-height:1}.dk-n .lvdot{width:28px;height:28px;font-size:13px}.dk-of{font-size:12px;color:var(--fg-3);font-weight:600}
+.dk-C{background:color-mix(in srgb,var(--lv-c) 16%,var(--surface))}.dk-D{background:color-mix(in srgb,var(--lv-d) 16%,var(--surface))}.dk-E{background:color-mix(in srgb,var(--lv-e) 16%,var(--surface))}
+.dk-n.zero{background:var(--soft-2)}.dk-n.zero b{color:var(--fg-3)}.dk-n.neg{background:var(--bad-bg);color:var(--bad)}
+.stp button:disabled{opacity:.3;cursor:not-allowed;transform:none}
 .dk-m{font-size:13px;font-weight:600;color:var(--fg-2);padding:4px 10px;border-radius:999px;background:var(--soft-2)}
 .dk-msg{flex-basis:100%;font-size:13px;padding:8px 12px;border-radius:12px;background:var(--warn-bg);color:var(--warn)}.dk-msg.bad{background:var(--bad-bg);color:var(--bad)}
-@media (max-width:860px){.dock{padding:8px 10px;border-radius:16px;gap:8px}.dk-l{flex-basis:100%}.dk-n{font-size:14px;padding:3px 10px 3px 4px}.dk-act{width:100%;justify-content:space-between}}
+@media (max-width:860px){.dk-act{flex-wrap:nowrap!important}.dk-act .chip{white-space:normal;font-size:11px}.dk-act button{padding:8px 12px;font-size:13px}.dk-tt{flex-basis:100%;justify-content:center}.dk-tt b{font-size:24px}.dk-n{flex:1;justify-content:center;padding:5px 8px 5px 5px}.dk-n b{font-size:20px}.dk-n .lvdot{width:24px;height:24px}.dk-of{display:none}.dock{padding:8px 10px;border-radius:16px;gap:8px}.dk-l{flex-basis:100%}.dk-n{font-size:14px;padding:3px 10px 3px 4px}.dk-act{width:100%;justify-content:space-between}}
 .uname{font-weight:700;line-height:1.25}
 .uname .muted{font-weight:500}
 .pbar{position:relative;height:12px;border-radius:999px;background:var(--soft-2);overflow:visible}
@@ -582,7 +588,7 @@ function viewConstruir(){
   <div class="row">${others.length?`<select id="swProp" data-act="swProp" aria-label="Trocar de proposta"><option value="">Trocar para outra em preenchimento…</option>${others.map(o=>`<option value="${esc(o.id)}">${esc(o.nome)}</option>`).join("")}</select>`:""}<button class="ghost" data-act="new">Nova proposta</button><button class="ghost" data-go="prontas">Todas as propostas</button></div></div>
   <div class="where">${draft?`Esta proposta fica em <b>Propostas › Em preenchimento</b> e é salva automaticamente a cada alteração — pode sair e voltar quando quiser. Quando terminar, toque em <b>Concluir proposta</b> para movê-la para as concluídas.`:`Esta proposta já está em <b>Propostas › Concluídas</b>. O que você mudar aqui é gravado nela automaticamente. Para testar mudanças sem alterá-la, use <b>Fazer uma cópia</b>.`}</div></div>`;
   const xr=(S.confirm||"").startsWith("exclRet:")?S.confirm.slice(8):null;const xu=xr&&S.base.unidades.find(u=>u.id===xr);const xa=xr?alocOf(xr):null;
-  h+=`<div class="dock"><div class="dk-saldo"><span class="dk-l">Saldo para distribuir</span>${LV.map(l=>`<span class="dk-n ${p.sd[l]<0?"neg":p.sd[l]===0?"zero":""}" title="Nível ${l}: recebidas ${p.rec[l]}, alocadas ${p.al[l]}"><span class="lvdot lv-${l}">${l}</span><b>${p.sd[l]}</b></span>`).join("")}<span class="dk-m" title="Unidades com meta definida que chegam ao mínimo">meta ${s.ok}/${s.meta}</span>${sum3(retOf())?`<span class="dk-m" title="Vagas já existentes retiradas de campi com excedente e devolvidas ao saldo">inclui ${sum3(retOf())} remanejada${sum3(retOf())>1?"s":""}</span>`:""}</div>
+  h+=`<div class="dock ${sum3(p.sd)===0?"done":""}"><div class="dk-saldo"><div class="dk-tt"><b>${sum3(p.sd)}</b><span>${sum3(p.sd)===0?"tudo distribuído":"vagas disponíveis<br>para distribuir"}</span></div>${LV.filter(l=>p.rec[l]||p.sd[l]).map(l=>`<div class="dk-n dk-${l} ${p.sd[l]<0?"neg":p.sd[l]===0?"zero":""}" title="Nível ${l}: recebidas ${p.rec[l]}, alocadas ${p.al[l]}"><span class="lvdot lv-${l}">${l}</span><b>${p.sd[l]}</b><span class="dk-of">de ${p.rec[l]}</span></div>`).join("")}<span class="dk-m" title="Unidades com meta definida que chegam ao mínimo">meta ${s.ok}/${s.meta}</span>${sum3(retOf())?`<span class="dk-m" title="Vagas já existentes retiradas de campi com excedente e devolvidas ao saldo">inclui ${sum3(retOf())} remanejada${sum3(retOf())>1?"s":""}</span>`:""}</div>
   <div class="dk-act">${stChip}${draft?`<button class="pri" data-act="concluir" data-id="${esc(S.curId)}">Concluir proposta</button>`:`<button data-act="saveAs">Fazer uma cópia</button>`}</div>
   ${LV.some(l=>p.sd[l]<0)?`<div class="dk-msg bad">Mais vagas alocadas do que recebidas no nível ${LV.filter(l=>p.sd[l]<0).join(", ")}.</div>`:""}
   ${xu?`<div class="dk-msg">${esc(xu.nome)} saiu da meta, mas ainda tem ${sum3(xa)} vaga${sum3(xa)>1?"s":""} lançada${sum3(xa)>1?"s":""} (${LV.filter(l=>xa[l]).map(l=>l+" "+xa[l]).join(", ")}). <button class="danger" data-act="exclRetYes" data-id="${esc(xr)}">Devolver ao saldo</button> <button class="ghost" data-act="cancel">Manter</button></div>`:""}</div>`;
@@ -610,7 +616,7 @@ function stepNiveis(){
     for(const u of g.units){const i=info(u);
       h+=`<div class="urow ${i.hitRef?"hit-ref":i.hitMeta?"hit-meta":i.excl?"out":""}"><div class="uname">${esc(u.nome)}<div class="muted">${esc(u.sigla)} · ref. ${trip(i.ref)}${i.vaT?` · ${i.vaT} vaga${i.vaT>1?"s":""} existente${i.vaT>1?"s":""}`:""}</div>${(()=>{const r=S.cur.retiradas||{};const vs=S.base.vagas.filter(v=>v.unidade===u.id&&r[v.codigo]);return vs.length?`<div class="retv">Retiradas para o saldo: ${vs.map(v=>`<span class="rv">${esc(v.codigo)} · ${esc(niceC(v.cargo))} (${v.nivel})<button class="ghost" data-act="devVaga" data-id="${esc(v.codigo)}" title="Devolver esta vaga à unidade">desfazer</button></span>`).join("")}</div>`:""})()}</div>
       <div>${pbar(i)}<div class="pnum">${i.occT} ocupados${i.vaT?` + ${i.vaT} existentes`:""}${i.noT?` + <b>${i.noT} novas</b> (${LV.filter(l=>i.no[l]).map(l=>l+" "+i.no[l]).join(", ")})`:""} = <b>${i.tot}</b> de ${i.refT}${i.meta!==null?` · meta ${i.meta}${i.metaU?' <span class="mu">específica</span>':""}`:""}</div></div>
-      <div class="stw"><div class="steppers">${LV.map(l=>`<div class="stp"><span class="lvdot lv-${l}" aria-hidden="true">${l}</span><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="-1" aria-label="Menos ${l} em ${esc(u.nome)}">−</button><input type="number" min="0" id="al-${esc(u.id)}-${l}" aria-label="${esc(u.nome)} nível ${l}" data-act="aloc" data-id="${esc(u.id)}" data-l="${l}" value="${i.no[l]}"><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="1" aria-label="Mais ${l} em ${esc(u.nome)}">+</button></div>`).join("")}</div>${saldoMini(P0,"rsaldo")}</div>
+      <div class="stw"><div class="steppers">${LV.map(l=>`<div class="stp"><span class="lvdot lv-${l}" aria-hidden="true">${l}</span><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="-1" aria-label="Menos ${l} em ${esc(u.nome)}">−</button><input type="number" min="0" id="al-${esc(u.id)}-${l}" aria-label="${esc(u.nome)} nível ${l}" data-act="aloc" data-id="${esc(u.id)}" data-l="${l}" value="${i.no[l]}"><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="1" aria-label="Mais ${l} em ${esc(u.nome)}"${P0.sd[l]<=0?` disabled title="Sem vagas de nível ${l} disponíveis"`:""}>+</button></div>`).join("")}</div>${saldoMini(P0,"rsaldo")}</div>
       <div class="ustat"><span class="chip ${i.st.c}">${esc(i.st.t)}</span>${Math.min(i.tot-i.refT,i.noT+i.vaT)>0?`<button class="excb" data-act="retExc" data-id="${esc(u.id)}" title="Devolve ao saldo as vagas novas acima da referência e, se preciso, remaneja vagas já existentes desta unidade. Servidores ocupados não são afetados.">Retirar excedente (${Math.min(i.tot-i.refT,i.noT+i.vaT)})</button>`:""}<label><input type="checkbox" id="ex-${esc(u.id)}" data-act="excl" data-id="${esc(u.id)}"${i.excl?" checked":""}>excluir da meta</label></div></div>`;}
     h+=`</div></section>`;
   }
@@ -987,7 +993,7 @@ document.addEventListener("click",e=>{
     case "clearMU":S.cur.metasU={};markDirty();break;
     case "exclT":setExcl(id,!(S.cur.excluidas||[]).includes(id));break;
     case "exclRetYes":{const a=S.cur.aloc?.[id];const r=a?sum3(alocOf(id)):0;if(a)S.cur.aloc[id]={C:0,D:0,E:0};if(S.cur.cargos)delete S.cur.cargos[id];S.confirm=null;markDirty();flash(`${r} vaga${r>1?"s":""} devolvida${r>1?"s":""} ao saldo.`,"ok");break}
-    case "inc":{S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[b.dataset.l]=Math.max(0,n(o[b.dataset.l])+n(b.dataset.d));markDirty();break}
+    case "inc":{if(n(b.dataset.d)>0&&pool().sd[b.dataset.l]<=0){flash(`Não há vagas de nível ${b.dataset.l} disponíveis para distribuir.`,"warn");break}S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[b.dataset.l]=Math.max(0,n(o[b.dataset.l])+n(b.dataset.d));markDirty();break}
     case "aprov":{const p=propById(id);if(!p)break;const on=!p.aprovada;const ch=[];S.props.forEach(x=>{const nv=x.id===id?on:(on?false:!!x.aprovada);if(!!x.aprovada!==nv){x.aprovada=nv;ch.push(x)}});if(S.curId&&ch.find(x=>x.id===S.curId)&&S.cur)S.cur.aprovada=propById(S.curId).aprovada;if(on)S.defPropId=id;render();if(S.db)(async()=>{for(const x of ch){try{await S.db.doc("propostas/"+x.id).update({aprovada:!!x.aprovada})}catch(e){flash("Não foi possível gravar a aprovação.","warn")}}})();break}
     case "logout":window.__sb?.auth.signOut().then(()=>location.reload());break;
     case "defUnit":S.defUnit=id;render();break;
@@ -1056,7 +1062,7 @@ document.addEventListener("change",e=>{
     case "pdesc":S.cur.descricao=t.value;markDirty();break;
     case "metaU":{S.cur.metasU=S.cur.metasU||{};if(t.value==="")delete S.cur.metasU[id];else{S.cur.metasU[id]=n(t.value);S.cur.excluidas=(S.cur.excluidas||[]).filter(x=>x!==id)}markDirty();break}
     case "meta":S.cur.metas=S.cur.metas||{};if(t.value==="")delete S.cur.metas[id];else S.cur.metas[id]=n(t.value);markDirty();break;
-    case "aloc":{S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[t.dataset.l]=Math.max(0,n(t.value));markDirty();break}
+    case "aloc":{S.cur.aloc=S.cur.aloc||{};const l=t.dataset.l;const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});const cur=n(o[l]);const mx=cur+Math.max(0,pool().sd[l]);let v=Math.max(0,n(t.value));if(v>mx){v=mx;flash(`Só há ${mx-cur} vaga(s) de nível ${l} disponível(is): o valor foi ajustado para ${v}.`,"warn")}o[l]=v;markDirty();break}
     case "excl":setExcl(id,t.checked);break;
     case "cl":{const ln=(S.cur.cargos[t.dataset.u]||[]).find(l=>l.id===id);if(ln){ln[f]=f==="qtd"?Math.max(0,n(t.value)):t.value;markDirty()}break}
     case "vnota":S.cur.vagaNotas=S.cur.vagaNotas||{};S.cur.vagaNotas[id]=t.value;markDirty();break;
@@ -1102,7 +1108,7 @@ render();
 
 <script>
 /* aviso de nova versão publicada */
-(function(){const BUILD="2026-11-11-2000";let shown=false;
+(function(){const BUILD="2026-11-11-2010";let shown=false;
 async function chk(){if(shown)return;try{const r=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"});const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD){shown=true;const d=document.createElement("div");d.className="newver";d.innerHTML='Há uma versão nova do sistema. <button type="button">Atualizar agora</button>';d.querySelector("button").onclick=()=>location.reload();document.body.appendChild(d)}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)chk()});setInterval(chk,180000);setTimeout(chk,5000);})();
 </script>
