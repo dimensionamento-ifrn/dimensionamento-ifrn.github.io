@@ -92,6 +92,8 @@ input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
 .ulist{display:flex;flex-direction:column;gap:8px}
 .urow{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:12px 16px;display:grid;grid-template-columns:minmax(140px,1fr) minmax(150px,1.3fr) auto 172px;gap:14px;align-items:center}
 .urow.out{opacity:.72}
+.excb{font-size:12px;padding:5px 12px;background:var(--warn-bg);color:var(--warn)}.excb:hover{background:var(--warn-bg);filter:brightness(.97)}
+.retv{margin-top:6px;font-size:12px;color:var(--warn);display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}.rv{display:inline-flex;align-items:center;gap:4px;background:var(--warn-bg);border-radius:999px;padding:2px 4px 2px 10px}.rv button{font-size:11.5px;padding:2px 8px}
 .psec{margin-bottom:22px}.psec-h{display:flex;align-items:center;gap:10px;margin:0 4px 12px}.psec-h h3{font-size:16px}.cnt{background:var(--soft-2);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:var(--fg-2)}.psec-e{padding:14px 18px;background:var(--surface);border-radius:18px;box-shadow:var(--shadow)}
 .dcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
 .dcard{background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:12px;border:2px dashed var(--line);min-width:0}.dcard.cur{border:2px solid var(--warn)}
@@ -348,11 +350,13 @@ const CARGOS_BASE=["Técnico em Educação","Analista em Educação","Assistente
 /* ---------- cálculo ---------- */
 const tipOf=u=>S.base.tipologias.find(t=>t.id===u.tipologia);
 function refOf(u){const r=u.ref;if(r&&LV.some(l=>r[l]!==undefined&&r[l]!==""))return{C:n(r.C),D:n(r.D),E:n(r.E)};const t=tipOf(u);return t?{C:n(t.ref.C),D:n(t.ref.D),E:n(t.ref.E)}:{C:0,D:0,E:0}}
-function vagasOf(id){const o={C:0,D:0,E:0};for(const v of S.base.vagas)if(v.unidade===id&&v.considerar!==false&&o[v.nivel]!==undefined)o[v.nivel]++;return o}
+function vOk(v,P){return v.considerar!==false&&!((P||S.cur)?.retiradas||{})[v.codigo]}
+function vagasOf(id,P){const o={C:0,D:0,E:0};for(const v of S.base.vagas)if(v.unidade===id&&vOk(v,P)&&o[v.nivel]!==undefined)o[v.nivel]++;return o}
+function retOf(P){const o={C:0,D:0,E:0};const r=(P||S.cur)?.retiradas||{};for(const v of S.base.vagas)if(r[v.codigo]&&v.considerar!==false&&o[v.nivel]!==undefined)o[v.nivel]++;return o}
 function alocOf(id,P){const a=(P||S.cur)?.aloc?.[id]||{};return{C:n(a.C),D:n(a.D),E:n(a.E)}}
 function info(u,P){
   P=P||S.cur;
-  const ref=refOf(u),oc={C:n(u.ocup?.C),D:n(u.ocup?.D),E:n(u.ocup?.E)},ab=n(u.ab),va=vagasOf(u.id),no=alocOf(u.id,P);
+  const ref=refOf(u),oc={C:n(u.ocup?.C),D:n(u.ocup?.D),E:n(u.ocup?.E)},ab=n(u.ab),va=vagasOf(u.id,P),no=alocOf(u.id,P);
   const prev={};LV.forEach(l=>prev[l]=oc[l]+va[l]+no[l]);
   const occT=sum3(oc)+ab,vaT=sum3(va),noT=sum3(no),tot=sum3(prev)+ab,refT=sum3(ref);
   const excl=(P?.excluidas||[]).includes(u.id);
@@ -368,6 +372,7 @@ function info(u,P){
 function pool(P){
   const rec={C:0,D:0,E:0},al={C:0,D:0,E:0};
   for(const lt of S.base.lotes)if(rec[lt.nivel]!==undefined)rec[lt.nivel]+=n(lt.qtd);
+  const rt=retOf(P);LV.forEach(l=>rec[l]+=rt[l]);
   for(const u of S.base.unidades){const a=alocOf(u.id,P);LV.forEach(l=>al[l]+=a[l])}
   const sd={};LV.forEach(l=>sd[l]=rec[l]-al[l]);return{rec,al,sd};
 }
@@ -436,6 +441,14 @@ function setExcl(id,on){
     else if(!left)flash(`${nm} saiu da meta.`,"ok");}
   else{if(S.confirm==="exclRet:"+id)S.confirm=null;flash(`${nm} voltou para a meta. Clique em "Distribuir pelas metas" para completar.`,"ok")}
   markDirty();
+}
+function retirarExc(id){
+  const u=S.base.unidades.find(x=>x.id===id);if(!u)return;const i=info(u);let ex=i.tot-i.refT;if(ex<=0)return;
+  const over=l=>i.prev[l]-i.ref[l];let dn=0;const codes=[];S.cur.aloc=S.cur.aloc||{};
+  while(ex>0){const lv=LV.filter(l=>n(S.cur.aloc[id]?.[l])>0).sort((a,b)=>over(b)-over(a));if(!lv.length)break;const l=lv[0];S.cur.aloc[id][l]--;const x=S.cur.autoAloc?.[id];if(x&&x[l]>0)x[l]--;i.prev[l]--;ex--;dn++}
+  if(ex>0){S.cur.retiradas=S.cur.retiradas||{};const vs=S.base.vagas.filter(v=>v.unidade===id&&vOk(v));
+    while(ex>0&&vs.length){vs.sort((a,b)=>over(b.nivel)-over(a.nivel));const v=vs.shift();S.cur.retiradas[v.codigo]=true;codes.push(v.codigo);i.prev[v.nivel]--;ex--}}
+  markDirty();flash(`${u.nome}: excedente retirado${dn?` — ${dn} vaga${dn>1?"s":""} nova${dn>1?"s":""} devolvida${dn>1?"s":""} ao saldo`:""}${codes.length?`${dn?" e":" —"} ${codes.length} vaga${codes.length>1?"s":""} existente${codes.length>1?"s":""} (código ${codes.join(", ")}) remanejada${codes.length>1?"s":""} para o saldo`:""}.`,"ok");
 }
 function autoDist(){
   S.cur.aloc=S.cur.aloc||{};let rem=0;for(const id of Object.keys(S.cur.autoAloc||{}))rem+=dropAuto(id);S.cur.autoAloc={};
@@ -565,7 +578,7 @@ function viewConstruir(){
   <div class="row">${others.length?`<select id="swProp" data-act="swProp" aria-label="Trocar de proposta"><option value="">Trocar para outra em preenchimento…</option>${others.map(o=>`<option value="${esc(o.id)}">${esc(o.nome)}</option>`).join("")}</select>`:""}<button class="ghost" data-act="new">Nova proposta</button><button class="ghost" data-go="prontas">Todas as propostas</button></div></div>
   <div class="where">${draft?`Esta proposta fica em <b>Propostas › Em preenchimento</b> e é salva automaticamente a cada alteração — pode sair e voltar quando quiser. Quando terminar, toque em <b>Concluir proposta</b> para movê-la para as concluídas.`:`Esta proposta já está em <b>Propostas › Concluídas</b>. O que você mudar aqui é gravado nela automaticamente. Para testar mudanças sem alterá-la, use <b>Fazer uma cópia</b>.`}</div></div>`;
   const xr=(S.confirm||"").startsWith("exclRet:")?S.confirm.slice(8):null;const xu=xr&&S.base.unidades.find(u=>u.id===xr);const xa=xr?alocOf(xr):null;
-  h+=`<div class="dock"><div class="dk-saldo"><span class="dk-l">Saldo para distribuir</span>${LV.map(l=>`<span class="dk-n ${p.sd[l]<0?"neg":p.sd[l]===0?"zero":""}" title="Nível ${l}: recebidas ${p.rec[l]}, alocadas ${p.al[l]}"><span class="lvdot lv-${l}">${l}</span><b>${p.sd[l]}</b></span>`).join("")}<span class="dk-m" title="Unidades com meta definida que chegam ao mínimo">meta ${s.ok}/${s.meta}</span></div>
+  h+=`<div class="dock"><div class="dk-saldo"><span class="dk-l">Saldo para distribuir</span>${LV.map(l=>`<span class="dk-n ${p.sd[l]<0?"neg":p.sd[l]===0?"zero":""}" title="Nível ${l}: recebidas ${p.rec[l]}, alocadas ${p.al[l]}"><span class="lvdot lv-${l}">${l}</span><b>${p.sd[l]}</b></span>`).join("")}<span class="dk-m" title="Unidades com meta definida que chegam ao mínimo">meta ${s.ok}/${s.meta}</span>${sum3(retOf())?`<span class="dk-m" title="Vagas já existentes retiradas de campi com excedente e devolvidas ao saldo">inclui ${sum3(retOf())} remanejada${sum3(retOf())>1?"s":""}</span>`:""}</div>
   <div class="dk-act">${stChip}${draft?`<button class="pri" data-act="concluir" data-id="${esc(S.curId)}">Concluir proposta</button>`:`<button data-act="saveAs">Fazer uma cópia</button>`}</div>
   ${LV.some(l=>p.sd[l]<0)?`<div class="dk-msg bad">Mais vagas alocadas do que recebidas no nível ${LV.filter(l=>p.sd[l]<0).join(", ")}.</div>`:""}
   ${xu?`<div class="dk-msg">${esc(xu.nome)} saiu da meta, mas ainda tem ${sum3(xa)} vaga${sum3(xa)>1?"s":""} lançada${sum3(xa)>1?"s":""} (${LV.filter(l=>xa[l]).map(l=>l+" "+xa[l]).join(", ")}). <button class="danger" data-act="exclRetYes" data-id="${esc(xr)}">Devolver ao saldo</button> <button class="ghost" data-act="cancel">Manter</button></div>`:""}</div>`;
@@ -589,10 +602,10 @@ function stepNiveis(){
     const tot=g.units.reduce((a,u)=>a+sum3(alocOf(u.id)),0);
     h+=`<section class="grp"><div class="grp-h"><h3>${esc(g.nome)}</h3><span class="muted">${tot} vaga${tot===1?"":"s"} nova${tot===1?"":"s"} neste grupo</span>${saldoMini(P0,"gsaldo")}</div><div class="ulist">`;
     for(const u of g.units){const i=info(u);
-      h+=`<div class="urow ${i.hitRef?"hit-ref":i.hitMeta?"hit-meta":i.excl?"out":""}"><div class="uname">${esc(u.nome)}<div class="muted">${esc(u.sigla)} · ref. ${trip(i.ref)}${i.vaT?` · ${i.vaT} vaga${i.vaT>1?"s":""} existente${i.vaT>1?"s":""}`:""}</div></div>
+      h+=`<div class="urow ${i.hitRef?"hit-ref":i.hitMeta?"hit-meta":i.excl?"out":""}"><div class="uname">${esc(u.nome)}<div class="muted">${esc(u.sigla)} · ref. ${trip(i.ref)}${i.vaT?` · ${i.vaT} vaga${i.vaT>1?"s":""} existente${i.vaT>1?"s":""}`:""}</div>${(()=>{const r=S.cur.retiradas||{};const vs=S.base.vagas.filter(v=>v.unidade===u.id&&r[v.codigo]);return vs.length?`<div class="retv">Retiradas para o saldo: ${vs.map(v=>`<span class="rv">${esc(v.codigo)} · ${esc(niceC(v.cargo))} (${v.nivel})<button class="ghost" data-act="devVaga" data-id="${esc(v.codigo)}" title="Devolver esta vaga à unidade">desfazer</button></span>`).join("")}</div>`:""})()}</div>
       <div>${pbar(i)}<div class="pnum">${i.occT} ocupados${i.vaT?` + ${i.vaT} existentes`:""}${i.noT?` + <b>${i.noT} novas</b> (${LV.filter(l=>i.no[l]).map(l=>l+" "+i.no[l]).join(", ")})`:""} = <b>${i.tot}</b> de ${i.refT}${i.meta!==null?` · meta ${i.meta}`:""}</div></div>
       <div class="stw"><div class="steppers">${LV.map(l=>`<div class="stp"><span class="lvdot lv-${l}" aria-hidden="true">${l}</span><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="-1" aria-label="Menos ${l} em ${esc(u.nome)}">−</button><input type="number" min="0" id="al-${esc(u.id)}-${l}" aria-label="${esc(u.nome)} nível ${l}" data-act="aloc" data-id="${esc(u.id)}" data-l="${l}" value="${i.no[l]}"><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="1" aria-label="Mais ${l} em ${esc(u.nome)}">+</button></div>`).join("")}</div>${saldoMini(P0,"rsaldo")}</div>
-      <div class="ustat"><span class="chip ${i.st.c}">${esc(i.st.t)}</span><label><input type="checkbox" id="ex-${esc(u.id)}" data-act="excl" data-id="${esc(u.id)}"${i.excl?" checked":""}>excluir da meta</label></div></div>`;}
+      <div class="ustat"><span class="chip ${i.st.c}">${esc(i.st.t)}</span>${Math.min(i.tot-i.refT,i.noT+i.vaT)>0?`<button class="excb" data-act="retExc" data-id="${esc(u.id)}" title="Devolve ao saldo as vagas novas acima da referência e, se preciso, remaneja vagas já existentes desta unidade. Servidores ocupados não são afetados.">Retirar excedente (${Math.min(i.tot-i.refT,i.noT+i.vaT)})</button>`:""}<label><input type="checkbox" id="ex-${esc(u.id)}" data-act="excl" data-id="${esc(u.id)}"${i.excl?" checked":""}>excluir da meta</label></div></div>`;}
     h+=`</div></section>`;
   }
   return h;
@@ -748,7 +761,7 @@ function unitRows(u,P){
   const rows={};const get=(c,l)=>{const k=normC(c);if(!k)return null;return rows[k]||(rows[k]={k,cargo:niceC(c),nivel:l||"",atual:0,desejado:null,exist:0,def:0})};
   for(const r of S.quadro?.linhas||[])if(r.u===u.id){const x=get(r.cargo,r.nivel);if(x){x.atual+=n(r.qtd);if(!x.nivel)x.nivel=r.nivel}}
   for(const r of S.desej?.[u.id]?.linhas||[]){const x=get(r.cargo,r.nivel);if(x){x.desejado=(x.desejado||0)+n(r.qtd);if(!x.nivel)x.nivel=r.nivel;if(r.estrategico)x.est=true;if(r.obs)x.set=r.obs}}
-  for(const v of S.base.vagas)if(v.unidade===u.id&&v.considerar!==false){const x=get(v.cargo,v.nivel);if(x){x.exist++;if(!x.nivel)x.nivel=v.nivel}}
+  for(const v of S.base.vagas)if(v.unidade===u.id&&vOk(v,P)){const x=get(v.cargo,v.nivel);if(x){x.exist++;if(!x.nivel)x.nivel=v.nivel}}
   const D=P?defsOf(P.id).unidades[u.id]?.linhas||[]:[];for(const d of D){const x=get(d.cargo,d.nivel);if(x){x.def+=n(d.qtd);if(!x.nivel)x.nivel=d.nivel}}
   const nm=nivelMap();Object.values(rows).forEach(r=>{if(!r.nivel)r.nivel=nm[r.k]||""});
   return Object.values(rows).sort((a,b)=>(a.nivel||"Z").localeCompare(b.nivel||"Z")||((b.desejado??0)-b.atual)-((a.desejado??0)-a.atual)||a.cargo.localeCompare(b.cargo));
@@ -775,7 +788,7 @@ function defStatus(P){const st=S.defState;
   if(st==="local")return `<span class="savest err">Sem conexão com o banco: alterações só nesta tela</span>`;
   const at=S.defSavedAt||(defsOf(P.id).atualizadaEm?new Date(defsOf(P.id).atualizadaEm):null);
   return `<span class="savest ok">Salvo automaticamente${at?" às "+at.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):""}</span>`}
-function defUnits(P){return S.base.unidades.filter(u=>sum3(alocOf(u.id,P))||sum3(vagasOf(u.id)))}
+function defUnits(P){return S.base.unidades.filter(u=>sum3(alocOf(u.id,P))||sum3(vagasOf(u.id,P)))}
 function chosenOf(u,P){return (defsOf(P.id).unidades[u.id]?.linhas||[]).filter(l=>n(l.qtd)>0)}
 function viewDefinir(){
   const P=defProp();
@@ -791,7 +804,7 @@ function defUnidade(P){
   const units=defUnits(P);if(!S.defUnit||!units.find(u=>u.id===S.defUnit))S.defUnit=units[0]?.id||null;
   let h=`<div class="card"><div class="card-h"><h2>1. Escolha a unidade</h2><span class="muted">número = vagas novas com cargo escolhido / vagas novas recebidas</span></div><div class="uchips">${units.map(u=>{const b=defBudget(u,P);const av=sum3(b.av),us=sum3(b.used);const st=av===0?"mute":us===av?"ok":us>av?"bad":"warn";return `<button class="uchip ${S.defUnit===u.id?"sel":""}" data-act="defUnit" data-id="${esc(u.id)}"><span class="uc-n">${esc(u.nome)}</span><span class="chip ${st}">${us}/${av}</span></button>`}).join("")}</div></div>`;
   const u=S.base.unidades.find(x=>x.id===S.defUnit);if(!u)return h;
-  const b=defBudget(u,P);const rows=unitRows(u,P);const dj=S.desej[u.id];const vs=S.base.vagas.filter(v=>v.unidade===u.id&&v.considerar!==false);
+  const b=defBudget(u,P);const rows=unitRows(u,P);const dj=S.desej[u.id];const vs=S.base.vagas.filter(v=>v.unidade===u.id&&vOk(v,P));
   h+=`<div class="card"><div class="card-h"><div><div class="eyebrow">${esc(u.sigla)}</div><h2>2. Vagas de ${esc(u.nome)} nesta proposta</h2></div><div class="row"><button data-act="sugerir" data-id="${esc(u.id)}"${dj?"":" disabled title='Envie a proposta do campus primeiro'"}>Preencher pela proposta do campus</button><button class="ghost" data-act="defClear" data-id="${esc(u.id)}">Limpar escolhas</button></div></div>
   <div class="budget">${LV.map(l=>`<div class="bud"><span class="lvdot lv-${l}">${l}</span><div><b class="${b.rest[l]<0?"neg":""}">${b.rest[l]}</b> <span class="muted">a escolher</span><div class="muted">${b.used[l]} de ${b.av[l]} vagas novas já com cargo</div></div></div>`).join("")}</div>
   <div class="muted">${vs.length?`Além das novas, a unidade já tem ${vs.length} código(s) vago(s) com cargo definido: ${vs.map(v=>esc(niceC(v.cargo))).join(", ")}.`:"A unidade não tem outros códigos vagos."} ${dj?`Proposta do campus: ${esc(dj.arquivo||"cadastrada")}.`:"O campus ainda não enviou proposta."}</div></div>`;
@@ -842,7 +855,7 @@ async function defPdf(){
   const tot=defTotals(P);
   doc.autoTable({startY:46,head:[["Cargo","Nível","Vagas","Unidades"]],body:tot.map(r=>[r.cargo,r.nivel,r.q,r.us.join(", ")]),styles:{fontSize:8.5,cellPadding:1.8},headStyles:{fillColor:green},columnStyles:{1:{halign:"center",cellWidth:14},2:{halign:"center",cellWidth:14}},margin:{left:14,right:14},didDrawPage:()=>{}});
   let y=doc.lastAutoTable.finalY+8;
-  for(const u of units){const b=defBudget(u,P);const rows=unitRows(u,P).filter(r=>r.def>0);const vs=S.base.vagas.filter(v=>v.unidade===u.id&&v.considerar!==false);
+  for(const u of units){const b=defBudget(u,P);const rows=unitRows(u,P).filter(r=>r.def>0);const vs=S.base.vagas.filter(v=>v.unidade===u.id&&vOk(v,P));
     if(y>250){doc.addPage();y=18}
     doc.setFont("helvetica","bold");doc.setFontSize(11.5);doc.setTextColor(20);doc.text(u.nome,14,y);
     doc.setFont("helvetica","normal");doc.setFontSize(8.5);doc.setTextColor(90);
@@ -963,6 +976,8 @@ document.addEventListener("click",e=>{
     case "cmpMode":S.cmpMode=id;render();break;
     case "cmpU":{const st=new Set(S.cmpU||[]);st.has(id)?st.delete(id):st.add(id);S.cmpU=[...st];render();break}
     case "cmpUClear":S.cmpU=[];render();break;
+    case "retExc":retirarExc(id);break;
+    case "devVaga":{if(S.cur.retiradas){delete S.cur.retiradas[id]}markDirty();flash("Vaga "+id+" devolvida à unidade.","ok");break}
     case "exclT":setExcl(id,!(S.cur.excluidas||[]).includes(id));break;
     case "exclRetYes":{const a=S.cur.aloc?.[id];const r=a?sum3(alocOf(id)):0;if(a)S.cur.aloc[id]={C:0,D:0,E:0};if(S.cur.cargos)delete S.cur.cargos[id];S.confirm=null;markDirty();flash(`${r} vaga${r>1?"s":""} devolvida${r>1?"s":""} ao saldo.`,"ok");break}
     case "inc":{S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[b.dataset.l]=Math.max(0,n(o[b.dataset.l])+n(b.dataset.d));markDirty();break}
@@ -1079,7 +1094,7 @@ render();
 
 <script>
 /* aviso de nova versão publicada */
-(function(){const BUILD="2026-11-11-1935";let shown=false;
+(function(){const BUILD="2026-11-11-1950";let shown=false;
 async function chk(){if(shown)return;try{const r=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"});const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD){shown=true;const d=document.createElement("div");d.className="newver";d.innerHTML='Há uma versão nova do sistema. <button type="button">Atualizar agora</button>';d.querySelector("button").onclick=()=>location.reload();document.body.appendChild(d)}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)chk()});setInterval(chk,180000);setTimeout(chk,5000);})();
 </script>
