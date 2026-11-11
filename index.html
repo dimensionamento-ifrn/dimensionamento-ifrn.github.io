@@ -92,6 +92,18 @@ input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
 .ulist{display:flex;flex-direction:column;gap:8px}
 .urow{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:12px 16px;display:grid;grid-template-columns:minmax(150px,1.1fr) minmax(160px,1.4fr) auto 130px;gap:14px;align-items:center}
 .urow.out{opacity:.72}
+.urow.hit-ref{background:var(--ok-bg);box-shadow:inset 0 0 0 2px var(--ok),var(--shadow)}
+.urow.hit-meta{box-shadow:inset 0 0 0 2px var(--ok),var(--shadow)}
+.lg.hl{margin-top:-6px}.hsw{display:inline-block;width:18px;height:12px;border-radius:4px}.hsw.ref{background:var(--ok-bg);box-shadow:inset 0 0 0 2px var(--ok)}.hsw.meta{box-shadow:inset 0 0 0 2px var(--ok)}.hsw.out{background:var(--soft-2);opacity:.8}
+.where{margin-top:12px;padding:10px 14px;border-radius:14px;background:var(--soft-2);color:var(--fg-2);font-size:13px;line-height:1.5}
+.dock{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:20;background:var(--surface);border-radius:20px;box-shadow:0 6px 24px rgba(0,0,0,.14);padding:10px 14px;margin-bottom:18px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.dk-saldo,.dk-act{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dk-l{font-size:12px;font-weight:700;color:var(--fg-3);text-transform:uppercase;letter-spacing:.04em}
+.dk-n{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 5px;border-radius:999px;background:var(--soft-2);font-size:16px}
+.dk-n.zero{opacity:.6}.dk-n.neg{background:var(--bad-bg);color:var(--bad)}
+.dk-m{font-size:13px;font-weight:600;color:var(--fg-2);padding:4px 10px;border-radius:999px;background:var(--soft-2)}
+.dk-msg{flex-basis:100%;font-size:13px;padding:8px 12px;border-radius:12px;background:var(--warn-bg);color:var(--warn)}.dk-msg.bad{background:var(--bad-bg);color:var(--bad)}
+@media (max-width:860px){.dock{padding:8px 10px;border-radius:16px;gap:8px}.dk-l{flex-basis:100%}.dk-n{font-size:14px;padding:3px 10px 3px 4px}.dk-act{width:100%;justify-content:space-between}}
 .uname{font-weight:700;line-height:1.25}
 .uname .muted{font-weight:500}
 .pbar{position:relative;height:12px;border-radius:999px;background:var(--soft-2);overflow:visible}
@@ -228,6 +240,17 @@ table.plain input.n{width:60px}
 .cmpt th{vertical-align:top;padding:8px 10px;min-width:170px}.cmpt th .thn{color:var(--fg);font-size:12.5px;margin-top:4px;white-space:normal}.cmpt th.cu,.cmpt td.cu{min-width:190px;text-align:left}
 .cmpt td{vertical-align:top}.cmpt tr.dif td{background:var(--warn-bg)}.cmpt tr.dif td.cu{background:var(--warn-bg)}
 .cc{display:flex;flex-direction:column;align-items:center;gap:4px}.ccn{display:flex;align-items:baseline;gap:6px}.ccn b{font-size:20px;font-weight:800;color:var(--accent-ink)}.ccn b.z{color:var(--fg-3)}.ccn span{font-size:11.5px;color:var(--fg-2)}.ccf{font-size:12px;color:var(--fg-2)}
+.cmpt th.now,.cmpt td.now{background:var(--soft)}
+.ccn em{font-style:normal;font-size:12px;font-weight:800;color:var(--ok);background:var(--ok-bg);padding:1px 7px;border-radius:999px}.ccn em.z{color:var(--fg-3);background:var(--soft-2)}.ccn b.z2{color:var(--fg)}
+.mb{position:relative;width:120px;height:8px;border-radius:99px;background:var(--soft-2);display:flex;overflow:visible}.mb i{display:block;height:100%}.mb i:first-child{border-radius:99px 0 0 99px}.mb s{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--fg-2);border-radius:2px}
+.cfil{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cbars{display:flex;flex-direction:column;gap:8px;margin:10px 0 16px}.cbr{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr) 120px;gap:12px;align-items:center}.cbn{font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cbt{position:relative;height:14px;border-radius:99px;background:var(--soft-2);display:flex}.cbt i{display:block;height:100%}.cbt i:first-child{border-radius:99px 0 0 99px}.cbt s{position:absolute;top:-3px;bottom:-3px;width:2.5px;background:var(--fg-2);border-radius:2px}.cbt u{position:absolute;top:-4px;bottom:-4px;border-left:2.5px dotted var(--bad)}.cbv{font-size:12.5px;color:var(--fg-2);text-align:right}
+.ccards{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}.ccards>.ccard{flex:0 1 272px}.tog.pick[aria-pressed=true]{background:var(--accent);color:var(--accent-fg);box-shadow:none}
+.ccard{background:var(--soft);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.cch{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;min-height:44px}
+.ccbig{display:grid;grid-template-columns:1fr auto 1fr 1fr;gap:6px;align-items:end;text-align:center}.ccbig span{display:block;font-size:11px;color:var(--fg-3);text-transform:uppercase;letter-spacing:.04em}.ccbig b{font-size:24px;font-weight:800}.ccbig .arr{font-size:18px;color:var(--fg-3);padding-bottom:4px}
+.cct{width:100%;border-collapse:collapse;font-size:13px}.cct th,.cct td{padding:5px 4px;text-align:center;border-bottom:1px solid var(--line,rgba(0,0,0,.06))}.cct thead th{font-size:11px;color:var(--fg-3);font-weight:600}.cct tbody th{text-align:left;font-weight:600}.cct td.nv{color:var(--ok);font-weight:700}.cct td.neg{color:var(--bad)}.cct tr:last-child th,.cct tr:last-child td{border-bottom:0;font-weight:800}
+@media (max-width:760px){.cfil{grid-template-columns:minmax(0,1fr)}.cbr{grid-template-columns:minmax(0,1fr) 92px}.cbn{grid-column:1/-1}}
 .cmpt tr.sub td{background:transparent;color:var(--fg-2);font-size:12px;padding-top:4px}
 @media (max-width:760px){.cmphead{grid-template-columns:minmax(0,1fr)!important}}
 .star{color:var(--vag);font-size:14px}
@@ -326,10 +349,12 @@ function info(u,P){
   const excl=(P?.excluidas||[]).includes(u.id);
   const mv=P?.metas?.[u.tipologia];const meta=(!excl&&mv!==undefined&&mv!==null&&mv!=="")?n(mv):null;
   let st;
-  if(excl)st={c:"mute",t:"Fora da meta"};
-  else if(meta!==null)st=tot>=meta?{c:"ok",t:"Meta atingida"}:{c:"bad",t:`Faltam ${meta-tot}`};
-  else st=tot>=refT?{c:"ok",t:"Referência completa"}:{c:"warn",t:`${tot-refT} da ref.`};
-  return{ref,oc,ab,va,no,prev,occT,vaT,noT,tot,refT,meta,excl,st};
+  const hitRef=refT>0&&tot>=refT,hitMeta=meta!==null&&tot>=meta;
+  if(hitRef)st={c:"ok",t:tot>refT?`Tipologia completa (+${tot-refT})`:"Tipologia completa"};
+  else if(excl)st={c:"mute",t:"Fora da meta"};
+  else if(meta!==null)st=hitMeta?{c:"ok",t:"Meta atingida"}:{c:"bad",t:`Faltam ${meta-tot} p/ meta`};
+  else st={c:"warn",t:`Faltam ${refT-tot} p/ tipologia`};
+  return{ref,oc,ab,va,no,prev,occT,vaT,noT,tot,refT,meta,excl,st,hitRef,hitMeta};
 }
 function pool(P){
   const rec={C:0,D:0,E:0},al={C:0,D:0,E:0};
@@ -377,15 +402,27 @@ let flashT=null;
 function flash(msg,kind){$("#status").innerHTML=`<div class="toast ${kind==="ok"?"ok":""}" role="status">${esc(msg)}</div>`;clearTimeout(flashT);flashT=setTimeout(()=>{$("#status").innerHTML=""},4000)}
 
 /* ---------- distribuição automática ---------- */
+function dropAuto(id){const a=S.cur.aloc?.[id],x=S.cur.autoAloc?.[id];let r=0;if(a&&x)LV.forEach(l=>{const k=Math.min(n(a[l]),n(x[l]));a[l]=n(a[l])-k;r+=k});if(S.cur.autoAloc)delete S.cur.autoAloc[id];return r}
+function setExcl(id,on){
+  const s=new Set(S.cur.excluidas||[]);on?s.add(id):s.delete(id);S.cur.excluidas=[...s];
+  const u=S.base.unidades.find(x=>x.id===id);const nm=u?u.nome:id;
+  if(on){const r=dropAuto(id);const left=sum3(alocOf(id));
+    if(left>0)S.confirm="exclRet:"+id;else S.confirm=null;
+    if(r)flash(`${nm} saiu da meta: ${r} vaga${r>1?"s":""} distribuída${r>1?"s":""} pela meta voltaram ao saldo.`,"ok");
+    else if(!left)flash(`${nm} saiu da meta.`,"ok");}
+  else{if(S.confirm==="exclRet:"+id)S.confirm=null;flash(`${nm} voltou para a meta. Clique em "Distribuir pelas metas" para completar.`,"ok")}
+  markDirty();
+}
 function autoDist(){
-  const sd={...pool().sd};const UI={};for(const u of S.base.unidades)UI[u.id]=info(u);S.cur.aloc=S.cur.aloc||{};
+  S.cur.aloc=S.cur.aloc||{};let rem=0;for(const id of Object.keys(S.cur.autoAloc||{}))rem+=dropAuto(id);S.cur.autoAloc={};
+  const sd={...pool().sd};const UI={};for(const u of S.base.unidades)UI[u.id]=info(u);
   for(let g=0;g<5000;g++){
     let best=null,bd=0;for(const u of S.base.unidades){const i=UI[u.id];if(i.meta===null)continue;const d=i.meta-i.tot;if(d>bd){bd=d;best=u}}
     if(!best)break;const i=UI[best.id];const lv=LV.filter(l=>sd[l]>0);if(!lv.length)break;
     lv.sort((a,b)=>((i.ref[b]-i.prev[b])-(i.ref[a]-i.prev[a]))||(sd[b]-sd[a]));const l=lv[0];
-    const a=S.cur.aloc[best.id]||(S.cur.aloc[best.id]={C:0,D:0,E:0});a[l]=n(a[l])+1;sd[l]--;i.prev[l]++;i.tot++;i.no[l]++;
+    const a=S.cur.aloc[best.id]||(S.cur.aloc[best.id]={C:0,D:0,E:0});a[l]=n(a[l])+1;const x=S.cur.autoAloc[best.id]||(S.cur.autoAloc[best.id]={C:0,D:0,E:0});x[l]++;sd[l]--;i.prev[l]++;i.tot++;i.no[l]++;
   }
-  markDirty();const left=sum3(sd);flash(left?`Metas aplicadas. Restam ${trip(sd)} (C · D · E) para distribuir à mão.`:"Metas aplicadas. Todas as vagas recebidas foram alocadas.","ok");
+  S.confirm=null;markDirty();const left=sum3(sd);flash(left?`Metas aplicadas (a distribuição automática anterior foi refeita; lançamentos manuais mantidos). Restam ${trip(sd)} (C · D · E) para distribuir à mão.`:"Metas aplicadas. Todas as vagas recebidas foram alocadas.","ok");
 }
 function genCargos(id){
   const a=alocOf(id);const lines=[];
@@ -415,7 +452,7 @@ function panoramaHTML(P,title){
 
 /* ---------- tela: propostas prontas ---------- */
 function viewProntas(){
-  let h=`<div class="card-h"><div><h2>Propostas salvas</h2><div class="muted">Compare as propostas lado a lado e abra uma delas no construtor para editar.</div></div><button class="pri" data-act="new">Nova proposta</button></div>`;
+  let h=`<div class="card-h"><div><h2>Propostas salvas</h2><div class="muted">Aqui ficam todas as propostas gravadas. Para alterar uma, toque em <b>Editar</b>: ela abre em "Construir proposta", e o botão <b>Salvar proposta</b> grava de volta aqui.</div></div><button class="pri" data-act="new">Nova proposta</button></div>`;
   if(S.confirm==="new")h+=`<div class="toast">A proposta em construção tem alterações não salvas. <button data-act="newForce">Descartar e começar nova</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`;
   if(!S.props.length)return h+`<div class="empty">Nenhuma proposta salva ainda.<br><br><button class="pri" data-act="new">Construir a primeira proposta</button></div>`;
   const list=[...S.props].sort((a,b)=>(b.atualizadaEm||"").localeCompare(a.atualizadaEm||""));
@@ -425,7 +462,7 @@ function viewProntas(){
   for(const p of list){
     const s=stats(p);const byG=G.map((g,ix)=>({nome:g.nome,c:GC[ix%GC.length],v:g.units.reduce((a,u)=>a+sum3(alocOf(u.id,p)),0)}));const tot=Math.max(1,byG.reduce((a,x)=>a+x.v,0));
     const sel=S.cmp.includes(p.id);
-    h+=`<article class="pcard ${S.focusId===p.id?"focus":""}"><div class="row" style="justify-content:space-between;align-items:flex-start"><div style="min-width:0"><h3>${esc(p.nome)}</h3><div class="muted">Atualizada em ${p.atualizadaEm?new Date(p.atualizadaEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"–"}</div></div><span class="row">${p.aprovada?'<span class="chip ok">Aprovada</span>':""}${p.id===S.curId?'<span class="chip mute">No construtor</span>':""}</span></div>
+    h+=`<article class="pcard ${S.focusId===p.id?"focus":""}"><div class="row" style="justify-content:space-between;align-items:flex-start"><div style="min-width:0"><h3>${esc(p.nome)}</h3><div class="muted">Atualizada em ${p.atualizadaEm?new Date(p.atualizadaEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"–"}</div></div><span class="row">${p.aprovada?'<span class="chip ok">Aprovada</span>':""}${p.id===S.curId?`<span class="chip warn">${S.dirty?"Em edição (não salva)":"Aberta no construtor"}</span>`:""}</span></div>
     ${p.descricao?`<div class="small" style="color:var(--fg-2)">${esc(p.descricao)}</div>`:""}
     <div class="mini"><div><b>${s.aloc}</b><span>alocadas</span></div><div title="Unidades com meta mínima definida que chegam ao mínimo"><b>${s.ok} de ${s.meta}</b><span>atingem a meta</span></div><div title="Soma do que falta, em todas as unidades, para chegar à referência da tipologia"><b>${s.def}</b><span>falta p/ referência</span></div></div>
     <div><div class="eyebrow" style="margin-bottom:6px">Para onde vão as vagas</div><div class="share">${byG.map(x=>x.v?`<i style="width:${x.v/tot*100}%;background:${x.c}" title="${esc(x.nome)}: ${x.v}"></i>`:"").join("")}</div><div class="slg" style="margin-top:6px">${byG.filter(x=>x.v).map(x=>`<span><i class="sw" style="background:${x.c}"></i>${esc(x.nome)} ${x.v}</span>`).join("")}</div></div>
@@ -436,23 +473,49 @@ function viewProntas(){
   h+=`</div>`;
   if(S.focusId&&propById(S.focusId))h+=panoramaHTML(propById(S.focusId),propById(S.focusId).nome);
   const C=S.cmp.map(propById).filter(Boolean);const LET="ABCDEFGH";const PC=["var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)","var(--g6)"];
-  h+=`<div class="card"><div class="card-h"><div><div class="eyebrow">Comparação</div><h2>Comparar propostas</h2><div class="muted">Marque "Comparar" nos cartões acima. Cada proposta recebe uma letra, usada nas colunas abaixo.</div></div><div class="row">${groupingSelect("selGrpCmp")}<label class="small"><input type="checkbox" id="cmpDiff" data-act="cmpDiff"${S.cmpDiff?" checked":""}> só unidades em que as propostas diferem</label></div></div>`;
-  if(!C.length){h+=`<div class="muted">Nenhuma proposta marcada para comparar.</div></div>`;return h}
-  h+=`<div class="cmphead" style="grid-template-columns:repeat(${C.length},minmax(0,1fr))">${C.map((p,ix)=>{const s=stats(p);return `<div class="cmpk" style="border-top-color:${PC[ix%PC.length]}"><div class="cmpl"><span class="letter" style="background:${PC[ix%PC.length]}">${LET[ix]}</span><b>${esc(p.nome)}</b>${p.aprovada?'<span class="chip ok">Aprovada</span>':""}</div><div class="cmpm"><div><b>${s.aloc}</b><span>vagas alocadas</span></div><div><b>${s.ok} de ${s.meta}</b><span>atingem a meta</span></div><div><b>${s.def}</b><span>falta p/ referência</span></div></div></div>`}).join("")}</div>`;
-  if(C.length<2)h+=`<div class="toast" style="margin-top:12px">Marque pelo menos duas propostas para ver as diferenças lado a lado.</div>`;
-  h+=`<div class="cmp" style="margin-top:14px"><table class="cmpt"><thead><tr><th class="cu">Unidade<br><span class="muted">hoje = ocupados + vagas já existentes</span></th>${C.map((p,ix)=>`<th><span class="letter" style="background:${PC[ix%PC.length]}">${LET[ix]}</span><div class="thn">${esc(p.nome)}</div><div class="muted">recebe → fica com</div></th>`).join("")}</tr></thead><tbody>`;
-  let shown=0;
-  for(const g of G){
-    const rows=g.units.filter(u=>{if(!S.cmpDiff||C.length<2)return true;const v=C.map(p=>trip(alocOf(u.id,p)));return v.some(x=>x!==v[0])});
-    if(!rows.length)continue;
-    h+=`<tr class="gh"><td colspan="${C.length+1}">${esc(g.nome)}</td></tr>`;
-    for(const u of rows){shown++;const i0=info(u,C[0]);const vals=C.map(p=>trip(alocOf(u.id,p)));const diff=C.length>1&&vals.some(x=>x!==vals[0]);
-      h+=`<tr class="${diff?"dif":""}"><td class="cu"><b>${esc(u.nome)}</b>${diff?' <span class="chip warn">difere</span>':""}<div class="muted">hoje ${i0.occT+i0.vaT} · ref. ${i0.refT}</div></td>${C.map(p=>{const i=info(u,p);const st=i.excl?["mute","fora da meta"]:i.meta!==null?(i.tot>=i.meta?["ok","atinge a meta "+i.meta]:["bad","abaixo da meta "+i.meta+" ("+(i.tot-i.meta)+")"]):["mute","sem meta"];
-        return `<td><div class="cc"><div class="ccn">${i.noT?`<b>+${i.noT}</b><span>${LV.filter(l=>i.no[l]).map(l=>l+" "+i.no[l]).join(" · ")}</span>`:`<b class="z">0</b><span>não recebe</span>`}</div><div class="ccf">fica com <b>${i.tot}</b> de ${i.refT}</div><span class="chip ${st[0]}">${st[1]}</span></div></td>`}).join("")}</tr>`}
-    h+=`<tr class="sub"><td class="cu">Subtotal ${esc(g.nome)}</td>${C.map(p=>`<td><b>+${g.units.reduce((a,u)=>a+sum3(alocOf(u.id,p)),0)}</b></td>`).join("")}</tr>`;
+  const mode=S.cmpMode==="campi"?"campi":"prop";
+  const lvl=o=>LV.map(l=>`${l} ${o[l]}`).join(" · ");
+  const atual=i=>{const o={};LV.forEach(l=>o[l]=i.oc[l]+i.va[l]);return o};
+  const stOf=i=>i.hitRef?["ok","tipologia completa"]:i.excl?["mute","fora da meta"]:i.meta!==null?(i.hitMeta?["ok","atinge a meta "+i.meta]:["bad","faltam "+(i.meta-i.tot)+" p/ meta "+i.meta]):["warn","faltam "+(i.refT-i.tot)+" p/ tipologia"];
+  const mbar=(i,showNew)=>{const now=i.occT+i.vaT;const base=Math.max(i.refT,i.tot,1);return `<div class="mb"><i style="width:${now/base*100}%;background:var(--occ)"></i>${showNew&&i.noT?`<i style="width:${i.noT/base*100}%;background:var(--accent)"></i>`:""}<s style="left:calc(${Math.min(100,i.refT/base*100)}% - 1px)"></s></div>`};
+  h+=`<div class="card"><div class="card-h"><div><div class="eyebrow">Comparação</div><h2>${mode==="prop"?"Situação atual × propostas":"Comparar campi"}</h2><div class="muted">${mode==="prop"?'Para cada unidade: como está hoje (ocupados + vagas já existentes) e como fica em cada proposta marcada em "Comparar". Cada proposta recebe uma letra.':"Escolha a proposta e os campi para ver, lado a lado, a situação atual e a nova de cada um."}</div></div>
+  <div class="seg" role="tablist"><button role="tab" aria-selected="${mode==="prop"}" data-act="cmpMode" data-id="prop">Atual × propostas</button><button role="tab" aria-selected="${mode==="campi"}" data-act="cmpMode" data-id="campi">Entre campi</button></div></div>`;
+  if(mode==="prop"){
+    h+=`<div class="row" style="margin-bottom:12px">${groupingSelect("selGrpCmp")}<label class="small"><input type="checkbox" id="cmpDiff" data-act="cmpDiff"${S.cmpDiff?" checked":""}> só unidades em que as propostas diferem</label></div>`;
+    if(!C.length){h+=`<div class="muted">Nenhuma proposta marcada. Toque em "Comparar" nos cartões acima.</div></div>`;return h}
+    h+=`<div class="cmphead" style="grid-template-columns:repeat(${C.length},minmax(0,1fr))">${C.map((p,ix)=>{const s=stats(p);return `<div class="cmpk" style="border-top-color:${PC[ix%PC.length]}"><div class="cmpl"><span class="letter" style="background:${PC[ix%PC.length]}">${LET[ix]}</span><b>${esc(p.nome)}</b>${p.aprovada?'<span class="chip ok">Aprovada</span>':""}</div><div class="cmpm"><div><b>${s.aloc}</b><span>vagas alocadas</span></div><div><b>${s.ok} de ${s.meta}</b><span>atingem a meta</span></div><div><b>${s.def}</b><span>falta p/ referência</span></div></div></div>`}).join("")}</div>`;
+    h+=`<div class="lg" style="margin-top:12px"><span><i class="sw" style="background:var(--occ)"></i>Atual (ocupados + vagas existentes)</span><span><i class="sw" style="background:var(--accent)"></i>Vagas novas da proposta</span><span><i class="sw" style="background:var(--fg-2);border-radius:2px;width:3px"></i>Referência da tipologia</span></div>`;
+    h+=`<div class="cmp" style="margin-top:10px"><table class="cmpt"><thead><tr><th class="cu">Unidade</th><th class="now">Situação atual<div class="muted">ocupados + vagas existentes</div></th>${C.map((p,ix)=>`<th><span class="letter" style="background:${PC[ix%PC.length]}">${LET[ix]}</span><div class="thn">Nova situação</div><div class="muted">${esc(p.nome)}</div></th>`).join("")}</tr></thead><tbody>`;
+    let shown=0;
+    for(const g of G){
+      const rows=g.units.filter(u=>{if(!S.cmpDiff||C.length<2)return true;const v=C.map(p=>trip(alocOf(u.id,p)));return v.some(x=>x!==v[0])});
+      if(!rows.length)continue;
+      h+=`<tr class="gh"><td colspan="${C.length+2}">${esc(g.nome)}</td></tr>`;
+      for(const u of rows){shown++;const i0=info(u,{aloc:{},metas:C[0].metas,excluidas:C[0].excluidas});const vals=C.map(p=>trip(alocOf(u.id,p)));const diff=C.length>1&&vals.some(x=>x!==vals[0]);const now=i0.occT+i0.vaT;
+        h+=`<tr class="${diff?"dif":""}"><td class="cu"><b>${esc(u.nome)}</b>${diff?' <span class="chip warn">difere</span>':""}<div class="muted">referência ${i0.refT} (${lvl(i0.ref)})</div></td>
+        <td class="now"><div class="cc"><div class="ccn"><b class="z2">${now}</b><span>de ${i0.refT}</span></div><div class="ccf">${lvl(atual(i0))}</div>${mbar(i0,false)}<span class="chip ${now>=i0.refT?"ok":"mute"}">${now>=i0.refT?"tipologia completa":"faltam "+(i0.refT-now)}</span></div></td>
+        ${C.map(p=>{const i=info(u,p);const st=stOf(i);return `<td><div class="cc"><div class="ccn"><b>${i.tot}</b><span>de ${i.refT}</span>${i.noT?`<em>+${i.noT}</em>`:`<em class="z">+0</em>`}</div><div class="ccf">${lvl(i.prev)}</div>${mbar(i,true)}<span class="chip ${st[0]}">${st[1]}</span></div></td>`}).join("")}</tr>`}
+      h+=`<tr class="sub"><td class="cu">Subtotal ${esc(g.nome)}</td><td class="now">${g.units.reduce((a,u)=>{const i=info(u,{aloc:{}});return a+i.occT+i.vaT},0)}</td>${C.map(p=>`<td>${g.units.reduce((a,u)=>a+info(u,p).tot,0)} <b>(+${g.units.reduce((a,u)=>a+sum3(alocOf(u.id,p)),0)})</b></td>`).join("")}</tr>`;
+    }
+    if(!shown)h+=`<tr><td colspan="${C.length+2}" class="muted" style="text-align:center;padding:20px">As propostas marcadas distribuem as vagas da mesma forma em todas as unidades.</td></tr>`;
+    h+=`</tbody></table></div></div>`;
+    return h;
   }
-  if(!shown)h+=`<tr><td colspan="${C.length+1}" class="muted" style="text-align:center;padding:20px">As propostas marcadas distribuem as vagas da mesma forma em todas as unidades.</td></tr>`;
-  h+=`</tbody></table></div></div>`;
+  /* entre campi */
+  const P=propById(S.cmpP)||list.find(p=>p.aprovada)||C[0]||list[0];
+  const selU=(S.cmpU||[]).filter(id=>S.base.unidades.some(u=>u.id===id));
+  h+=`<div class="cfil"><label class="tile"><span class="tt">Proposta</span><select id="cmpP" data-act="cmpP">${list.map(p=>`<option value="${esc(p.id)}"${p.id===P.id?" selected":""}>${esc(p.nome)}${p.aprovada?" (aprovada)":""}</option>`).join("")}</select></label>
+  <label class="tile"><span class="tt">Adicionar um grupo inteiro</span><select id="cmpAddG" data-act="cmpAddG"><option value="">Escolha…</option>${G.map(g=>`<option value="${esc(g.id)}">${esc(g.nome)} (${g.units.length})</option>`).join("")}</select></label></div>
+  <div class="eyebrow" style="margin:12px 0 8px">Campi comparados (toque para incluir ou retirar)</div><div class="toggles">${S.base.unidades.map(u=>`<button class="tog pick" data-act="cmpU" data-id="${esc(u.id)}" title="${esc(u.nome)}" aria-pressed="${selU.includes(u.id)}">${esc(u.sigla||u.nome)}</button>`).join("")}${selU.length?'<button class="ghost" data-act="cmpUClear">Limpar</button>':""}</div>`;
+  if(!selU.length){h+=`<div class="empty" style="margin-top:14px">Escolha dois ou mais campi acima para comparar.</div></div>`;return h}
+  const IU=selU.map(id=>{const u=S.base.unidades.find(x=>x.id===id);return{u,i:info(u,P)}});
+  const mx=Math.max(1,...IU.map(x=>Math.max(x.i.refT,x.i.tot)));
+  h+=`<div class="lg" style="margin-top:16px"><span><i class="sw" style="background:var(--occ)"></i>Atual</span><span><i class="sw" style="background:var(--accent)"></i>Vagas novas</span><span><i class="sw" style="background:var(--fg-2);border-radius:2px;width:3px"></i>Referência</span><span><i style="border-left:2.5px dotted var(--bad);height:12px"></i>Meta</span></div>
+  <div class="cbars">${IU.map(({u,i})=>{const now=i.occT+i.vaT;return `<div class="cbr"><div class="cbn">${esc(u.nome)}</div><div class="cbt"><i style="width:${now/mx*100}%;background:var(--occ)"></i>${i.noT?`<i style="width:${i.noT/mx*100}%;background:var(--accent)"></i>`:""}<s style="left:calc(${i.refT/mx*100}% - 1px)"></s>${i.meta!==null?`<u style="left:${i.meta/mx*100}%"></u>`:""}</div><div class="cbv">${now} → <b>${i.tot}</b> / ${i.refT}</div></div>`}).join("")}</div>`;
+  h+=`<div class="ccards">${IU.map(({u,i})=>{const a=atual(i);const st=stOf(i);const row=(lab,r,at,nv,ne)=>`<tr><th>${lab}</th><td>${r}</td><td>${at}</td><td class="nv">${nv?"+"+nv:"–"}</td><td><b>${ne}</b></td><td class="${ne-r<0?"neg":""}">${ne-r>0?"+":""}${ne-r}</td></tr>`;
+    return `<article class="ccard"><div class="cch"><div><b>${esc(u.nome)}</b><div class="muted">${esc(tipOf(u)?.nome||"Sem tipologia")}</div></div><span class="chip ${st[0]}">${st[1]}</span></div>
+    <div class="ccbig"><div><span>Atual</span><b>${i.occT+i.vaT}</b></div><div class="arr" aria-hidden="true">→</div><div><span>Nova</span><b>${i.tot}</b></div><div><span>Referência</span><b>${i.refT}</b></div></div>
+    <table class="cct"><thead><tr><th></th><th>Ref.</th><th>Atual</th><th>Novas</th><th>Nova</th><th>Dif. ref.</th></tr></thead><tbody>${LV.map(l=>row(`<span class="lvdot lv-${l}">${l}</span>`,i.ref[l],a[l],i.no[l],i.prev[l])).join("")}${i.ab?`<tr><th>s/ nível</th><td>–</td><td>${i.ab}</td><td>–</td><td>${i.ab}</td><td></td></tr>`:""}${row("Total",i.refT,i.occT+i.vaT,i.noT,i.tot)}</tbody></table></article>`}).join("")}</div></div>`;
   return h;
 }
 
@@ -460,12 +523,18 @@ function viewProntas(){
 /* ---------- tela: construir ---------- */
 function viewConstruir(){
   if(!S.cur)return `<div class="empty">Nenhuma proposta em construção.<br><br><button class="pri" data-act="new">Começar nova proposta</button></div>`;
-  const p=pool();
-  let h=`<div class="card"><div class="card-h" style="margin:0"><div style="flex:1;min-width:240px"><div class="eyebrow">${S.curId?"Editando proposta salva":"Nova proposta (ainda não salva)"}</div><input type="text" class="namebox" id="pname" aria-label="Nome da proposta" data-act="pname" value="${esc(S.cur.nome)}"></div>
-  <div class="row">${S.dirty?'<span class="dirty">Alterações não salvas</span>':""}<button class="pri" data-act="save">Salvar proposta</button>${S.curId?'<button data-act="saveAs">Salvar como cópia</button>':""}<button class="ghost" data-act="new">Nova</button></div></div></div>`;
+  const p=pool();const s=stats();const saved=S.curId&&propById(S.curId);
+  const when=saved&&saved.atualizadaEm?new Date(saved.atualizadaEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"";
+  const stChip=!S.curId?'<span class="chip warn">Ainda não salva</span>':S.dirty?'<span class="chip warn">Alterações não salvas</span>':`<span class="chip ok">Salva ${when}</span>`;
+  let h=`<div class="card"><div class="card-h" style="margin:0"><div style="flex:1;min-width:240px"><div class="eyebrow">${S.curId?"Você está editando uma proposta salva":"Você está criando uma proposta nova"}</div><input type="text" class="namebox" id="pname" aria-label="Nome da proposta" data-act="pname" value="${esc(S.cur.nome)}"></div>
+  <div class="row">${S.curId?'<button data-act="saveAs">Salvar como cópia</button>':""}<button class="ghost" data-act="new">Nova proposta</button><button class="ghost" data-go="prontas">Abrir outra proposta salva</button></div></div>
+  <div class="where"><b>Onde fica salva:</b> o botão <b>Salvar proposta</b> (na barra abaixo, que acompanha a tela) grava a proposta na aba <b>Propostas</b>, junto com as demais. <b>Para editar depois:</b> abra <b>Propostas</b> e toque em <b>Editar</b> no cartão — ela volta para esta tela. ${S.curId?"Salvar agora substitui a versão gravada; <b>Salvar como cópia</b> mantém a original.":"Até salvar, ela existe só nesta tela."}</div></div>`;
   if(S.confirm==="new")h+=`<div class="toast">Há alterações não salvas. <button data-act="newForce">Descartar e começar nova</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`;
-  h+=`<div class="kpis">${LV.map(l=>`<div class="kpi"><span class="eyebrow" style="display:flex;align-items:center;gap:6px"><span class="lvdot lv-${l}">${l}</span>Saldo nível ${l}</span><span class="big ${p.sd[l]<0?"neg":""}">${p.sd[l]}</span><span class="sub">recebidas ${p.rec[l]} · alocadas ${p.al[l]}</span></div>`).join("")}${(()=>{const s=stats();return `<div class="kpi"><span class="eyebrow">Atingem a meta mínima</span><span class="big">${s.ok} de ${s.meta}</span><span class="sub">unidades com meta definida · faltam ${s.def} para completar as referências</span></div>`})()}</div>`;
-  if(LV.some(l=>p.sd[l]<0))h+=`<div class="toast">Mais vagas alocadas do que recebidas no nível ${LV.filter(l=>p.sd[l]<0).join(", ")}.</div>`;
+  const xr=(S.confirm||"").startsWith("exclRet:")?S.confirm.slice(8):null;const xu=xr&&S.base.unidades.find(u=>u.id===xr);const xa=xr?alocOf(xr):null;
+  h+=`<div class="dock"><div class="dk-saldo"><span class="dk-l">Saldo para distribuir</span>${LV.map(l=>`<span class="dk-n ${p.sd[l]<0?"neg":p.sd[l]===0?"zero":""}" title="Nível ${l}: recebidas ${p.rec[l]}, alocadas ${p.al[l]}"><span class="lvdot lv-${l}">${l}</span><b>${p.sd[l]}</b></span>`).join("")}<span class="dk-m" title="Unidades com meta definida que chegam ao mínimo">meta ${s.ok}/${s.meta}</span></div>
+  <div class="dk-act">${stChip}<button class="pri" data-act="save">Salvar proposta</button></div>
+  ${LV.some(l=>p.sd[l]<0)?`<div class="dk-msg bad">Mais vagas alocadas do que recebidas no nível ${LV.filter(l=>p.sd[l]<0).join(", ")}.</div>`:""}
+  ${xu?`<div class="dk-msg">${esc(xu.nome)} saiu da meta, mas ainda tem ${sum3(xa)} vaga${sum3(xa)>1?"s":""} lançada${sum3(xa)>1?"s":""} (${LV.filter(l=>xa[l]).map(l=>l+" "+xa[l]).join(", ")}). <button class="danger" data-act="exclRetYes" data-id="${esc(xr)}">Devolver ao saldo</button> <button class="ghost" data-act="cancel">Manter</button></div>`:""}</div>`;
   h+=`<div class="steps" role="tablist">${[[1,"Diretrizes e metas"],[2,"Distribuição por nível"]].map(([k,t])=>`<button class="step" role="tab" aria-selected="${S.step===k}" data-act="step" data-id="${k}"><b>${k}</b>${t}</button>`).join("")}</div>`;
   return h+(S.step===1?stepMetas():stepNiveis());
 }
@@ -479,12 +548,12 @@ function stepMetas(){
   return h;
 }
 function stepNiveis(){
-  let h=`<div class="row" style="justify-content:space-between;margin-bottom:12px"><div class="row">${groupingSelect("selGrpB")}</div><div class="row"><button data-act="auto">Distribuir pelas metas</button></div></div>${legend()}`;
+  let h=`<div class="row" style="justify-content:space-between;margin-bottom:12px"><div class="row">${groupingSelect("selGrpB")}</div><div class="row"><button data-act="auto">Distribuir pelas metas</button></div></div>${legend()}<div class="lg hl"><span><i class="hsw ref"></i>Já completa a tipologia (referência)</span><span><i class="hsw meta"></i>Já atinge a meta</span><span><i class="hsw out"></i>Fora da meta</span></div>`;
   for(const g of groups()){
     const tot=g.units.reduce((a,u)=>a+sum3(alocOf(u.id)),0);
     h+=`<section class="grp"><div class="grp-h"><h3>${esc(g.nome)}</h3><span class="muted">${tot} vaga${tot===1?"":"s"} nova${tot===1?"":"s"} neste grupo</span></div><div class="ulist">`;
     for(const u of g.units){const i=info(u);
-      h+=`<div class="urow ${i.excl?"out":""}"><div class="uname">${esc(u.nome)}<div class="muted">${esc(u.sigla)} · ref. ${trip(i.ref)}${i.vaT?` · ${i.vaT} vaga${i.vaT>1?"s":""} existente${i.vaT>1?"s":""}`:""}</div></div>
+      h+=`<div class="urow ${i.hitRef?"hit-ref":i.hitMeta?"hit-meta":i.excl?"out":""}"><div class="uname">${esc(u.nome)}<div class="muted">${esc(u.sigla)} · ref. ${trip(i.ref)}${i.vaT?` · ${i.vaT} vaga${i.vaT>1?"s":""} existente${i.vaT>1?"s":""}`:""}</div></div>
       <div>${pbar(i)}<div class="pnum">${i.occT} ocupados${i.vaT?` + ${i.vaT} existentes`:""}${i.noT?` + <b>${i.noT} novas</b> (${LV.filter(l=>i.no[l]).map(l=>l+" "+i.no[l]).join(", ")})`:""} = <b>${i.tot}</b> de ${i.refT}${i.meta!==null?` · meta ${i.meta}`:""}</div></div>
       <div class="steppers">${LV.map(l=>`<div class="stp"><span class="lvdot lv-${l}" aria-hidden="true">${l}</span><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="-1" aria-label="Menos ${l} em ${esc(u.nome)}">−</button><input type="number" min="0" id="al-${esc(u.id)}-${l}" aria-label="${esc(u.nome)} nível ${l}" data-act="aloc" data-id="${esc(u.id)}" data-l="${l}" value="${i.no[l]}"><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="1" aria-label="Mais ${l} em ${esc(u.nome)}">+</button></div>`).join("")}</div>
       <div class="ustat"><span class="chip ${i.st.c}">${esc(i.st.t)}</span><label><input type="checkbox" id="ex-${esc(u.id)}" data-act="excl" data-id="${esc(u.id)}"${i.excl?" checked":""}>excluir da meta</label></div></div>`;}
@@ -851,9 +920,13 @@ document.addEventListener("click",e=>{
     case "step":S.step=n(id);save("dim2.step",String(S.step));S.confirm=null;render();window.scrollTo(0,0);break;
     case "auto":autoDist();break;
     case "clearAloc":S.confirm="clearAloc";render();break;
-    case "clearAlocYes":S.cur.aloc={};S.cur.cargos={};S.confirm=null;markDirty();break;
-    case "copyFrom":{const v=$("#copyFrom")?.value;const p=v&&propById(v);if(!p)break;S.cur.aloc=clone(p.aloc||{});S.cur.cargos=clone(p.cargos||{});S.cur.vagaNotas=clone(p.vagaNotas||{});markDirty();flash("Distribuição copiada de "+p.nome,"ok");break}
-    case "exclT":{const s=new Set(S.cur.excluidas||[]);s.has(id)?s.delete(id):s.add(id);S.cur.excluidas=[...s];markDirty();break}
+    case "clearAlocYes":S.cur.aloc={};S.cur.autoAloc={};S.cur.cargos={};S.confirm=null;markDirty();break;
+    case "copyFrom":{const v=$("#copyFrom")?.value;const p=v&&propById(v);if(!p)break;S.cur.aloc=clone(p.aloc||{});S.cur.autoAloc=clone(p.autoAloc||{});S.cur.cargos=clone(p.cargos||{});S.cur.vagaNotas=clone(p.vagaNotas||{});markDirty();flash("Distribuição copiada de "+p.nome,"ok");break}
+    case "cmpMode":S.cmpMode=id;render();break;
+    case "cmpU":{const st=new Set(S.cmpU||[]);st.has(id)?st.delete(id):st.add(id);S.cmpU=[...st];render();break}
+    case "cmpUClear":S.cmpU=[];render();break;
+    case "exclT":setExcl(id,!(S.cur.excluidas||[]).includes(id));break;
+    case "exclRetYes":{const a=S.cur.aloc?.[id];const r=a?sum3(alocOf(id)):0;if(a)S.cur.aloc[id]={C:0,D:0,E:0};if(S.cur.cargos)delete S.cur.cargos[id];S.confirm=null;markDirty();flash(`${r} vaga${r>1?"s":""} devolvida${r>1?"s":""} ao saldo.`,"ok");break}
     case "inc":{S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[b.dataset.l]=Math.max(0,n(o[b.dataset.l])+n(b.dataset.d));markDirty();break}
     case "aprov":{const p=propById(id);if(!p)break;const on=!p.aprovada;const ch=[];S.props.forEach(x=>{const nv=x.id===id?on:(on?false:!!x.aprovada);if(!!x.aprovada!==nv){x.aprovada=nv;ch.push(x)}});if(S.curId&&ch.find(x=>x.id===S.curId)&&S.cur)S.cur.aprovada=propById(S.curId).aprovada;if(on)S.defPropId=id;render();if(S.db)(async()=>{for(const x of ch){try{await S.db.doc("propostas/"+x.id).update({aprovada:!!x.aprovada})}catch(e){flash("Não foi possível gravar a aprovação.","warn")}}})();break}
     case "logout":window.__sb?.auth.signOut().then(()=>location.reload());break;
@@ -907,6 +980,8 @@ document.addEventListener("change",e=>{
     case "defProp":if(S.defDirty)saveDefs();S.defPropId=t.value;S.defState=null;S.defSavedAt=null;render();break;
     case "defAll":S.defAll=t.checked;render();break;
     case "cmpDiff":S.cmpDiff=t.checked;render();break;
+    case "cmpP":S.cmpP=t.value;render();break;
+    case "cmpAddG":{const g=groups().find(x=>x.id===t.value);if(g){const st=new Set(S.cmpU||[]);g.units.forEach(u=>st.add(u.id));S.cmpU=[...st]}render();break}
     case "upUnit":S.upUnit=t.value;render();break;
     case "dset":setDef(t.dataset.u,t.dataset.c,t.dataset.l,n(t.value));render();break;
     case "fQuadro":if(t.files[0])importQuadroFile(t.files[0]);break;
@@ -920,7 +995,7 @@ document.addEventListener("change",e=>{
     case "pdesc":S.cur.descricao=t.value;markDirty();break;
     case "meta":S.cur.metas=S.cur.metas||{};if(t.value==="")delete S.cur.metas[id];else S.cur.metas[id]=n(t.value);markDirty();break;
     case "aloc":{S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[t.dataset.l]=Math.max(0,n(t.value));markDirty();break}
-    case "excl":{const s=new Set(S.cur.excluidas||[]);t.checked?s.add(id):s.delete(id);S.cur.excluidas=[...s];markDirty();break}
+    case "excl":setExcl(id,t.checked);break;
     case "cl":{const ln=(S.cur.cargos[t.dataset.u]||[]).find(l=>l.id===id);if(ln){ln[f]=f==="qtd"?Math.max(0,n(t.value)):t.value;markDirty()}break}
     case "vnota":S.cur.vagaNotas=S.cur.vagaNotas||{};S.cur.vagaNotas[id]=t.value;markDirty();break;
     case "tEd":{const x=B.tipologias.find(q=>q.id===id);if(f==="nome")x.nome=t.value;else x.ref[f]=Math.max(0,n(t.value));touchBase();break}
