@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Dimensionamento TAE IFRN</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: navegação em pílulas no topo, superfícies arredondadas flutuando sobre fundo verde-acinzentado claro */
+:root{
+  --bg:#eef3ee;--surface:#ffffff;--soft:#f5f8f4;--soft-2:#e7eee6;--line:#dfe7de;
+  --fg:#17231b;--fg-2:#4b5b50;--fg-3:#839086;
+  --accent:#1b8a4c;--accent-fg:#ffffff;--accent-soft:#dcefe2;--accent-ink:#11613a;
+  --lv-c:#8b6be0;--lv-d:#3479e0;--lv-e:#16a58a;--occ:#c3ccc2;--vag:#e3a21a;
+  --g1:#3479e0;--g2:#e86a3a;--g3:#16a58a;--g4:#e3a21a;--g5:#d0659a;--g6:#6a5bd6;
+  --ok:#1d8a3a;--ok-bg:#e1f3e5;--warn:#9a6400;--warn-bg:#fbefd6;--bad:#c03a3a;--bad-bg:#fbe4e4;
+  --shadow:0 1px 2px rgba(23,35,27,.05),0 6px 22px rgba(23,35,27,.06);
+  --f:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101512;--surface:#18201a;--soft:#1e2720;--soft-2:#26312a;--line:#2b362e;
+  --fg:#e7eee8;--fg-2:#b0bdb3;--fg-3:#7d8a80;--accent:#4fca84;--accent-fg:#0b1a10;--accent-soft:#1d3527;--accent-ink:#8fe0b0;
+  --lv-c:#a993f2;--lv-d:#649cf2;--lv-e:#3fcfb0;--occ:#4d584f;--vag:#ecb847;
+  --g1:#649cf2;--g2:#f08a62;--g3:#3fcfb0;--g4:#ecb847;--g5:#e48bb6;--g6:#9488ec;
+  --ok:#62d283;--ok-bg:#1b3323;--warn:#f0c062;--warn-bg:#382d16;--bad:#f28c8c;--bad-bg:#3c1f1f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 22px rgba(0,0,0,.25);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101512;--surface:#18201a;--soft:#1e2720;--soft-2:#26312a;--line:#2b362e;
+  --fg:#e7eee8;--fg-2:#b0bdb3;--fg-3:#7d8a80;--accent:#4fca84;--accent-fg:#0b1a10;--accent-soft:#1d3527;--accent-ink:#8fe0b0;
+  --lv-c:#a993f2;--lv-d:#649cf2;--lv-e:#3fcfb0;--occ:#4d584f;--vag:#ecb847;
+  --g1:#649cf2;--g2:#f08a62;--g3:#3fcfb0;--g4:#ecb847;--g5:#e48bb6;--g6:#9488ec;
+  --ok:#62d283;--ok-bg:#1b3323;--warn:#f0c062;--warn-bg:#382d16;--bad:#f28c8c;--bad-bg:#3c1f1f;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 22px rgba(0,0,0,.25);color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font-family:var(--f);font-size:14px;line-height:1.55;font-variant-numeric:tabular-nums}
+.wrap{max-width:1220px;margin:0 auto;padding-block:20px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.015em}
+h1{font-size:24px;font-weight:800}h2{font-size:18px;font-weight:700}h3{font-size:15px;font-weight:700}
+.eyebrow{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--fg-3);font-weight:700}
+.muted{color:var(--fg-3);font-size:12.5px}.small{font-size:12.5px}
+button,select,input,textarea{font:inherit;color:inherit}
+button{border:none;background:var(--soft-2);padding:8px 16px;border-radius:999px;cursor:pointer;font-weight:600;white-space:nowrap;transition:background .15s,transform .1s}
+button:hover{background:var(--line)}button:active{transform:scale(.98)}
+button.pri{background:var(--accent);color:var(--accent-fg)}button.pri:hover{filter:brightness(1.06)}
+button.ghost{background:transparent;color:var(--fg-2);padding:6px 12px}button.ghost:hover{background:var(--soft-2)}
+button.danger{color:var(--bad)}
+button.on{background:var(--accent-soft);color:var(--accent-ink)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select,input[type=text],input[type=number]{background:var(--soft);border:1.5px solid transparent;border-radius:12px;padding:7px 11px}
+select:hover,input[type=text]:hover,input[type=number]:hover{border-color:var(--line)}
+input[type=number]{width:70px;text-align:center}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+.top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;margin-bottom:16px}
+.brand{display:flex;gap:14px;align-items:center}
+.logo{width:44px;height:44px;border-radius:14px;background:var(--accent);display:grid;place-items:center;color:var(--accent-fg);font-weight:800;font-size:15px}
+.nav{display:flex;gap:4px;background:var(--surface);padding:5px;border-radius:999px;box-shadow:var(--shadow);flex-wrap:wrap}
+.nav button{background:transparent;color:var(--fg-2);padding:8px 18px}
+.nav button[aria-selected=true]{background:var(--accent);color:var(--accent-fg)}
+.card{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px}
+.card-h{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.toast{padding:11px 16px;border-radius:16px;background:var(--warn-bg);color:var(--warn);margin-bottom:14px;font-size:13px;font-weight:500}
+.toast.ok{background:var(--ok-bg);color:var(--ok)}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.kpi{background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:2px;min-height:108px}
+.kpi .big{font-size:30px;font-weight:800;line-height:1.15;letter-spacing:-.02em}
+.kpi .sub{font-size:12.5px;color:var(--fg-2)}
+.lvdot{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:999px;font-size:11px;font-weight:800;color:#fff}
+.lv-C{background:var(--lv-c)}.lv-D{background:var(--lv-d)}.lv-E{background:var(--lv-e)}
+:root[data-theme="dark"] .lvdot{color:#0b1a10}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .lvdot{color:#0b1a10}}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}.chip.warn{background:var(--warn-bg);color:var(--warn)}.chip.bad{background:var(--bad-bg);color:var(--bad)}.chip.mute{background:var(--soft-2);color:var(--fg-3)}
+.neg{color:var(--bad)}
+.steps{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.step{display:flex;align-items:center;gap:10px;background:var(--surface);box-shadow:var(--shadow);border-radius:999px;padding:6px 18px 6px 6px;color:var(--fg-2)}
+.step b{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;background:var(--soft-2);font-size:13px}
+.step[aria-selected=true]{background:var(--accent-soft);color:var(--accent-ink)}.step[aria-selected=true] b{background:var(--accent);color:var(--accent-fg)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.tile{background:var(--soft);border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.tile .tt{font-weight:700}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.tog{background:var(--soft);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--fg-2)}
+.tog[aria-pressed=true]{background:var(--bad-bg);color:var(--bad)}
+.grp{margin-bottom:22px}
+.grp-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 6px 10px;flex-wrap:wrap}
+.ulist{display:flex;flex-direction:column;gap:8px}
+.urow{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:12px 16px;display:grid;grid-template-columns:minmax(150px,1.1fr) minmax(160px,1.4fr) auto 130px;gap:14px;align-items:center}
+.urow.out{opacity:.72}
+.uname{font-weight:700;line-height:1.25}
+.uname .muted{font-weight:500}
+.pbar{position:relative;height:12px;border-radius:999px;background:var(--soft-2);overflow:visible}
+.pbar .fill{position:absolute;inset:0 auto 0 0;display:flex;border-radius:999px;overflow:hidden}
+.pbar .fill i{display:block;height:100%}
+.pbar .ref{position:absolute;top:-4px;bottom:-4px;width:3px;border-radius:2px;background:var(--fg-2)}
+.pbar .meta{position:absolute;top:-5px;bottom:-5px;width:0;border-left:2.5px dotted var(--bad)}
+.pnum{font-size:12px;color:var(--fg-2);margin-top:5px}
+.steppers{display:flex;gap:8px}
+.stp{display:flex;align-items:center;gap:2px;background:var(--soft);border-radius:999px;padding:3px}
+.stp button{width:26px;height:26px;padding:0;border-radius:999px;background:var(--surface);font-size:15px;line-height:1;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.stp input{width:34px;padding:2px 0;background:transparent;border:none;font-weight:700;text-align:center}
+.stp .lvdot{width:22px;height:22px;margin-left:2px}
+.ustat{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.ustat label{font-size:11.5px;color:var(--fg-3);display:flex;align-items:center;gap:5px;cursor:pointer}
+.lg{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--fg-2);margin-bottom:12px}
+.lg span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:999px;display:inline-block}
+.rcv{display:flex;gap:4px;flex-wrap:wrap}
+.rc{display:inline-flex;align-items:center;gap:3px;padding:2px 8px 2px 3px;border-radius:999px;background:var(--soft-2);font-size:12px;font-weight:800}
+.rc .lvdot{width:18px;height:18px;font-size:10px}
+.rc.v{background:var(--warn-bg);color:var(--warn);padding:2px 8px}
+.prow{display:grid;grid-template-columns:180px minmax(0,1fr) 150px 170px;gap:12px;align-items:center;padding:5px 0;font-size:12.5px}
+.prow .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.prow .st{color:var(--fg-2);white-space:nowrap}
+.pgt{font-weight:700;margin:16px 0 4px;color:var(--fg-2);font-size:13px}
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:22px}
+.pcard{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:18px 20px;display:flex;flex-direction:column;gap:12px;border:2px solid transparent}
+.pcard.focus{border-color:var(--accent)}
+.pcard .acts{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px}
+.mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mini div{background:var(--soft);border-radius:14px;padding:8px 10px;text-align:center}
+.mini b{display:block;font-size:19px;font-weight:800}
+.mini span{font-size:11px;color:var(--fg-3)}
+.share{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--soft-2)}
+.share i{display:block;height:100%}
+.slg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--fg-2)}
+.slg span{display:inline-flex;align-items:center;gap:5px}
+.cmp{overflow-x:auto}
+.cmp table{border-collapse:separate;border-spacing:0 6px;width:100%;font-size:13px}
+.cmp th{font-size:11.5px;color:var(--fg-3);font-weight:700;text-align:center;padding:4px 8px;white-space:nowrap}
+.cmp th:first-child{text-align:left}
+.cmp td{background:var(--soft);padding:8px 10px;text-align:center;white-space:nowrap}
+.cmp td:first-child{border-radius:14px 0 0 14px;text-align:left;font-weight:600}
+.cmp td:last-child{border-radius:0 14px 14px 0}
+.cmp tr.gh td{background:transparent;font-weight:700;color:var(--fg-2);padding:12px 4px 0}
+.cell{display:inline-flex;flex-direction:column;align-items:center;gap:2px}
+.pill{display:inline-block;min-width:44px;padding:3px 10px;border-radius:999px;font-weight:800;font-size:13px}
+.pill.z{background:transparent;color:var(--fg-3);font-weight:600}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.bad{background:var(--bad-bg);color:var(--bad)}.pill.mute{background:var(--soft-2);color:var(--fg-2)}
+.cell small{font-size:11px;color:var(--fg-3)}
+.ucards{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px;margin-bottom:18px}
+.ucard{background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.cline{display:grid;grid-template-columns:minmax(0,1fr) 64px 64px;gap:8px;align-items:center;background:var(--soft);border-radius:14px;padding:8px}
+.cline input[type=text],.cline select{background:var(--surface)}
+.cline .full{grid-column:1/-1;display:flex;gap:8px;align-items:center}
+.cline .full input{flex:1}
+.vline{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;align-items:center;padding:8px 10px;border-radius:14px;background:var(--soft)}
+.vline input{grid-column:1/-1;background:var(--surface)}
+.tw{overflow-x:auto;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:6px 10px;margin-bottom:18px}
+table.plain{border-collapse:collapse;width:100%;font-size:13px}
+table.plain th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--fg-3);font-weight:700;text-align:left;padding:10px 8px}
+table.plain td{padding:6px 8px;border-top:1px solid var(--line);white-space:nowrap}
+table.plain .num{text-align:right}
+table.plain input.n{width:60px}
+.sec{margin-bottom:28px}.sec .card-h{margin-bottom:10px}
+.empty{padding:44px 20px;text-align:center;color:var(--fg-2);background:var(--surface);border-radius:22px;box-shadow:var(--shadow)}
+.dirty{background:var(--warn-bg);color:var(--warn);font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px}
+.namebox{font-size:20px;font-weight:800;background:transparent!important;padding:4px 8px!important;width:min(520px,100%)}
+
+.modnav{display:flex;gap:6px;flex-wrap:wrap}
+.subnav{display:flex;gap:6px;flex-wrap:wrap;margin:-4px 0 18px}
+.subnav button{background:transparent;color:var(--fg-2);padding:6px 14px;font-size:13px}
+.subnav button[aria-selected=true]{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.uchips{display:flex;flex-wrap:wrap;gap:8px}
+.uchip{display:inline-flex;align-items:center;gap:8px;background:var(--soft);padding:6px 8px 6px 14px;font-weight:600}
+.uchip.sel{background:var(--accent-soft);color:var(--accent-ink);box-shadow:inset 0 0 0 2px var(--accent)}
+.uc-f{font-size:10px;font-weight:800;color:var(--fg-3);letter-spacing:.05em}
+.budget{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.bud{display:flex;gap:10px;align-items:center;background:var(--soft);border-radius:16px;padding:10px 14px}
+.bud b{font-size:22px;font-weight:800}
+.filebtn{display:inline-flex;align-items:center;background:var(--accent);color:var(--accent-fg);border-radius:999px;padding:8px 16px;font-weight:600;cursor:pointer;white-space:nowrap}
+.filebtn.sm{background:var(--soft-2);color:var(--fg);padding:5px 12px;font-size:12.5px}
+.filebtn input{position:absolute;width:1px;height:1px;opacity:0}
+.filebtn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.qgrid{display:flex;flex-direction:column;gap:8px}
+.qcard{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.qcard .cmp{padding:0 14px 10px}.qcard>.muted{padding:0 16px 12px}
+.qhead{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:transparent;border-radius:0;padding:12px 16px;text-align:left;font-weight:500}
+.qhead:hover{background:var(--soft)}
+.home{max-width:980px;margin:10px auto 0}
+.home-lead{text-align:center;font-size:18px;font-weight:700;color:var(--fg-2);margin:6px 0 18px}
+.homegrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.hcard{background:var(--surface);border-radius:26px;box-shadow:var(--shadow);padding:26px;display:flex;flex-direction:column;gap:12px}
+.hcard p{margin:0;color:var(--fg-2)}
+.hicon{width:46px;height:46px;border-radius:16px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center;font-weight:800;font-size:20px}
+.hst{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--fg-3)}
+.hst li::before{content:"•";margin-right:6px;color:var(--accent)}
+.hacts{margin-top:auto;display:flex;flex-wrap:wrap;gap:8px;padding-top:6px}
+.hfoot{text-align:center;margin-top:18px}.hfoot button{white-space:normal}
+.upcard{display:flex;flex-direction:column;gap:14px}
+.upform{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.upform select{min-width:220px}
+.filebtn.big{padding:11px 22px;font-size:14.5px}
+@media (max-width:760px){.homegrid{grid-template-columns:minmax(0,1fr)}.hcard{padding:20px}.upform select{flex:1;min-width:0}}
+.mlist{display:none;flex-direction:column;gap:8px}
+.mrow{background:var(--soft);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.mrow-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mrow-t{font-weight:700;min-width:0}
+.mstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.mstats span{background:var(--surface);border-radius:12px;padding:6px 4px;text-align:center;font-size:11px;color:var(--fg-3);display:flex;flex-direction:column}
+.mstats b{font-size:16px;color:var(--fg);font-weight:800}
+.mstats .neg b{color:var(--bad)}
+.mrow-f{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mrow-f .stp input{width:36px!important}.mrow-f .stp button{width:30px!important;height:30px!important}
+@media (max-width:760px){.dtab{display:none}.mlist{display:flex}.budget{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bud{flex-direction:column;align-items:center;text-align:center;gap:4px;padding:10px 6px}.bud b{font-size:20px}.bud .muted{font-size:11px}}
+.star{color:var(--vag);font-size:14px}
+.lnk{color:var(--accent-ink);font-weight:600;font-size:12.5px}
+.clist{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:8px}
+@media (max-width:860px){.clist{grid-template-columns:1fr}}
+.urow>*,.ucard>*,.card>*,.kpi,.pcard>*{min-width:0}
+@media (max-width:860px){.urow{grid-template-columns:minmax(0,1fr);gap:12px;padding:14px}.steppers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.stp{justify-content:space-between;padding:3px}.stp input{width:26px}.stp button{width:28px;height:28px}.stp .lvdot{width:20px;height:20px;font-size:10px}.ustat label{white-space:nowrap}.top{flex-direction:column;align-items:stretch}.top>.row{justify-content:space-between}.nav{border-radius:18px;width:100%}.nav button{flex:1;padding:8px 10px;font-size:13px}.card{padding:16px;border-radius:18px}.kpi{min-height:0;padding:12px 14px}.kpi .big{font-size:24px}.grp-h{flex-direction:column;gap:2px}.cline{grid-template-columns:minmax(0,1fr) 56px 60px}.mini b{font-size:16px}.namebox{font-size:17px}h1{font-size:20px}.uchip{padding:5px 6px 5px 12px;font-size:12.5px}.qhead{padding:10px 14px}.filebtn{justify-content:center}}
+@media (max-width:340px){.steppers{grid-template-columns:minmax(0,1fr)}.stp{max-width:180px}}
+@media (max-width:420px){.stp button{width:26px;height:26px}.stp input{width:22px}.nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.nav button{padding:8px 4px;font-size:12px;white-space:normal;line-height:1.2}.brand{align-items:flex-start}.logo{width:38px;height:38px;font-size:13px}.kpis{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}.kpi .sub{font-size:11.5px}}
+@media (max-width:860px){.ustat{flex-direction:row;align-items:center;justify-content:space-between}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.prow{grid-template-columns:110px minmax(0,1fr)}.prow .st,.prow .rcv{grid-column:1/-1;font-size:11px}.ucards{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.login{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.lcard{background:var(--surface);border-radius:26px;box-shadow:var(--shadow);padding:30px 26px;width:min(380px,100%);display:flex;flex-direction:column;gap:10px;align-items:stretch;text-align:center}
+.lcard .logo{margin:0 auto 6px}.lcard h1{font-size:22px;margin-bottom:8px}.lcard label{text-align:left;font-weight:600;color:var(--fg-2)}.lcard .pri{padding:11px 16px;font-size:15px}.lcard input{font-size:20px;letter-spacing:.3em;text-align:center;padding:10px}
+</style>
+</head>
+<body>
+
+
+<section id="login" class="login" hidden><form id="loginForm" class="lcard" autocomplete="off"><div class="logo" aria-hidden="true">TAE</div><div class="eyebrow">DIDEPE · DIGPE · IFRN</div><h1>Dimensionamento TAE IFRN</h1><label for="pw" class="small">Senha de acesso</label><input id="pw" type="password" inputmode="numeric" autocomplete="current-password" required><button class="pri" id="loginBtn" type="submit">Entrar</button><div id="loginMsg" class="muted" role="status"></div></form></section>
+<div id="app" hidden><div class="wrap">
+  <header class="top">
+    <div class="brand" data-home="1" style="cursor:pointer"><div class="logo" aria-hidden="true">TAE</div><div><div class="eyebrow">DIDEPE · DIGPE · IFRN</div><h1>Dimensionamento TAE IFRN</h1><div class="muted" id="hdrMeta">Carregando dados…</div></div></div>
+    <div class="row">
+      <nav class="nav" role="tablist" id="tabs">
+        <button role="tab" data-mod="home">Início</button>
+        <button role="tab" data-mod="dim">Dimensionamento</button>
+        <button role="tab" data-mod="car">Definição de cargos</button>
+        <button role="tab" data-mod="cad">Cadastros</button>
+      </nav>
+      <button id="btnPan" aria-pressed="false">Panorama do IFRN</button><button class="ghost" data-act="logout">Sair</button>
+    </div>
+  </header>
+  <nav class="subnav" id="subnav" aria-label="Seções"></nav>
+  <div id="status"></div>
+  <section id="panorama" hidden></section>
+  <main id="view"><div class="empty">Carregando dados do dimensionamento…</div></main>
+  <datalist id="dlCargos"></datalist>
+</div></div>
+
+
+<script>window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}})},channel:()=>({on(){return this},subscribe(){}})})}</script>
+<script>
+(function(){
+const SB_URL="https://oagqaozbjgawnivdhdqv.supabase.co",SB_KEY="sb_publishable_Kqcp8ui6OTIFFL1LBSvirQ_OO-SQzbV",LOGIN="acesso@dimensionamento-ifrn.app";
+const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true}});window.__sb=sb;
+const listeners={};let chan=null;
+function ensureChan(){if(chan)return;chan=sb.channel("docs").on("postgres_changes",{event:"*",schema:"public",table:"docs"},p=>{const c=(p.new&&p.new.collection)||(p.old&&p.old.collection);(listeners[c]||[]).forEach(f=>f());(listeners["*"]||[]).forEach(f=>f())}).subscribe()}
+function on(c,f){(listeners[c]=listeners[c]||[]).push(f);(listeners["*"]=listeners["*"]||[]).push(f);ensureChan();return()=>{}}
+const snapDoc=(id,row)=>({id,exists:!!row,data:()=>row?row.data:undefined,metadata:{fromCache:false,hasPendingWrites:false}});
+const db={
+  doc(path){const [c,id]=path.split("/");return{
+    async set(data){const {error}=await sb.from("docs").upsert({collection:c,id,data});if(error)throw error},
+    async update(patch){const {data:r,error:e1}=await sb.from("docs").select("data").eq("collection",c).eq("id",id).maybeSingle();if(e1)throw e1;const {error}=await sb.from("docs").upsert({collection:c,id,data:{...(r?r.data:{}),...patch}});if(error)throw error},
+    async delete(){const {error}=await sb.from("docs").delete().eq("collection",c).eq("id",id);if(error)throw error},
+    onSnapshot(cb,err){const load=async()=>{const {data:r,error}=await sb.from("docs").select("data").eq("collection",c).eq("id",id).maybeSingle();if(error){err&&err({code:error.message});return}cb(snapDoc(id,r))};load();on(c,load);return()=>{}}}},
+  collection(c){return{onSnapshot(cb,err){const load=async()=>{const {data:rs,error}=await sb.from("docs").select("id,data").eq("collection",c);if(error){err&&err({code:error.message});return}cb({docs:rs.map(r=>snapDoc(r.id,r))})};load();on(c,load);return()=>{}}}}
+};
+let ready;const gate=new Promise(r=>ready=r);
+window.claude={use:async n=>{await gate;return n==="db"?db:null}};
+async function start(){const {data}=await sb.auth.getSession();if(data.session){document.getElementById("login").hidden=true;document.getElementById("app").hidden=false;ready()}else{document.getElementById("login").hidden=false;document.getElementById("pw").focus()}}
+document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();const b=document.getElementById("loginBtn"),m=document.getElementById("loginMsg");b.disabled=true;m.textContent="Verificando…";
+  const {error}=await sb.auth.signInWithPassword({email:LOGIN,password:document.getElementById("pw").value});b.disabled=false;
+  if(error){m.textContent="Senha incorreta. Tente novamente.";document.getElementById("pw").select();return}
+  m.textContent="";document.getElementById("login").hidden=true;document.getElementById("app").hidden=false;ready()});
+start();
+})();
+</script>
+<script>
+const LV=["C","D","E"];
+const S={base:null,props:[],cur:null,curId:null,dirty:false,tab:"inicio",step:1,grouping:"tip",pan:false,db:null,dbState:"loading",confirm:null,showAllCargos:false,editGrouping:null,focusId:null,cmp:null,quadro:null,desej:{},defs:{},defPropId:null,defUnit:null,defDirty:false,imp:null,impC:null,prog:"",sample:null,assets:null,qOpen:null};
+try{S.tab="inicio";const g=localStorage.getItem("dim.grp");if(g)S.grouping=g;S.pan=localStorage.getItem("dim.pan")==="1";const st=localStorage.getItem("dim2.step");if(st)S.step=+st||1}catch(e){}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const n=v=>{const x=parseInt(v,10);return isNaN(x)?0:x};
+const sum3=o=>LV.reduce((a,l)=>a+(o?.[l]||0),0);
+const trip=o=>LV.map(l=>o?.[l]||0).join(" · ");
+const clone=o=>JSON.parse(JSON.stringify(o));
+const today=()=>new Date().toLocaleDateString("pt-BR");
+const save=(k,v)=>{try{localStorage.setItem(k,v)}catch(_){}};
+const GC=["var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)","var(--g6)"];
+const CARGOS_BASE=["Técnico em Educação","Analista em Educação","Assistente em Administração","Técnico em Assuntos Educacionais","Técnico de Laboratório-Área","Técnico de Tecnologia da Informação","Analista de Tecnologia da Informação","Administrador","Contador","Bibliotecário-Documentalista","Pedagogo-Área","Psicólogo-Área","Assistente Social","Enfermeiro-Área","Médico-Área","Odontólogo","Nutricionista","Engenheiro-Área","Engenheiro Agrônomo","Engenheiro de Segurança do Trabalho","Arquiteto e Urbanista","Arquivista","Auditor","Jornalista","Revisor de Textos","Tradutor e Intérprete de Linguagem de Sinais","Técnico em Agropecuária","Técnico em Química","Técnico em Enfermagem","Técnico em Contabilidade","Técnico em Secretariado","Assistente de Aluno","Zootecnista","Médico Veterinário","Tecnólogo-Formação","Assistente de Laboratório","Auxiliar em Administração","Secretário Executivo","Técnico em Segurança do Trabalho","Nutricionista","Técnico em Arquivo","Técnico em Audiovisual","Programador Visual","Relações Públicas","Economista","Estatístico","Músico","Operador de Câmera de Cinema e TV","Técnico em Alimentos e Laticínios","Técnico em Edificações","Técnico em Eletrotécnica","Técnico em Mecânica","Técnico em Laboratório","Vigilante","Motorista","Recepcionista","Telefonista","Porteiro","Auxiliar de Biblioteca"];
+
+/* ---------- cálculo ---------- */
+const tipOf=u=>S.base.tipologias.find(t=>t.id===u.tipologia);
+function refOf(u){const r=u.ref;if(r&&LV.some(l=>r[l]!==undefined&&r[l]!==""))return{C:n(r.C),D:n(r.D),E:n(r.E)};const t=tipOf(u);return t?{C:n(t.ref.C),D:n(t.ref.D),E:n(t.ref.E)}:{C:0,D:0,E:0}}
+function vagasOf(id){const o={C:0,D:0,E:0};for(const v of S.base.vagas)if(v.unidade===id&&v.considerar!==false&&o[v.nivel]!==undefined)o[v.nivel]++;return o}
+function alocOf(id,P){const a=(P||S.cur)?.aloc?.[id]||{};return{C:n(a.C),D:n(a.D),E:n(a.E)}}
+function info(u,P){
+  P=P||S.cur;
+  const ref=refOf(u),oc={C:n(u.ocup?.C),D:n(u.ocup?.D),E:n(u.ocup?.E)},ab=n(u.ab),va=vagasOf(u.id),no=alocOf(u.id,P);
+  const prev={};LV.forEach(l=>prev[l]=oc[l]+va[l]+no[l]);
+  const occT=sum3(oc)+ab,vaT=sum3(va),noT=sum3(no),tot=sum3(prev)+ab,refT=sum3(ref);
+  const excl=(P?.excluidas||[]).includes(u.id);
+  const mv=P?.metas?.[u.tipologia];const meta=(!excl&&mv!==undefined&&mv!==null&&mv!=="")?n(mv):null;
+  let st;
+  if(excl)st={c:"mute",t:"Fora da meta"};
+  else if(meta!==null)st=tot>=meta?{c:"ok",t:"Meta atingida"}:{c:"bad",t:`Faltam ${meta-tot}`};
+  else st=tot>=refT?{c:"ok",t:"Referência completa"}:{c:"warn",t:`${tot-refT} da ref.`};
+  return{ref,oc,ab,va,no,prev,occT,vaT,noT,tot,refT,meta,excl,st};
+}
+function pool(P){
+  const rec={C:0,D:0,E:0},al={C:0,D:0,E:0};
+  for(const lt of S.base.lotes)if(rec[lt.nivel]!==undefined)rec[lt.nivel]+=n(lt.qtd);
+  for(const u of S.base.unidades){const a=alocOf(u.id,P);LV.forEach(l=>al[l]+=a[l])}
+  const sd={};LV.forEach(l=>sd[l]=rec[l]-al[l]);return{rec,al,sd};
+}
+function stats(P){
+  const all=S.base.unidades.map(u=>info(u,P));const wm=all.filter(i=>i.meta!==null);
+  return{all,meta:wm.length,ok:wm.filter(i=>i.tot>=i.meta).length,def:all.reduce((a,i)=>a+Math.max(0,i.refT-i.tot),0),aloc:all.reduce((a,i)=>a+i.noT,0),pool:pool(P)};
+}
+function groups(){
+  const U=S.base.unidades;const ag=S.base.agrupamentos.find(g=>g.id===S.grouping);
+  if(!ag){const out=S.base.tipologias.map(t=>({id:t.id,nome:t.nome,units:U.filter(u=>u.tipologia===t.id)}));const sem=U.filter(u=>!tipOf(u));if(sem.length)out.push({id:"_",nome:"Sem tipologia",units:sem});return out.filter(g=>g.units.length)}
+  const used=new Set();const out=ag.grupos.map(g=>{const units=U.filter(u=>(g.unidades||[]).includes(u.id));units.forEach(u=>used.add(u.id));return{id:g.id,nome:g.nome,units}});
+  const sem=U.filter(u=>!used.has(u.id));if(sem.length)out.push({id:"_",nome:"Sem grupo",units:sem});return out.filter(g=>g.units.length);
+}
+function groupingSelect(sid){return `<label class="small" for="${sid}">Organizar por</label><select id="${sid}" data-act="grp"><option value="tip"${S.grouping==="tip"?" selected":""}>Tipologia</option>${S.base.agrupamentos.map(a=>`<option value="${esc(a.id)}"${S.grouping===a.id?" selected":""}>${esc(a.nome)}</option>`).join("")}</select>`}
+const propById=id=>S.props.find(p=>p.id===id);
+const strip=p=>{const {id,...d}=p;return clone(d)};
+
+/* ---------- persistência ---------- */
+let baseTimer=null,baseWriting=false,basePending=false,baseLocal=false;
+function touchBase(){render();if(!S.db)return;baseLocal=true;clearTimeout(baseTimer);baseTimer=setTimeout(flushBase,700)}
+async function flushBase(){if(baseWriting){basePending=true;return}baseWriting=true;try{await S.db.doc("ws/base").set(clone(S.base))}catch(e){flash("Não foi possível salvar os cadastros: "+(e.message||e.code),"warn")}baseWriting=false;if(basePending){basePending=false;flushBase()}else baseLocal=false}
+function markDirty(){S.dirty=true;render()}
+async function saveProp(asCopy){
+  if(!S.cur)return;const now=new Date().toISOString();let id=S.curId,doc=clone(S.cur);
+  if(asCopy||!id){id=uid();if(asCopy)doc.nome=doc.nome+" (cópia)";doc.criadaEm=now}
+  doc.atualizadaEm=now;S.cur=doc;S.curId=id;S.dirty=false;
+  const i=S.props.findIndex(p=>p.id===id);const rec={id,...clone(doc)};if(i>=0)S.props[i]=rec;else S.props.push(rec);render();
+  if(!S.db){flash("Armazenamento indisponível nesta visualização: a proposta ficou só nesta tela.","warn");return}
+  try{await S.db.doc("propostas/"+id).set(doc);flash(asCopy?"Cópia salva":"Proposta salva","ok")}catch(e){S.dirty=true;render();flash("Não foi possível salvar: "+(e.message||e.code),"warn")}
+}
+function editProp(id,force){
+  if(S.dirty&&!force&&S.curId!==id){S.confirm="switch:"+id;render();return}
+  const p=propById(id);if(!p)return;S.cur=strip(p);S.curId=id;S.dirty=false;S.confirm=null;S.tab="construir";save("dim2.tab","construir");render();
+}
+function newProp(force){
+  if(S.dirty&&!force){S.confirm="new";render();return}
+  S.cur={nome:"Proposta "+(S.props.length+1)+" – "+today(),descricao:"",metas:{},excluidas:[],aloc:{},cargos:{},vagaNotas:{}};
+  S.curId=null;S.dirty=true;S.confirm=null;S.tab="construir";S.step=1;save("dim2.tab","construir");render();
+}
+let flashT=null;
+function flash(msg,kind){$("#status").innerHTML=`<div class="toast ${kind==="ok"?"ok":""}" role="status">${esc(msg)}</div>`;clearTimeout(flashT);flashT=setTimeout(()=>{$("#status").innerHTML=""},4000)}
+
+/* ---------- distribuição automática ---------- */
+function autoDist(){
+  const sd={...pool().sd};const UI={};for(const u of S.base.unidades)UI[u.id]=info(u);S.cur.aloc=S.cur.aloc||{};
+  for(let g=0;g<5000;g++){
+    let best=null,bd=0;for(const u of S.base.unidades){const i=UI[u.id];if(i.meta===null)continue;const d=i.meta-i.tot;if(d>bd){bd=d;best=u}}
+    if(!best)break;const i=UI[best.id];const lv=LV.filter(l=>sd[l]>0);if(!lv.length)break;
+    lv.sort((a,b)=>((i.ref[b]-i.prev[b])-(i.ref[a]-i.prev[a]))||(sd[b]-sd[a]));const l=lv[0];
+    const a=S.cur.aloc[best.id]||(S.cur.aloc[best.id]={C:0,D:0,E:0});a[l]=n(a[l])+1;sd[l]--;i.prev[l]++;i.tot++;i.no[l]++;
+  }
+  markDirty();const left=sum3(sd);flash(left?`Metas aplicadas. Restam ${trip(sd)} (C · D · E) para distribuir à mão.`:"Metas aplicadas. Todas as vagas recebidas foram alocadas.","ok");
+}
+function genCargos(id){
+  const a=alocOf(id);const lines=[];
+  for(const l of LV){const q=a[l];if(!q)continue;const lots=S.base.lotes.filter(x=>x.nivel===l);
+    lines.push({id:uid(),cargo:lots[0]?.cargo||"",nivel:l,qtd:q,status:lots.length>1?"discutir":"proposto",obs:lots.length>1?"Definir entre os cargos recebidos":""});}
+  S.cur.cargos=S.cur.cargos||{};S.cur.cargos[id]=lines;
+}
+
+/* ---------- componentes visuais ---------- */
+function pbar(i){
+  const base=Math.max(i.refT,i.meta||0,i.tot,1);const k=v=>v/base*100;
+  const seg=(v,c)=>v>0?`<i style="width:${k(v)}%;background:${c}"></i>`:"";
+  return `<div class="pbar"><div class="fill" style="width:100%">${seg(i.occT,"var(--occ)")}${seg(i.vaT,"var(--vag)")}${seg(i.no.C,"var(--lv-c)")}${seg(i.no.D,"var(--lv-d)")}${seg(i.no.E,"var(--lv-e)")}</div><div class="ref" style="left:calc(${k(i.refT)}% - 1px)"></div>${i.meta!==null?`<div class="meta" style="left:${k(i.meta)}%"></div>`:""}</div>`;
+}
+function recv(i,withVag){const out=LV.filter(l=>i.no[l]).map(l=>`<span class="rc" title="Recebe ${i.no[l]} vaga(s) nova(s) de nível ${l}"><span class="lvdot lv-${l}">${l}</span>+${i.no[l]}</span>`);if(withVag&&i.vaT)out.push(`<span class="rc v" title="Vagas já existentes">${i.vaT} exist.</span>`);return `<div class="rcv">${out.join("")||'<span class="muted">não recebe</span>'}</div>`}
+const legend=()=>`<div class="lg"><span><i class="sw" style="background:var(--occ)"></i>Ocupados</span><span><i class="sw" style="background:var(--vag)"></i>Vagas existentes</span><span><i class="sw" style="background:var(--lv-c)"></i>Nova C</span><span><i class="sw" style="background:var(--lv-d)"></i>Nova D</span><span><i class="sw" style="background:var(--lv-e)"></i>Nova E</span><span><i class="sw" style="background:var(--fg-2);border-radius:2px;width:3px"></i>Referência</span><span><i style="border-left:2.5px dotted var(--bad);height:12px"></i>Meta</span></div>`;
+function panoramaHTML(P,title){
+  const s=stats(P);
+  let h=`<div class="card"><div class="card-h"><div><div class="eyebrow">Panorama do IFRN</div><h2>${esc(title)}</h2></div><div class="row">${groupingSelect("selGrpPan")}<button class="ghost" data-act="pan">Fechar</button></div></div>
+  <div class="kpis"><div class="kpi"><span class="eyebrow">Vagas novas alocadas</span><span class="big">${s.aloc}</span><span class="sub">saldo ${sum3(s.pool.sd)} · C ${s.pool.sd.C} · D ${s.pool.sd.D} · E ${s.pool.sd.E}</span></div>
+  <div class="kpi"><span class="eyebrow">Atingem a meta mínima</span><span class="big">${s.ok} de ${s.meta}</span><span class="sub">unidades com meta definida que chegam ao mínimo (ocupados + vagas existentes + novas)</span></div>
+  <div class="kpi"><span class="eyebrow">Falta para a referência</span><span class="big">${s.def}</span><span class="sub">soma, em todas as unidades, do que falta para a referência da tipologia</span></div>
+  <div class="kpi"><span class="eyebrow">Vagas já existentes</span><span class="big">${s.all.reduce((a,i)=>a+i.vaT,0)}</span><span class="sub">códigos vagos considerados</span></div></div>${legend()}`;
+  for(const g of groups()){const gt={C:0,D:0,E:0};g.units.forEach(u=>{const a=alocOf(u.id,P);LV.forEach(l=>gt[l]+=a[l])});h+=`<div class="pgt">${esc(g.nome)} <span class="muted" style="font-weight:600">· recebe ${sum3(gt)}${sum3(gt)?" ("+LV.filter(l=>gt[l]).map(l=>l+" "+gt[l]).join(", ")+")":""}</span></div>`;for(const u of g.units){const i=info(u,P);const df=i.tot-i.refT;h+=`<div class="prow"><div class="nm" title="${esc(u.nome)}">${esc(u.nome)}</div>${pbar(i)}${recv(i,true)}<div class="st">${i.occT} → <b>${i.tot}</b> / ${i.refT} (${df>=0?"+"+df:df})${i.meta!==null?` · meta ${i.meta}`:""}</div></div>`}}
+  return h+`</div>`;
+}
+
+/* ---------- tela: propostas prontas ---------- */
+function viewProntas(){
+  let h=`<div class="card-h"><div><h2>Propostas salvas</h2><div class="muted">Compare as propostas lado a lado e abra uma delas no construtor para editar.</div></div><button class="pri" data-act="new">Nova proposta</button></div>`;
+  if(S.confirm==="new")h+=`<div class="toast">A proposta em construção tem alterações não salvas. <button data-act="newForce">Descartar e começar nova</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`;
+  if(!S.props.length)return h+`<div class="empty">Nenhuma proposta salva ainda.<br><br><button class="pri" data-act="new">Construir a primeira proposta</button></div>`;
+  const list=[...S.props].sort((a,b)=>(b.atualizadaEm||"").localeCompare(a.atualizadaEm||""));
+  if(!S.cmp)S.cmp=list.slice(0,4).map(p=>p.id);
+  const G=groups();
+  h+=`<div class="pcards">`;
+  for(const p of list){
+    const s=stats(p);const byG=G.map((g,ix)=>({nome:g.nome,c:GC[ix%GC.length],v:g.units.reduce((a,u)=>a+sum3(alocOf(u.id,p)),0)}));const tot=Math.max(1,byG.reduce((a,x)=>a+x.v,0));
+    const sel=S.cmp.includes(p.id);
+    h+=`<article class="pcard ${S.focusId===p.id?"focus":""}"><div class="row" style="justify-content:space-between;align-items:flex-start"><div style="min-width:0"><h3>${esc(p.nome)}</h3><div class="muted">Atualizada em ${p.atualizadaEm?new Date(p.atualizadaEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"–"}</div></div><span class="row">${p.aprovada?'<span class="chip ok">Aprovada</span>':""}${p.id===S.curId?'<span class="chip mute">No construtor</span>':""}</span></div>
+    ${p.descricao?`<div class="small" style="color:var(--fg-2)">${esc(p.descricao)}</div>`:""}
+    <div class="mini"><div><b>${s.aloc}</b><span>alocadas</span></div><div title="Unidades com meta mínima definida que chegam ao mínimo"><b>${s.ok} de ${s.meta}</b><span>atingem a meta</span></div><div title="Soma do que falta, em todas as unidades, para chegar à referência da tipologia"><b>${s.def}</b><span>falta p/ referência</span></div></div>
+    <div><div class="eyebrow" style="margin-bottom:6px">Para onde vão as vagas</div><div class="share">${byG.map(x=>x.v?`<i style="width:${x.v/tot*100}%;background:${x.c}" title="${esc(x.nome)}: ${x.v}"></i>`:"").join("")}</div><div class="slg" style="margin-top:6px">${byG.filter(x=>x.v).map(x=>`<span><i class="sw" style="background:${x.c}"></i>${esc(x.nome)} ${x.v}</span>`).join("")}</div></div>
+    ${S.confirm==="switch:"+p.id?`<div class="toast" style="margin:0">O construtor tem alterações não salvas. <button data-act="editForce" data-id="${esc(p.id)}">Abrir mesmo assim</button></div>`:""}
+    ${S.confirm==="del:"+p.id?`<div class="toast" style="margin:0">Excluir esta proposta? <button class="danger" data-act="delYes" data-id="${esc(p.id)}">Excluir</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`:""}
+    <div class="acts"><button class="pri" data-act="edit" data-id="${esc(p.id)}">Editar</button><button data-act="focus" data-id="${esc(p.id)}">Ver panorama</button><button class="${sel?"on":""}" data-act="cmpT" data-id="${esc(p.id)}" aria-pressed="${sel}">${sel?"Comparando":"Comparar"}</button><button class="ghost" data-act="aprov" data-id="${esc(p.id)}">${p.aprovada?"Retirar aprovação":"Marcar como aprovada"}</button><button class="ghost" data-act="dup" data-id="${esc(p.id)}">Duplicar</button><button class="ghost danger" data-act="del" data-id="${esc(p.id)}">Excluir</button></div></article>`;
+  }
+  h+=`</div>`;
+  if(S.focusId&&propById(S.focusId))h+=panoramaHTML(propById(S.focusId),propById(S.focusId).nome);
+  const C=S.cmp.map(propById).filter(Boolean);
+  if(C.length){
+    h+=`<div class="card"><div class="card-h"><div><div class="eyebrow">Comparação</div><h2>Vagas novas por unidade</h2><div class="muted">Verde: atinge a meta · vermelho: abaixo da meta · cinza: sem meta. Abaixo do número, o total previsto.</div></div><div class="row">${groupingSelect("selGrpCmp")}</div></div><div class="cmp"><table><thead><tr><th>Unidade</th>${C.map(p=>`<th>${esc(p.nome)}</th>`).join("")}</tr></thead><tbody>`;
+    for(const g of G){
+      h+=`<tr class="gh"><td colspan="${C.length+1}">${esc(g.nome)}</td></tr>`;
+      for(const u of g.units){h+=`<tr><td>${esc(u.nome)}</td>${C.map(p=>{const i=info(u,p);const cls=i.noT?(i.meta===null?"mute":(i.tot>=i.meta?"ok":"bad")):(i.meta!==null&&i.tot<i.meta?"bad":"z");return `<td><span class="cell"><span class="pill ${cls}" title="C ${i.no.C} · D ${i.no.D} · E ${i.no.E}">${i.noT?"+"+i.noT:"–"}</span>${i.noT?`<small><b>${LV.filter(l=>i.no[l]).map(l=>l+" "+i.no[l]).join(" · ")}</b></small>`:""}<small>${i.tot}/${i.refT}${i.meta!==null?" · meta "+i.meta:""}</small></span></td>`}).join("")}</tr>`}
+      h+=`<tr><td style="background:transparent;color:var(--fg-3)">Subtotal</td>${C.map(p=>`<td style="background:transparent"><b>${g.units.reduce((a,u)=>a+sum3(alocOf(u.id,p)),0)}</b></td>`).join("")}</tr>`;
+    }
+    h+=`</tbody></table></div></div>`;
+  }
+  return h;
+}
+
+/* ---------- tela: construir ---------- */
+function viewConstruir(){
+  if(!S.cur)return `<div class="empty">Nenhuma proposta em construção.<br><br><button class="pri" data-act="new">Começar nova proposta</button></div>`;
+  const p=pool();
+  let h=`<div class="card"><div class="card-h" style="margin:0"><div style="flex:1;min-width:240px"><div class="eyebrow">${S.curId?"Editando proposta salva":"Nova proposta (ainda não salva)"}</div><input type="text" class="namebox" id="pname" aria-label="Nome da proposta" data-act="pname" value="${esc(S.cur.nome)}"></div>
+  <div class="row">${S.dirty?'<span class="dirty">Alterações não salvas</span>':""}<button class="pri" data-act="save">Salvar proposta</button>${S.curId?'<button data-act="saveAs">Salvar como cópia</button>':""}<button class="ghost" data-act="new">Nova</button></div></div></div>`;
+  if(S.confirm==="new")h+=`<div class="toast">Há alterações não salvas. <button data-act="newForce">Descartar e começar nova</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`;
+  h+=`<div class="kpis">${LV.map(l=>`<div class="kpi"><span class="eyebrow" style="display:flex;align-items:center;gap:6px"><span class="lvdot lv-${l}">${l}</span>Saldo nível ${l}</span><span class="big ${p.sd[l]<0?"neg":""}">${p.sd[l]}</span><span class="sub">recebidas ${p.rec[l]} · alocadas ${p.al[l]}</span></div>`).join("")}${(()=>{const s=stats();return `<div class="kpi"><span class="eyebrow">Atingem a meta mínima</span><span class="big">${s.ok} de ${s.meta}</span><span class="sub">unidades com meta definida · faltam ${s.def} para completar as referências</span></div>`})()}</div>`;
+  if(LV.some(l=>p.sd[l]<0))h+=`<div class="toast">Mais vagas alocadas do que recebidas no nível ${LV.filter(l=>p.sd[l]<0).join(", ")}.</div>`;
+  h+=`<div class="steps" role="tablist">${[[1,"Diretrizes e metas"],[2,"Distribuição por nível"]].map(([k,t])=>`<button class="step" role="tab" aria-selected="${S.step===k}" data-act="step" data-id="${k}"><b>${k}</b>${t}</button>`).join("")}</div>`;
+  return h+(S.step===1?stepMetas():stepNiveis());
+}
+function stepMetas(){
+  const others=S.props.filter(x=>x.id!==S.curId);
+  let h=`<div class="card"><h2 style="margin-bottom:6px">Diretriz</h2><div class="muted" style="margin-bottom:10px">Descreva o critério que orienta esta proposta.</div><input type="text" id="pdesc" data-act="pdesc" placeholder="Ex.: campi 70/45 com ao menos 42 servidores; campi novos com 15" value="${esc(S.cur.descricao||"")}" style="width:100%"></div>`;
+  h+=`<div class="card"><div class="card-h"><div><h2>Metas por tipologia</h2><div class="muted">Mínimo de servidores por unidade (ocupados + vagas existentes + vagas novas). Deixe em branco para não aplicar meta.</div></div></div><div class="tiles">${S.base.tipologias.map(t=>{const us=S.base.unidades.filter(u=>u.tipologia===t.id);return `<div class="tile"><span class="tt">${esc(t.nome)}</span><span class="muted">Referência ${sum3(t.ref)} · ${us.length} unidade${us.length===1?"":"s"}</span><div class="row"><label class="small" for="meta-${esc(t.id)}">Meta mínima</label><input type="number" min="0" step="1" id="meta-${esc(t.id)}" data-act="meta" data-id="${esc(t.id)}" value="${S.cur.metas?.[t.id]??""}" placeholder="–"></div></div>`}).join("")}</div></div>`;
+  h+=`<div class="card"><h2 style="margin-bottom:6px">Unidades fora da meta</h2><div class="muted" style="margin-bottom:12px">Toque para excluir uma unidade das metas, como campi novos que terão quantidade definida à parte.</div><div class="toggles">${S.base.unidades.map(u=>{const x=(S.cur.excluidas||[]).includes(u.id);return `<button class="tog" data-act="exclT" data-id="${esc(u.id)}" aria-pressed="${x}">${esc(u.nome)}</button>`}).join("")}</div></div>`;
+  h+=`<div class="card"><div class="card-h"><div><h2>Ponto de partida</h2><div class="muted">Aplique as metas automaticamente ou copie a distribuição de uma proposta salva.</div></div></div><div class="row"><button class="pri" data-act="auto">Distribuir pelas metas</button>${others.length?`<select id="copyFrom" aria-label="Copiar distribuição de"><option value="">Copiar distribuição de…</option>${others.map(o=>`<option value="${esc(o.id)}">${esc(o.nome)}</option>`).join("")}</select><button data-act="copyFrom">Copiar</button>`:""}<button class="ghost danger" data-act="clearAloc">Limpar distribuição</button><button class="ghost" data-act="step" data-id="2">Ir para a distribuição →</button></div>
+  ${S.confirm==="clearAloc"?`<div class="toast" style="margin:12px 0 0">Apagar toda a distribuição desta proposta? <button class="danger" data-act="clearAlocYes">Apagar</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`:""}</div>`;
+  return h;
+}
+function stepNiveis(){
+  let h=`<div class="row" style="justify-content:space-between;margin-bottom:12px"><div class="row">${groupingSelect("selGrpB")}</div><div class="row"><button data-act="auto">Distribuir pelas metas</button></div></div>${legend()}`;
+  for(const g of groups()){
+    const tot=g.units.reduce((a,u)=>a+sum3(alocOf(u.id)),0);
+    h+=`<section class="grp"><div class="grp-h"><h3>${esc(g.nome)}</h3><span class="muted">${tot} vaga${tot===1?"":"s"} nova${tot===1?"":"s"} neste grupo</span></div><div class="ulist">`;
+    for(const u of g.units){const i=info(u);
+      h+=`<div class="urow ${i.excl?"out":""}"><div class="uname">${esc(u.nome)}<div class="muted">${esc(u.sigla)} · ref. ${trip(i.ref)}${i.vaT?` · ${i.vaT} vaga${i.vaT>1?"s":""} existente${i.vaT>1?"s":""}`:""}</div></div>
+      <div>${pbar(i)}<div class="pnum">${i.occT} ocupados${i.vaT?` + ${i.vaT} existentes`:""}${i.noT?` + <b>${i.noT} novas</b> (${LV.filter(l=>i.no[l]).map(l=>l+" "+i.no[l]).join(", ")})`:""} = <b>${i.tot}</b> de ${i.refT}${i.meta!==null?` · meta ${i.meta}`:""}</div></div>
+      <div class="steppers">${LV.map(l=>`<div class="stp"><span class="lvdot lv-${l}" aria-hidden="true">${l}</span><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="-1" aria-label="Menos ${l} em ${esc(u.nome)}">−</button><input type="number" min="0" id="al-${esc(u.id)}-${l}" aria-label="${esc(u.nome)} nível ${l}" data-act="aloc" data-id="${esc(u.id)}" data-l="${l}" value="${i.no[l]}"><button data-act="inc" data-id="${esc(u.id)}" data-l="${l}" data-d="1" aria-label="Mais ${l} em ${esc(u.nome)}">+</button></div>`).join("")}</div>
+      <div class="ustat"><span class="chip ${i.st.c}">${esc(i.st.t)}</span><label><input type="checkbox" id="ex-${esc(u.id)}" data-act="excl" data-id="${esc(u.id)}"${i.excl?" checked":""}>excluir da meta</label></div></div>`;}
+    h+=`</div></section>`;
+  }
+  return h;
+}
+/* ---------- tela: cadastros ---------- */
+function viewCadastros(){
+  const B=S.base;const tOpts=sel=>B.tipologias.map(t=>`<option value="${esc(t.id)}"${sel===t.id?" selected":""}>${esc(t.nome)}</option>`).join("");
+  const uOpts=sel=>`<option value="">—</option>`+B.unidades.map(u=>`<option value="${esc(u.id)}"${sel===u.id?" selected":""}>${esc(u.nome)}</option>`).join("");
+  const delBtn=(key,act,id)=>S.confirm===key+":"+id?`<button class="danger" data-act="${act}Yes" data-id="${esc(id)}">Confirmar</button>`:`<button class="ghost danger" data-act="${act}" data-id="${esc(id)}">Remover</button>`;
+  let h=`<div class="toast ok">Os cadastros valem para todas as propostas e são salvos automaticamente.</div>`;
+  h+=`<section class="sec"><div class="card-h"><h2>Tipologias</h2><button data-act="tAdd">Adicionar tipologia</button></div><div class="tw"><table class="plain"><thead><tr><th>Nome</th>${LV.map(l=>`<th class="num">Ref. ${l}</th>`).join("")}<th class="num">Total</th><th class="num">Unidades</th><th></th></tr></thead><tbody>${B.tipologias.map(t=>`<tr><td><input type="text" id="tn-${esc(t.id)}" aria-label="Nome da tipologia" data-act="tEd" data-id="${esc(t.id)}" data-f="nome" value="${esc(t.nome)}"></td>${LV.map(l=>`<td class="num"><input class="n" type="number" min="0" id="tr-${esc(t.id)}-${l}" aria-label="Referência ${l}" data-act="tEd" data-id="${esc(t.id)}" data-f="${l}" value="${n(t.ref[l])}"></td>`).join("")}<td class="num"><b>${sum3(t.ref)}</b></td><td class="num">${B.unidades.filter(u=>u.tipologia===t.id).length}</td><td>${delBtn("tdel","tDel",t.id)}</td></tr>`).join("")}</tbody></table></div></section>`;
+  h+=`<section class="sec"><div class="card-h"><div><h2>Unidades</h2><div class="muted">Use a referência própria só quando a unidade foge da tipologia.</div></div><button data-act="uAdd">Adicionar unidade</button></div><div class="tw"><table class="plain"><thead><tr><th>Sigla</th><th>Nome</th><th>Tipologia</th>${LV.map(l=>`<th class="num">Ocup. ${l}</th>`).join("")}<th class="num">A/B</th>${LV.map(l=>`<th class="num">Ref. própria ${l}</th>`).join("")}<th></th></tr></thead><tbody>${B.unidades.map(u=>`<tr><td><input type="text" style="width:76px" id="us-${esc(u.id)}" aria-label="Sigla" data-act="uEd" data-id="${esc(u.id)}" data-f="sigla" value="${esc(u.sigla)}"></td><td><input type="text" id="un-${esc(u.id)}" aria-label="Nome" data-act="uEd" data-id="${esc(u.id)}" data-f="nome" value="${esc(u.nome)}"></td><td><select id="ut-${esc(u.id)}" aria-label="Tipologia" data-act="uEd" data-id="${esc(u.id)}" data-f="tipologia">${tOpts(u.tipologia)}</select></td>${LV.map(l=>`<td class="num"><input class="n" type="number" min="0" id="uo-${esc(u.id)}-${l}" aria-label="Ocupados ${l}" data-act="uEd" data-id="${esc(u.id)}" data-f="o${l}" value="${n(u.ocup?.[l])}"></td>`).join("")}<td class="num"><input class="n" type="number" min="0" id="uab-${esc(u.id)}" aria-label="Níveis A e B" data-act="uEd" data-id="${esc(u.id)}" data-f="ab" value="${n(u.ab)}"></td>${LV.map(l=>`<td class="num"><input class="n" type="number" min="0" id="ur-${esc(u.id)}-${l}" aria-label="Referência própria ${l}" data-act="uEd" data-id="${esc(u.id)}" data-f="r${l}" value="${u.ref&&u.ref[l]!==undefined&&u.ref[l]!==""?n(u.ref[l]):""}"></td>`).join("")}<td>${delBtn("udel","uDel",u.id)}</td></tr>`).join("")}</tbody></table></div></section>`;
+  const eg=B.agrupamentos.find(a=>a.id===S.editGrouping)||B.agrupamentos[0];
+  h+=`<section class="sec"><div class="card-h"><div><h2>Agrupamentos personalizados</h2><div class="muted">Organize as unidades por outro critério, como região ou prioridade. O agrupamento por tipologia já existe.</div></div><div class="row">${B.agrupamentos.length?`<select id="egSel" aria-label="Agrupamento em edição" data-act="egSel">${B.agrupamentos.map(a=>`<option value="${esc(a.id)}"${eg&&eg.id===a.id?" selected":""}>${esc(a.nome)}</option>`).join("")}</select>`:""}<button data-act="agAdd">Novo agrupamento</button></div></div>`;
+  if(eg){
+    h+=`<div class="card"><div class="row" style="margin-bottom:14px"><label class="small" for="agn">Nome</label><input type="text" id="agn" data-act="agName" data-id="${esc(eg.id)}" value="${esc(eg.nome)}"><button data-act="grAdd" data-id="${esc(eg.id)}">Adicionar grupo</button>${delBtn("agdel","agDel",eg.id)}</div>
+    <div class="toggles" style="margin-bottom:14px">${eg.grupos.map((g,ix)=>`<span class="tile" style="flex-direction:row;align-items:center;padding:6px 8px 6px 14px;border-radius:999px"><i class="sw" style="background:${GC[ix%GC.length]}"></i><input type="text" id="gn-${esc(g.id)}" aria-label="Nome do grupo" data-act="grName" data-ag="${esc(eg.id)}" data-id="${esc(g.id)}" value="${esc(g.nome)}" style="width:160px;background:var(--surface)"><button class="ghost danger" data-act="grDel" data-ag="${esc(eg.id)}" data-id="${esc(g.id)}">Remover</button></span>`).join("")||'<span class="muted">Crie os grupos e depois associe as unidades.</span>'}</div>
+    ${eg.grupos.length?`<div class="tiles">${B.unidades.map(u=>{const cur=eg.grupos.find(g=>(g.unidades||[]).includes(u.id));return `<label class="tile" style="gap:6px"><span class="tt small">${esc(u.nome)}</span><select id="ga-${esc(u.id)}" aria-label="Grupo de ${esc(u.nome)}" data-act="grAssign" data-ag="${esc(eg.id)}" data-id="${esc(u.id)}" style="background:var(--surface)"><option value="">Sem grupo</option>${eg.grupos.map(g=>`<option value="${esc(g.id)}"${cur&&cur.id===g.id?" selected":""}>${esc(g.nome)}</option>`).join("")}</select></label>`}).join("")}</div>`:""}</div>`;
+  }
+  h+=`</section>`;
+  h+=`<section class="sec"><div class="card-h"><div><h2>Vagas já existentes</h2><div class="muted">Códigos vagos lotados nas unidades. Desmarque "Considerar" quando a vaga não puder ser provida.</div></div><button data-act="vAdd">Adicionar vaga</button></div><div class="tw"><table class="plain"><thead><tr><th>Código</th><th>Nível</th><th>Cargo</th><th>Unidade</th><th>Origem / observação</th><th>Considerar</th><th></th></tr></thead><tbody>${B.vagas.map((v,ix)=>`<tr><td><input type="text" style="width:96px" id="vc-${ix}" aria-label="Código" data-act="vEd" data-ix="${ix}" data-f="codigo" value="${esc(v.codigo)}"></td><td><select id="vl-${ix}" aria-label="Nível" data-act="vEd" data-ix="${ix}" data-f="nivel">${LV.map(l=>`<option${v.nivel===l?" selected":""}>${l}</option>`).join("")}</select></td><td><input type="text" list="dlCargos" id="vg-${ix}" aria-label="Cargo" data-act="vEd" data-ix="${ix}" data-f="cargo" value="${esc(v.cargo)}" style="width:260px"></td><td><select id="vu-${ix}" aria-label="Unidade" data-act="vEd" data-ix="${ix}" data-f="unidade">${uOpts(v.unidade)}</select></td><td><input type="text" id="vo-${ix}" aria-label="Observação" data-act="vEd" data-ix="${ix}" data-f="obs" value="${esc(v.obs)}" style="width:300px"></td><td><input type="checkbox" id="vk-${ix}" aria-label="Considerar vaga" data-act="vEd" data-ix="${ix}" data-f="considerar"${v.considerar!==false?" checked":""}></td><td><button class="ghost danger" data-act="vDel" data-ix="${ix}">Remover</button></td></tr>`).join("")}</tbody></table></div></section>`;
+  h+=`<section class="sec"><div class="card-h"><div><h2>Vagas novas recebidas</h2><div class="muted">Cargos distribuídos ao IFRN por portaria. Formam o saldo a distribuir em cada nível.</div></div><button data-act="lAdd">Adicionar recebimento</button></div><div class="tw"><table class="plain"><thead><tr><th>Ato</th><th>Cargo</th><th>Nível</th><th class="num">Quantidade</th><th>Códigos</th><th></th></tr></thead><tbody>${B.lotes.map(lt=>`<tr><td><input type="text" id="la-${esc(lt.id)}" aria-label="Ato" data-act="lEd" data-id="${esc(lt.id)}" data-f="ato" value="${esc(lt.ato)}" style="width:200px"></td><td><input type="text" list="dlCargos" id="lc-${esc(lt.id)}" aria-label="Cargo" data-act="lEd" data-id="${esc(lt.id)}" data-f="cargo" value="${esc(lt.cargo)}"></td><td><select id="ll-${esc(lt.id)}" aria-label="Nível" data-act="lEd" data-id="${esc(lt.id)}" data-f="nivel">${LV.map(l=>`<option${lt.nivel===l?" selected":""}>${l}</option>`).join("")}</select></td><td class="num"><input class="n" type="number" min="0" id="lq-${esc(lt.id)}" aria-label="Quantidade" data-act="lEd" data-id="${esc(lt.id)}" data-f="qtd" value="${n(lt.qtd)}"></td><td><input type="text" id="lk-${esc(lt.id)}" aria-label="Códigos" data-act="lEd" data-id="${esc(lt.id)}" data-f="codigos" value="${esc(lt.codigos)}"></td><td><button class="ghost danger" data-act="lDel" data-id="${esc(lt.id)}">Remover</button></td></tr>`).join("")}</tbody></table></div></section>`;
+  return h;
+}
+
+/* ---------- módulo: definição de cargos ---------- */
+const NV=["A","B","C","D","E"];
+function normC(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\(.*?\)/g," ").replace(/-\s*\d{5,}.*$/," ").replace(/\b\d+\s*h(oras)?\b/g," ").replace(/[^a-z]+/g," ").replace(/\b(area|pcife|pcmed|pcctae|habilitacao)\b/g," ").replace(/\baux\b/g,"auxiliar").replace(/\btec\b/g,"tecnico").replace(/\s+/g," ").trim()}
+let _cat=null;function catMap(){if(_cat)return _cat;_cat={};for(const c of CARGOS_BASE){const k=normC(c);if(!_cat[k])_cat[k]=c}return _cat}
+function niceC(s){const ck=catMap()[normC(s)];if(ck)return ck;let x=String(s||"").replace(/\s*\((PCIFE|PCMED|PCCTAE)\)/gi,"").replace(/\s*-\s*\d{5,}\s*$/,"").replace(/\s+/g," ").trim();if(x&&x===x.toUpperCase()){const low=["de","da","do","das","dos","e","em"];x=x.toLowerCase().split(" ").map((w,i)=>i&&low.includes(w)?w:w.charAt(0).toUpperCase()+w.slice(1)).join(" ").replace(/-([a-z])/g,(m,c)=>"-"+c.toUpperCase())}return x}
+function normU(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g," ").trim()}
+function matchUnit(raw){
+  const map=S.base.mapUnidades||{};const k=normU(raw);if(map[k]!==undefined)return map[k];
+  const U=S.base.unidades;
+  let best=null,bl=0;for(const u of U){const nn=normU(u.nome);if(nn&&k.includes(nn)&&nn.length>bl){best=u.id;bl=nn.length}}
+  if(best)return best;
+  const toks=k.split(" ");for(const u of U){if(toks.includes(u.sigla.toLowerCase())&&u.sigla.length>=2)return u.id}
+  if(/reitoria/.test(k))return U.find(u=>u.tipologia==="tRE")?.id||"";
+  return "";
+}
+function nivelMap(){
+  const m={};const add=(c,l)=>{if(c&&NV.includes(l)){const k=normC(c);if(!m[k])m[k]=l}};
+  S.base.vagas.forEach(v=>add(v.cargo,v.nivel));S.base.lotes.forEach(v=>add(v.cargo,v.nivel));
+  (S.quadro?.linhas||[]).forEach(r=>add(r.cargo,r.nivel));Object.values(S.desej||{}).forEach(d=>(d.linhas||[]).forEach(r=>add(r.cargo,r.nivel)));
+  return m;
+}
+const libs={};
+function loadScript(src){return libs[src]||(libs[src]=new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=()=>{delete libs[src];rej(new Error("Não foi possível carregar "+src))};document.head.appendChild(s)}))}
+const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js",PDFW="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js",XLSXJS="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+async function pdfText(file){
+  await loadScript(PDFW);await loadScript(PDFJS);window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFW;
+  const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;const pages=[];
+  for(let p=1;p<=doc.numPages;p++){const tc=await (await doc.getPage(p)).getTextContent();const rows={};
+    for(const it of tc.items){if(!it.str||!it.str.trim())continue;const y=Math.round(it.transform[5]/3);(rows[y]=rows[y]||[]).push(it)}
+    pages.push(Object.keys(rows).sort((a,b)=>b-a).map(y=>rows[y].sort((a,b)=>a.transform[4]-b.transform[4]).map(i=>i.str.trim()).join(" | ")).join("\n"));
+    setProg(`Lendo o PDF: página ${p} de ${doc.numPages}`);}
+  return pages;
+}
+function setProg(t){S.prog=t;const el=$("#prog");if(el)el.textContent=t}
+async function askJSON(prompt){if(!S.sample)throw new Error("Este arquivo não segue o modelo padrão da DIGPE e a leitura por IA não está disponível nesta versão do sistema. Use o relatório no modelo padrão, uma planilha, ou digite a proposta manualmente.");return S.sample.json(prompt,{modelTier:"default"})}
+async function chunksOf(pages){let lim=60000;try{const L=await S.sample.limits();if(L?.maxInputBytes)lim=Math.min(lim,Math.floor(L.maxInputBytes/2)-3000)}catch(_){}const out=[];let cur="";for(const p of pages){if(cur&&(cur.length+p.length)>lim){out.push(cur);cur=""}if(p.length>lim){for(let i=0;i<p.length;i+=lim)out.push(p.slice(i,i+lim))}else cur+=p+"\n"}if(cur)out.push(cur);return out}
+
+/* importação do quadro atual */
+async function importQuadroFile(file){
+  S.imp={tipo:"quadro",arquivo:file.name,rows:null,sheet:null,cols:{}};render();
+  try{
+    if(/\.(xlsx|xls|csv|ods)$/i.test(file.name)){
+      setProg("Lendo a planilha…");await loadScript(XLSXJS);const wb=window.XLSX.read(await file.arrayBuffer(),{type:"array"});
+      S.imp.wb=wb;S.imp.sheet=wb.SheetNames[0];loadSheet();
+    }else{
+      const pages=await pdfText(file);const ch=await chunksOf(pages);const agg={};
+      for(let i=0;i<ch.length;i++){setProg(`Identificando servidores com IA: parte ${i+1} de ${ch.length}`);
+        const r=await askJSON(`Você recebe o texto extraído de um relatório de servidores do IFRN (colunas separadas por " | "). Conte os servidores TÉCNICO-ADMINISTRATIVOS por unidade de lotação/exercício (campus ou Reitoria), cargo e nível de classificação (A a E). Ignore professores/docentes, estagiários, terceirizados, cabeçalhos e totais. Responda somente com um array JSON de objetos {"unidade":"...","cargo":"...","nivel":"C","qtd":3}, agrupando linhas iguais. Use nível vazio "" quando não constar.\n\nTEXTO:\n${ch[i]}`);
+        for(const x of Array.isArray(r)?r:[]){const k=[x.unidade,normC(x.cargo),x.nivel].join("|");agg[k]=agg[k]||{unidade:String(x.unidade||""),cargo:niceC(x.cargo),nivel:String(x.nivel||"").toUpperCase(),qtd:0};agg[k].qtd+=n(x.qtd)||1}}
+      S.imp.rec=Object.values(agg);prepMapping();
+    }
+  }catch(e){S.imp.erro=e.message||String(e.code||e)}
+  setProg("");render();
+}
+function loadSheet(){const ws=S.imp.wb.Sheets[S.imp.sheet];const rows=window.XLSX.utils.sheet_to_json(ws,{header:1,defval:""}).filter(r=>r.some(c=>String(c).trim()));
+  let hi=0;for(let i=0;i<Math.min(15,rows.length);i++){if(rows[i].filter(c=>String(c).trim()).length>=3){hi=i;break}}
+  S.imp.header=rows[hi].map(String);S.imp.rows=rows.slice(hi+1);
+  const f=re=>S.imp.header.findIndex(h=>re.test(normU(h)));
+  S.imp.cols={u:f(/lotac|exercicio|unidade|campus|setor/),c:f(/cargo/),l:f(/nivel|classe/),q:f(/qtd|quantidade|total/)};}
+function sheetToRec(){const c=S.imp.cols;if(c.u<0||c.c<0){S.imp.erro="Escolha as colunas de unidade e de cargo.";return}
+  const agg={};for(const r of S.imp.rows){const un=String(r[c.u]||"").trim(),cg=String(r[c.c]||"").trim();if(!un||!cg)continue;let lv=c.l>=0?String(r[c.l]||"").trim().toUpperCase().replace(/[^A-E]/g,"").slice(0,1):"";const q=c.q>=0?n(r[c.q]):1;const k=[un,normC(cg),lv].join("|");agg[k]=agg[k]||{unidade:un,cargo:niceC(cg),nivel:lv,qtd:0};agg[k].qtd+=q||1}
+  S.imp.rec=Object.values(agg);S.imp.erro=null;prepMapping();}
+function prepMapping(){const nm=nivelMap();S.imp.rec.forEach(r=>{if(!r.nivel)r.nivel=nm[normC(r.cargo)]||""});const vals={};S.imp.rec.forEach(r=>{vals[r.unidade]=(vals[r.unidade]||0)+r.qtd});S.imp.units=Object.entries(vals).map(([v,q])=>({v,q,u:matchUnit(v)})).sort((a,b)=>b.q-a.q)}
+async function confirmQuadro(){
+  const mapU={};S.imp.units.forEach(x=>mapU[x.v]=x.u);S.base.mapUnidades=S.base.mapUnidades||{};S.imp.units.forEach(x=>{S.base.mapUnidades[normU(x.v)]=x.u});
+  const agg={};for(const r of S.imp.rec){const u=mapU[r.unidade];if(!u)continue;const k=[u,normC(r.cargo),r.nivel].join("|");agg[k]=agg[k]||{u,cargo:r.cargo,nivel:r.nivel,qtd:0};agg[k].qtd+=r.qtd}
+  const doc={arquivo:S.imp.arquivo,importadoEm:new Date().toISOString(),linhas:Object.values(agg)};S.quadro=doc;S.imp=null;touchBase();
+  if(S.db){try{await S.db.doc("quadro/atual").set(doc);flash("Quadro atual importado","ok")}catch(e){flash("Não foi possível salvar o quadro: "+(e.message||e.code),"warn")}}
+}
+
+/* leitura do modelo padrão de relatório de dimensionamento do IFRN (Quadro 1 e Quadro 2) */
+function parseModelo(text){
+  const lines=text.split(/\n/).map(l=>l.replace(/\s*\|\s*/g," ").replace(/\s+/g," ").trim());
+  const RC="(.+?\\((?:PCIFE|PCMED|PCCTAE)\\)\\s*-\\s*\\d{6})";
+  const R2=new RegExp("^(\\d{1,3})\\s+([A-ZÇ]{2,8})\\s+([A-ZÇ/\\-]{2,12})\\s+([A-E])\\s+"+RC,"i"),R1=new RegExp("^([A-E])\\s+"+RC,"i");
+  let q2=false;const postos=[],estr=[];
+  for(const l of lines){if(/quadro\s*2/i.test(l))q2=true;let m=l.match(R2);if(m){postos.push({dir:m[2],setor:m[3],nivel:m[4].toUpperCase(),cargo:m[5].trim()});continue}
+    if(!q2){m=l.match(R1);if(m)estr.push({nivel:m[1].toUpperCase(),cargo:m[2].trim()})}}
+  return{postos,estr};
+}
+/* importação da proposta do campus */
+async function importCampusFile(file,uidv){
+  S.impC={u:uidv,arquivo:file.name,linhas:null};render();
+  try{
+    let text;
+    if(/\.(xlsx|xls|csv|ods)$/i.test(file.name)){await loadScript(XLSXJS);const wb=window.XLSX.read(await file.arrayBuffer(),{type:"array"});text=wb.SheetNames.map(s=>window.XLSX.utils.sheet_to_csv(wb.Sheets[s],{FS:" | "})).join("\n")}
+    else text=(await pdfText(file)).join("\n");
+    const pm=parseModelo(text);
+    if(pm.postos.length>=3){
+      const est=new Set(pm.estr.map(e=>normC(e.cargo)));const agg={};
+      for(const x of pm.postos){const k=normC(x.cargo);const a=agg[k]||(agg[k]={cargo:niceC(x.cargo),nivel:x.nivel,qtd:0,set:[]});a.qtd++;a.set.push(x.dir+"/"+x.setor)}
+      S.impC.linhas=Object.entries(agg).map(([k,a])=>({cargo:a.cargo,nivel:a.nivel,qtd:a.qtd,estrategico:est.has(k),obs:[...new Set(a.set)].join(", ")}));
+      S.impC.estrategicos=pm.estr.map(e=>niceC(e.cargo));S.impC.metodo=`Lido pelo modelo padrão: ${pm.postos.length} postos no Quadro 2 e ${pm.estr.length} cargos estratégicos no Quadro 1`;
+      setProg("");render();return;
+    }
+    setProg("Lendo a proposta do campus com IA…");S.impC.metodo="Lido com IA (o arquivo não segue o modelo padrão)";
+    const u=S.base.unidades.find(x=>x.id===uidv);
+    const r=await askJSON(`O texto abaixo foi extraído da proposta de dimensionamento de servidores técnico-administrativos (TAE) apresentada pelo ${u?.nome||"campus"} do IFRN. Identifique o quadro DESEJADO/PROPOSTO de cargos TAE: para cada cargo, a quantidade total que o campus pretende ter. Se o documento trouxer quantidade atual e desejada (ou necessidade), use a desejada total; se trouxer só o acréscimo pedido, some-o à quantidade atual quando ela constar. Informe o nível de classificação (C, D ou E) conforme o documento ou o PCCTAE (Lei 11.091/2005). Responda somente com um array JSON de objetos {"cargo":"...","nivel":"D","qtd":4,"atual":3,"obs":"..."} (atual e obs opcionais). Ignore docentes.\n\nTEXTO:\n${text.slice(0,120000)}`);
+    S.impC.linhas=(Array.isArray(r)?r:[]).filter(x=>x&&x.cargo).map(x=>({cargo:niceC(x.cargo),nivel:String(x.nivel||"").toUpperCase().slice(0,1),qtd:n(x.qtd),atualDoc:x.atual===undefined?null:n(x.atual),obs:String(x.obs||"")}));
+  }catch(e){S.impC.erro=e.message||String(e.code||e);S.impC.linhas=S.impC.linhas||[]}
+  setProg("");render();
+}
+async function saveCampus(){const c=S.impC;const doc={unidade:c.u,arquivo:c.arquivo||"",importadoEm:new Date().toISOString(),estrategicos:c.estrategicos||[],linhas:c.linhas.filter(l=>l.cargo)};S.desej[c.u]=doc;S.impC=null;render();
+  if(S.db){try{await S.db.doc("desejado/"+c.u).set(doc);flash("Proposta do campus salva","ok")}catch(e){flash("Não foi possível salvar: "+(e.message||e.code),"warn")}}}
+
+/* comparação e definição */
+function defProp(){return propById(S.defPropId)||S.props.find(p=>p.aprovada)||[...S.props].sort((a,b)=>(b.atualizadaEm||"").localeCompare(a.atualizadaEm||""))[0]||null}
+function defsOf(pid){return S.defs[pid]||(S.defs[pid]={unidades:{}})}
+function unitRows(u,P){
+  const rows={};const get=(c,l)=>{const k=normC(c);if(!k)return null;return rows[k]||(rows[k]={k,cargo:niceC(c),nivel:l||"",atual:0,desejado:null,exist:0,def:0})};
+  for(const r of S.quadro?.linhas||[])if(r.u===u.id){const x=get(r.cargo,r.nivel);if(x){x.atual+=n(r.qtd);if(!x.nivel)x.nivel=r.nivel}}
+  for(const r of S.desej?.[u.id]?.linhas||[]){const x=get(r.cargo,r.nivel);if(x){x.desejado=(x.desejado||0)+n(r.qtd);if(!x.nivel)x.nivel=r.nivel;if(r.estrategico)x.est=true;if(r.obs)x.set=r.obs}}
+  for(const v of S.base.vagas)if(v.unidade===u.id&&v.considerar!==false){const x=get(v.cargo,v.nivel);if(x){x.exist++;if(!x.nivel)x.nivel=v.nivel}}
+  const D=P?defsOf(P.id).unidades[u.id]?.linhas||[]:[];for(const d of D){const x=get(d.cargo,d.nivel);if(x){x.def+=n(d.qtd);if(!x.nivel)x.nivel=d.nivel}}
+  const nm=nivelMap();Object.values(rows).forEach(r=>{if(!r.nivel)r.nivel=nm[r.k]||""});
+  return Object.values(rows).sort((a,b)=>(a.nivel||"Z").localeCompare(b.nivel||"Z")||((b.desejado??0)-b.atual)-((a.desejado??0)-a.atual)||a.cargo.localeCompare(b.cargo));
+}
+function defBudget(u,P){const av=alocOf(u.id,P);const used={C:0,D:0,E:0};for(const d of defsOf(P.id).unidades[u.id]?.linhas||[])if(used[d.nivel]!==undefined)used[d.nivel]+=n(d.qtd);const rest={};LV.forEach(l=>rest[l]=av[l]-used[l]);return{av,used,rest}}
+function setDef(uidv,cargo,nivel,q){const P=defProp();const d=defsOf(P.id);const U=d.unidades[uidv]||(d.unidades[uidv]={linhas:[]});const k=normC(cargo);const ex=U.linhas.find(l=>normC(l.cargo)===k);if(ex){ex.qtd=Math.max(0,q);ex.nivel=nivel||ex.nivel}else if(q>0)U.linhas.push({cargo:niceC(cargo),nivel,qtd:q});U.linhas=U.linhas.filter(l=>n(l.qtd)>0||l.manual);S.defDirty=true}
+function sugerir(uidv){const P=defProp();const u=S.base.unidades.find(x=>x.id===uidv);const b=defBudget(u,P);const rows=unitRows(u,P);let semGap={};
+  for(const l of LV){let rem=b.rest[l];while(rem>0){const c=rows.filter(r=>r.nivel===l&&r.desejado!==null).map(r=>({r,g:r.desejado-r.atual-r.exist-r.def})).filter(x=>x.g>0).sort((a,b)=>b.g-a.g)[0];if(!c)break;c.r.def++;setDef(uidv,c.r.cargo,l,c.r.def);rem--}if(rem>0)semGap[l]=rem}
+  const left=Object.entries(semGap).map(([l,q])=>`${q} ${l}`).join(", ");
+  flash(left?`Sugestão aplicada. Ficaram sem cargo indicado: ${left}, porque a proposta do campus não aponta mais falta nesses níveis.`:"Sugestão aplicada a partir da proposta do campus.","ok");render();
+}
+async function saveDefs(){const P=defProp();if(!P)return;S.defDirty=false;render();if(!S.db)return;try{await S.db.doc("definicoes/"+P.id).set(clone(defsOf(P.id)));flash("Definição de cargos salva","ok")}catch(e){S.defDirty=true;render();flash("Não foi possível salvar: "+(e.message||e.code),"warn")}}
+
+function noBase(){return !S.base}
+function viewDefinir(){
+  const P=defProp();
+  let h=`<div class="card"><div class="card-h" style="margin:0"><div><div class="eyebrow">Definição de cargos</div><h2>Quais cargos ocupar as vagas da proposta</h2><div class="muted">Parte do quantitativo aprovado para cada unidade e compara o quadro atual com a proposta do campus.</div></div><div class="row"><label class="small" for="defProp">Proposta de dimensionamento</label><select id="defProp" data-act="defProp">${S.props.map(p=>`<option value="${esc(p.id)}"${P&&P.id===p.id?" selected":""}>${esc(p.nome)}${p.aprovada?" (aprovada)":""}</option>`).join("")||"<option>Nenhuma proposta</option>"}</select>${S.defDirty?'<span class="dirty">Alterações não salvas</span>':""}<button class="pri" data-act="defSave"${P?"":" disabled"}>Salvar definição</button></div></div></div>`;
+  if(!P)return h+`<div class="empty">Salve uma proposta em Dimensionamento para definir os cargos.</div>`;
+  if(!P.aprovada)h+=`<div class="toast">Esta proposta ainda não está marcada como aprovada. Você pode trabalhar nela, mas confira se é a versão final.</div>`;
+  if(!S.quadro)h+=`<div class="toast">O quadro atual de cargos ainda não foi importado. Importe a base de servidores em "Quadro atual" para a coluna Atual ficar completa.</div>`;
+  const units=S.base.unidades.filter(u=>sum3(alocOf(u.id,P))||sum3(vagasOf(u.id)));
+  if(!S.defUnit||!units.find(u=>u.id===S.defUnit))S.defUnit=units[0]?.id||null;
+  const T={av:0,used:0};
+  h+=`<div class="card"><div class="card-h"><h2>Unidades com vagas a definir</h2><span class="muted">Escolha a unidade para detalhar</span></div><div class="uchips">${units.map(u=>{const b=defBudget(u,P);const av=sum3(b.av),us=sum3(b.used);T.av+=av;T.used+=us;const st=av===0?"mute":us===av?"ok":us>av?"bad":"warn";return `<button class="uchip ${S.defUnit===u.id?"sel":""}" data-act="defUnit" data-id="${esc(u.id)}"><span class="uc-n">${esc(u.nome)}</span><span class="chip ${st}">${us}/${av}</span>${S.desej[u.id]?'<span class="uc-f" title="Proposta do campus recebida">PDF</span>':""}</button>`}).join("")}</div><div class="muted" style="margin-top:10px">Definidas ${T.used} de ${T.av} vagas novas nesta proposta.</div></div>`;
+  const u=S.base.unidades.find(x=>x.id===S.defUnit);if(!u)return h;
+  const b=defBudget(u,P);const rows=unitRows(u,P);const dj=S.desej[u.id];const i=info(u,P);
+  h+=`<div class="card"><div class="card-h"><div><div class="eyebrow">${esc(u.sigla)}</div><h2>${esc(u.nome)}</h2><div class="muted">Previsto na proposta: ${i.tot} de ${i.refT} · ${i.vaT} vaga(s) existente(s) · ${dj?`proposta do campus: ${esc(dj.arquivo||"cadastrada")}`:"sem proposta do campus"}</div></div><div class="row"><button data-act="sugerir" data-id="${esc(u.id)}"${dj?"":" disabled title='Importe a proposta do campus primeiro'"}>Sugerir pela proposta do campus</button><button class="ghost" data-act="defClear" data-id="${esc(u.id)}">Limpar</button></div></div>
+  <div class="budget">${LV.map(l=>`<div class="bud"><span class="lvdot lv-${l}">${l}</span><div><b class="${b.rest[l]<0?"neg":""}">${b.rest[l]}</b> <span class="muted">restam</span><div class="muted">${b.used[l]} definidas de ${b.av[l]}</div></div></div>`).join("")}</div>
+  <div class="cmp dtab"><table><thead><tr><th>Cargo</th><th>Nível</th><th>Atual</th><th>Campus deseja</th><th>Vagas existentes</th><th>Falta</th><th>Definir</th><th>Após</th></tr></thead><tbody>`;
+  for(const r of rows){const gap=r.desejado===null?null:r.desejado-r.atual-r.exist;const apos=r.atual+r.exist+r.def;const can=LV.includes(r.nivel);
+    h+=`<tr><td title="${esc(r.set||"")}">${r.est?'<span class="star" title="Cargo estratégico para o campus">★</span> ':""}${esc(r.cargo)}</td><td>${r.nivel?`<span class="lvdot lv-${r.nivel==="A"||r.nivel==="B"?"C":r.nivel}">${r.nivel}</span>`:`<span class="muted">?</span>`}</td><td>${r.atual||"–"}</td><td>${r.desejado??'<span class="muted">–</span>'}</td><td>${r.exist||"–"}</td><td>${gap===null?"–":gap>0?`<span class="pill bad">${gap}</span>`:`<span class="pill ok">${gap<0?"+"+(-gap):"0"}</span>`}</td>
+    <td>${can?`<div class="stp"><button data-act="dinc" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" data-d="-1" aria-label="Menos ${esc(r.cargo)}">−</button><input type="number" min="0" id="df-${esc(u.id)}-${esc(r.k.replace(/ /g,"_"))}" aria-label="Definir ${esc(r.cargo)}" data-act="dset" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" value="${r.def}"><button data-act="dinc" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" data-d="1" aria-label="Mais ${esc(r.cargo)}">+</button></div>`:'<span class="muted">sem nível</span>'}</td><td><b>${apos}</b>${r.desejado!==null?` <span class="muted">/ ${r.desejado}</span>`:""}</td></tr>`}
+  h+=`</tbody></table></div><div class="mlist">${rows.map(r=>{const gap=r.desejado===null?null:r.desejado-r.atual-r.exist;const apos=r.atual+r.exist+r.def;const can=LV.includes(r.nivel);return `<div class="mrow"><div class="mrow-h"><span class="mrow-t">${r.est?'<span class="star">★</span> ':""}${esc(r.cargo)}</span>${r.nivel?`<span class="lvdot lv-${r.nivel==="A"||r.nivel==="B"?"C":r.nivel}">${r.nivel}</span>`:""}</div><div class="mstats"><span><b>${r.atual}</b>atual</span><span><b>${r.desejado??"–"}</b>campus</span><span><b>${r.exist}</b>existentes</span><span class="${gap>0?"neg":""}"><b>${gap===null?"–":gap>0?gap:0}</b>falta</span></div><div class="mrow-f">${can?`<div class="stp"><button data-act="dinc" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" data-d="-1" aria-label="Menos ${esc(r.cargo)}">−</button><input type="number" min="0" id="dm-${esc(u.id)}-${esc(r.k.replace(/ /g,"_"))}" aria-label="Definir ${esc(r.cargo)}" data-act="dset" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" value="${r.def}"><button data-act="dinc" data-u="${esc(u.id)}" data-c="${esc(r.cargo)}" data-l="${r.nivel}" data-d="1" aria-label="Mais ${esc(r.cargo)}">+</button></div>`:'<span class="muted">sem nível</span>'}<span class="small">após: <b>${apos}</b>${r.desejado!==null?" / "+r.desejado:""}</span></div></div>`}).join("")}</div><div class="muted" style="margin-top:8px">★ cargo estratégico indicado pelo campus · passe o mouse no cargo para ver os setores pedidos.</div><div class="row" style="margin-top:12px"><input type="text" list="dlCargos" id="newCargo" placeholder="Outro cargo" aria-label="Outro cargo" style="min-width:240px"><select id="newCargoL" aria-label="Nível do cargo">${LV.map(l=>`<option${l==="D"?" selected":""}>${l}</option>`).join("")}</select><button data-act="defAdd" data-id="${esc(u.id)}">Incluir cargo</button></div>`;
+  const vs=S.base.vagas.filter(v=>v.unidade===u.id);
+  if(vs.length)h+=`<div style="margin-top:16px"><div class="eyebrow" style="margin-bottom:6px">Códigos vagos já existentes nesta unidade</div><div class="toggles">${vs.map(v=>`<span class="tog" title="${esc(v.obs)}">${esc(v.codigo)} · ${esc(niceC(v.cargo))}</span>`).join("")}</div></div>`;
+  h+=`</div>`;
+  const res={};for(const uu of S.base.unidades)for(const d of defsOf(P.id).unidades[uu.id]?.linhas||[]){if(!n(d.qtd))continue;const k=d.nivel+"|"+normC(d.cargo);res[k]=res[k]||{cargo:niceC(d.cargo),nivel:d.nivel,q:0,us:[]};res[k].q+=n(d.qtd);res[k].us.push(uu.sigla+" "+d.qtd)}
+  const rr=Object.values(res).sort((a,b)=>a.nivel.localeCompare(b.nivel)||b.q-a.q);
+  h+=`<div class="card"><h2 style="margin-bottom:10px">Resumo do IFRN nesta proposta</h2>${rr.length?`<div class="cmp"><table><thead><tr><th>Cargo</th><th>Nível</th><th>Vagas</th><th>Unidades</th></tr></thead><tbody>${rr.map(r=>`<tr><td>${esc(r.cargo)}</td><td><span class="lvdot lv-${r.nivel}">${r.nivel}</span></td><td><b>${r.q}</b></td><td style="white-space:normal;text-align:left">${esc(r.us.join(", "))}</td></tr>`).join("")}</tbody></table></div>`:'<div class="muted">Nenhum cargo definido ainda.</div>'}</div>`;
+  return h;
+}
+function viewQuadro(){
+  let h=`<div class="card"><div class="card-h" style="margin:0"><div><div class="eyebrow">Quadro atual de cargos</div><h2>Base de servidores por unidade</h2><div class="muted">Envie a planilha (xlsx, xls, csv) ou o PDF exportado do SUAP/SIAPE com os servidores TAE. O PDF é lido com IA e revisado por você antes de gravar. O arquivo não é armazenado: só os dados extraídos ficam salvos.</div></div><label class="filebtn"><input type="file" id="fQuadro" accept=".xlsx,.xls,.csv,.ods,.pdf" data-act="fQuadro">Enviar base de servidores</label></div>${S.quadro?`<div class="muted" style="margin-top:10px">Base atual: ${esc(S.quadro.arquivo||"")} · importada em ${new Date(S.quadro.importadoEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})} · ${S.quadro.linhas.reduce((a,r)=>a+n(r.qtd),0)} servidores</div>`:""}</div>`;
+  if(S.prog)h+=`<div class="toast ok" id="prog">${esc(S.prog)}</div>`;
+  const I=S.imp;
+  if(I){
+    if(I.erro)h+=`<div class="toast">${esc(I.erro)}</div>`;
+    if(I.rows&&!I.rec){const opt=(sel)=>`<option value="-1">—</option>`+I.header.map((c,ix)=>`<option value="${ix}"${sel===ix?" selected":""}>${esc(c||"Coluna "+(ix+1))}</option>`).join("");
+      h+=`<div class="card"><h2 style="margin-bottom:10px">Colunas da planilha</h2><div class="tiles">${I.wb.SheetNames.length>1?`<label class="tile"><span class="tt">Aba</span><select id="impSheet" data-act="impSheet">${I.wb.SheetNames.map(s=>`<option${s===I.sheet?" selected":""}>${esc(s)}</option>`).join("")}</select></label>`:""}${[["u","Unidade de exercício/lotação"],["c","Cargo"],["l","Nível de classificação (opcional)"],["q","Quantidade (opcional)"]].map(([k,t])=>`<label class="tile"><span class="tt">${t}</span><select id="impCol-${k}" data-act="impCol" data-id="${k}">${opt(I.cols[k])}</select></label>`).join("")}</div><div class="muted" style="margin:10px 0">${I.rows.length} linhas encontradas. Sem coluna de quantidade, cada linha conta como um servidor.</div><button class="pri" data-act="impRead">Continuar</button> <button class="ghost" data-act="impCancel">Cancelar</button></div>`}
+    if(I.rec){const tot=I.rec.reduce((a,r)=>a+r.qtd,0);const um=I.units.filter(x=>!x.u);
+      h+=`<div class="card"><div class="card-h"><div><h2>Revise antes de gravar</h2><div class="muted">${tot} servidores em ${I.units.length} valores de unidade. Associe cada valor a uma unidade do sistema; os que ficarem em branco são ignorados.</div></div><div class="row"><button class="pri" data-act="impOk">Gravar quadro atual</button><button class="ghost" data-act="impCancel">Cancelar</button></div></div>${um.length?`<div class="toast">${um.length} valor(es) sem unidade associada.</div>`:""}<div class="tiles">${I.units.map((x,ix)=>`<label class="tile"><span class="tt small">${esc(x.v)}</span><span class="muted">${x.q} servidor(es)</span><select id="impU-${ix}" data-act="impU" data-id="${ix}" style="background:var(--surface)"><option value="">Ignorar</option>${S.base.unidades.map(u=>`<option value="${esc(u.id)}"${x.u===u.id?" selected":""}>${esc(u.nome)}</option>`).join("")}</select></label>`).join("")}</div>
+      ${I.rec.some(r=>!r.nivel)?`<div class="toast" style="margin-top:12px">Há cargos sem nível identificado: ${esc([...new Set(I.rec.filter(r=>!r.nivel).map(r=>r.cargo))].slice(0,12).join(", "))}. Eles aparecem no quadro, mas não entram nas contas por nível.</div>`:""}</div>`}
+  }
+  if(!S.quadro)return h+(I?"":`<div class="empty">Nenhuma base importada ainda.</div>`);
+  h+=`<div class="row" style="justify-content:space-between;margin-bottom:12px"><div class="row">${groupingSelect("selGrpQ")}</div><label class="small" for="qUnit">Detalhar</label></div>`;
+  for(const g of groups()){h+=`<section class="grp"><div class="grp-h"><h3>${esc(g.nome)}</h3></div><div class="qgrid">`;
+    for(const u of g.units){const ls=S.quadro.linhas.filter(r=>r.u===u.id);const byL={C:0,D:0,E:0};let tot=0;ls.forEach(r=>{tot+=n(r.qtd);if(byL[r.nivel]!==undefined)byL[r.nivel]+=n(r.qtd)});const suap=sum3({C:n(u.ocup?.C),D:n(u.ocup?.D),E:n(u.ocup?.E)})+n(u.ab);const open=S.qOpen===u.id;
+      h+=`<article class="qcard"><button class="qhead" data-act="qOpen" data-id="${esc(u.id)}" aria-expanded="${open}"><span><b>${esc(u.nome)}</b><span class="muted"> · ${ls.length} cargos</span></span><span class="row"><span class="small">${LV.map(l=>`${l} ${byL[l]}`).join(" · ")}</span><span class="chip ${tot===suap?"ok":"warn"}" title="Total no SUAP: ${suap}">${tot} servidores</span></span></button>${open?`<div class="cmp"><table><thead><tr><th>Cargo</th><th>Nível</th><th>Servidores</th></tr></thead><tbody>${ls.sort((a,b)=>(a.nivel||"Z").localeCompare(b.nivel||"Z")||b.qtd-a.qtd).map(r=>`<tr><td>${esc(r.cargo)}</td><td>${esc(r.nivel||"?")}</td><td><b>${r.qtd}</b></td></tr>`).join("")}</tbody></table></div>${tot!==suap?`<div class="muted">O total importado (${tot}) difere do SUAP cadastrado (${suap}).</div>`:""}`:""}</article>`}
+    h+=`</div></section>`}
+  return h;
+}
+function viewCampi(){
+  const sel=S.upUnit||S.base.unidades[0]?.id;
+  let h=`<div class="card upcard"><div><div class="eyebrow">Propostas dos campi</div><h2>Enviar a proposta de dimensionamento de um campus</h2><div class="muted">Relatório em PDF no modelo da DIGPE (Quadro 2 – modelo ideal) ou planilha. O sistema lê os postos por cargo e você revisa antes de gravar. O arquivo não é armazenado: só os dados extraídos ficam salvos.</div></div>
+  <div class="upform"><label class="small" for="upUnit">Unidade</label><select id="upUnit" data-act="upUnit">${S.base.unidades.map(u=>`<option value="${esc(u.id)}"${u.id===sel?" selected":""}>${esc(u.nome)}${S.desej[u.id]?" (já enviada)":""}</option>`).join("")}</select>
+  <label class="filebtn big"><input type="file" id="fUp" accept=".pdf,.xlsx,.xls,.csv" data-act="fCampus" data-id="${esc(sel)}">Escolher arquivo da proposta</label><button class="ghost" data-act="cManual" data-id="${esc(sel)}">Digitar manualmente</button></div></div>`;
+  if(S.prog)h+=`<div class="toast ok" id="prog">${esc(S.prog)}</div>`;
+  const C=S.impC;
+  if(C&&C.linhas){const u=S.base.unidades.find(x=>x.id===C.u);
+    h+=`<div class="card"><div class="card-h"><div><h2>Revisar proposta de ${esc(u?.nome||"")}</h2><div class="muted">${esc(C.arquivo||"Cadastro manual")}${C.metodo?" · "+esc(C.metodo):""}${C.erro?" · "+esc(C.erro):""}</div><div class="muted">Total desejado: <b>${C.linhas.reduce((a,l)=>a+n(l.qtd),0)}</b> (${LV.map(l=>l+" "+C.linhas.filter(x=>x.nivel===l).reduce((a,x)=>a+n(x.qtd),0)).join(" · ")})</div></div><div class="row"><button class="pri" data-act="cOk">Gravar</button><button class="ghost" data-act="cCancel">Cancelar</button></div></div>
+    <div class="clist">${C.linhas.map((l,ix)=>`<div class="cline"><span class="row" style="flex-wrap:nowrap;gap:6px">${l.estrategico?'<span class="star" title="Cargo estratégico (Quadro 1)">★</span>':""}<input type="text" list="dlCargos" id="cc-${ix}" aria-label="Cargo" data-act="cEd" data-id="${ix}" data-f="cargo" value="${esc(l.cargo)}" style="flex:1;min-width:0"></span><select id="cn-${ix}" aria-label="Nível" data-act="cEd" data-id="${ix}" data-f="nivel"><option value="">?</option>${LV.map(x=>`<option${l.nivel===x?" selected":""}>${x}</option>`).join("")}</select><input type="number" min="0" id="cq-${ix}" aria-label="Quantidade desejada" data-act="cEd" data-id="${ix}" data-f="qtd" value="${l.qtd}" style="width:100%"><div class="full"><input type="text" id="co-${ix}" aria-label="Setores e observação" placeholder="Setores / observação${l.atualDoc!==null&&l.atualDoc!==undefined?" (atual no documento: "+l.atualDoc+")":""}" data-act="cEd" data-id="${ix}" data-f="obs" value="${esc(l.obs)}"><button class="ghost danger" data-act="cDel" data-id="${ix}">Remover</button></div></div>`).join("")}</div><button style="margin-top:10px" data-act="cAdd">Adicionar cargo</button></div>`}
+  h+=`<div class="row" style="margin-bottom:12px">${groupingSelect("selGrpCp")}</div>`;
+  for(const g of groups()){h+=`<section class="grp"><div class="grp-h"><h3>${esc(g.nome)}</h3></div><div class="qgrid">`;
+    for(const u of g.units){const d=S.desej[u.id];const tot=d?d.linhas.reduce((a,l)=>a+n(l.qtd),0):0;
+      h+=`<article class="qcard"><div class="qhead" style="cursor:default"><span><b>${esc(u.nome)}</b>${d?`<span class="muted"> · ${d.linhas.length} cargos · ${tot} desejados</span>`:'<span class="muted"> · sem proposta</span>'}</span><span class="row">${d?`<span class="chip ok">Recebida</span>`:`<span class="chip mute">Pendente</span>`}<label class="filebtn sm"><input type="file" id="fC-${esc(u.id)}" accept=".pdf,.xlsx,.xls,.csv" data-act="fCampus" data-id="${esc(u.id)}">${d?"Substituir":"Enviar PDF"}</label>${d?`<button class="ghost" data-act="cEdit" data-id="${esc(u.id)}">Editar</button>`:`<button class="ghost" data-act="cManual" data-id="${esc(u.id)}">Digitar</button>`}</span></div></article>`}
+    h+=`</div></section>`}
+  return h;
+}
+
+function viewInicio(){
+  const P=S.props.find(p=>p.aprovada);const nd=Object.keys(S.desej||{}).length;const nU=S.base.unidades.length;
+  const q=S.quadro?`${S.quadro.linhas.reduce((a,r)=>a+n(r.qtd),0)} servidores importados`:"ainda não importado";
+  return `<div class="home"><p class="home-lead">O que você quer fazer?</p><div class="homegrid">
+  <article class="hcard"><div class="hicon" aria-hidden="true">1</div><h2>Dimensionamento quantitativo</h2><p>Distribuir as vagas recebidas entre as unidades por nível de classificação (C, D e E), com metas por tipologia, e comparar propostas.</p>
+   <ul class="hst"><li>${S.props.length} proposta(s) salva(s)</li><li>${P?"Aprovada: "+esc(P.nome):"Nenhuma proposta aprovada"}</li></ul>
+   <div class="hacts"><button class="pri" data-go="prontas">Ver propostas</button><button data-go="construir">Construir proposta</button></div></article>
+  <article class="hcard"><div class="hicon" aria-hidden="true">2</div><h2>Definição de cargos</h2><p>Escolher os cargos das vagas da proposta aprovada, comparando o quadro atual de cada unidade com a proposta enviada pelo campus.</p>
+   <ul class="hst"><li>Quadro atual: ${q}</li><li>Propostas dos campi: ${nd} de ${nU} unidades</li></ul>
+   <div class="hacts"><button class="pri" data-go="definir">Definir cargos</button><button data-go="campi">Enviar proposta do campus</button><button data-go="quadro">Enviar quadro atual</button></div></article>
+  </div><div class="hfoot"><button class="ghost" data-go="cadastros">Cadastros: tipologias, unidades, vagas existentes e vagas recebidas</button></div></div>`;
+}
+/* ---------- render ---------- */
+function render(){
+  if(!S.base){$("#hdrMeta").textContent=S.dbState==="loading"?"Carregando dados…":"Sem dados cadastrados";
+    $("#view").innerHTML=S.dbState==="loading"?`<div class="empty">Carregando dados do dimensionamento…</div>`:`<div class="empty">Ainda não há cadastro de unidades, tipologias e vagas.<br><br><button class="pri" data-act="initBase">Começar cadastro</button></div>`;return}
+  const p=pool();
+  $("#hdrMeta").textContent=`${S.base.unidades.length} unidades · ${S.base.vagas.filter(v=>v.considerar!==false).length} vagas existentes · ${sum3(p.rec)} vagas recebidas${S.base.fonte?" · "+S.base.fonte:""}`;
+  $("#btnPan").setAttribute("aria-pressed",S.pan);$("#btnPan").classList.toggle("on",S.pan);
+  const MOD={inicio:"home",prontas:"dim",construir:"dim",definir:"car",quadro:"car",campi:"car",cadastros:"cad"};const SUB={dim:[["prontas","Propostas"],["construir","Construir proposta"]],car:[["definir","Definir cargos"],["quadro","Quadro atual"],["campi","Propostas dos campi"]],cad:[],home:[]};const md=MOD[S.tab]||"home";
+  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.mod===md));
+  $("#subnav").innerHTML=SUB[md].map(([k,t])=>`<button data-tab="${k}" aria-selected="${S.tab===k}">${t}</button>`).join("");$("#subnav").hidden=!SUB[md].length;
+  $("#btnPan").hidden=md!=="dim";
+  const pan=$("#panorama");pan.hidden=!S.pan||md!=="dim";
+  if(S.pan&&md==="dim"){const P=S.tab==="prontas"&&S.focusId&&propById(S.focusId)?propById(S.focusId):S.cur;pan.innerHTML=P?panoramaHTML(P,P===S.cur?(S.cur.nome+(S.dirty?" (em construção)":"")):P.nome):`<div class="empty">Abra ou crie uma proposta para ver o panorama.</div>`}
+  const dl=new Set([...CARGOS_BASE,...S.base.lotes.map(l=>l.cargo),...S.base.vagas.map(v=>niceC(v.cargo)),...(S.quadro?.linhas||[]).map(r=>r.cargo)]);$("#dlCargos").innerHTML=[...dl].filter(Boolean).map(c=>`<option value="${esc(c)}">`).join("");
+  const f={inicio:viewInicio,prontas:viewProntas,construir:viewConstruir,cadastros:viewCadastros,definir:viewDefinir,quadro:viewQuadro,campi:viewCampi}[S.tab]||viewInicio;
+  const y=window.scrollY;$("#view").innerHTML=f();window.scrollTo(0,y);
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener("click",e=>{
+  if(e.target.closest("[data-home]")){S.tab="inicio";S.confirm=null;render();window.scrollTo(0,0);return}
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.go){S.tab=b.dataset.go;S.confirm=null;render();window.scrollTo(0,0);return}
+  if(b.dataset.mod){S.tab={home:"inicio",dim:"prontas",car:"definir",cad:"cadastros"}[b.dataset.mod];save("dim2.tab",S.tab);S.confirm=null;render();return}
+  if(b.dataset.tab){S.tab=b.dataset.tab;save("dim2.tab",S.tab);S.confirm=null;render();return}
+  if(b.id==="btnPan"){S.pan=!S.pan;save("dim.pan",S.pan?"1":"0");render();return}
+  const a=b.dataset.act;if(!a)return;const id=b.dataset.id;const B=S.base;
+  switch(a){
+    case "pan":S.pan=false;save("dim.pan","0");render();break;
+    case "cancel":S.confirm=null;render();break;
+    case "new":newProp(false);break;
+    case "newForce":newProp(true);break;
+    case "save":saveProp(false);break;
+    case "saveAs":saveProp(true);break;
+    case "edit":editProp(id,false);break;
+    case "editForce":editProp(id,true);break;
+    case "focus":S.focusId=S.focusId===id?null:id;render();break;
+    case "cmpT":{const s=new Set(S.cmp||[]);s.has(id)?s.delete(id):s.add(id);S.cmp=[...s];render();break}
+    case "dup":{const p=propById(id);if(!p)break;if(S.dirty&&S.curId!==id){S.confirm="switch:"+id;render();break}S.cur=strip(p);S.curId=id;saveProp(true);break}
+    case "del":S.confirm="del:"+id;render();break;
+    case "delYes":{S.props=S.props.filter(x=>x.id!==id);if(S.cmp)S.cmp=S.cmp.filter(x=>x!==id);if(S.focusId===id)S.focusId=null;if(S.curId===id){S.curId=null;S.cur=null;S.dirty=false}S.confirm=null;render();if(S.db)S.db.doc("propostas/"+id).delete().catch(()=>flash("Não foi possível excluir a proposta.","warn"));break}
+    case "step":S.step=n(id);save("dim2.step",String(S.step));S.confirm=null;render();window.scrollTo(0,0);break;
+    case "auto":autoDist();break;
+    case "clearAloc":S.confirm="clearAloc";render();break;
+    case "clearAlocYes":S.cur.aloc={};S.cur.cargos={};S.confirm=null;markDirty();break;
+    case "copyFrom":{const v=$("#copyFrom")?.value;const p=v&&propById(v);if(!p)break;S.cur.aloc=clone(p.aloc||{});S.cur.cargos=clone(p.cargos||{});S.cur.vagaNotas=clone(p.vagaNotas||{});markDirty();flash("Distribuição copiada de "+p.nome,"ok");break}
+    case "exclT":{const s=new Set(S.cur.excluidas||[]);s.has(id)?s.delete(id):s.add(id);S.cur.excluidas=[...s];markDirty();break}
+    case "inc":{S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[b.dataset.l]=Math.max(0,n(o[b.dataset.l])+n(b.dataset.d));markDirty();break}
+    case "aprov":{const p=propById(id);if(!p)break;const on=!p.aprovada;const ch=[];S.props.forEach(x=>{const nv=x.id===id?on:(on?false:!!x.aprovada);if(!!x.aprovada!==nv){x.aprovada=nv;ch.push(x)}});if(S.curId&&ch.find(x=>x.id===S.curId)&&S.cur)S.cur.aprovada=propById(S.curId).aprovada;if(on)S.defPropId=id;render();if(S.db)(async()=>{for(const x of ch){try{await S.db.doc("propostas/"+x.id).update({aprovada:!!x.aprovada})}catch(e){flash("Não foi possível gravar a aprovação.","warn")}}})();break}
+    case "defSave":saveDefs();break;
+    case "logout":window.__sb?.auth.signOut().then(()=>location.reload());break;
+    case "defUnit":S.defUnit=id;render();break;
+    case "sugerir":sugerir(id);break;
+    case "defClear":{const P=defProp();if(P){defsOf(P.id).unidades[id]={linhas:[]};S.defDirty=true;render()}break}
+    case "dinc":{const P=defProp();if(!P)break;const k=normC(b.dataset.c);const cur=n((defsOf(P.id).unidades[b.dataset.u]?.linhas||[]).find(l=>normC(l.cargo)===k)?.qtd);setDef(b.dataset.u,b.dataset.c,b.dataset.l,cur+n(b.dataset.d));render();break}
+    case "defAdd":{const P=defProp();const c=$("#newCargo")?.value.trim();if(!P||!c)break;const d=defsOf(P.id);const U=d.unidades[id]||(d.unidades[id]={linhas:[]});if(!U.linhas.find(l=>normC(l.cargo)===normC(c)))U.linhas.push({cargo:niceC(c),nivel:$("#newCargoL").value,qtd:0,manual:true});S.defDirty=true;render();break}
+    case "impRead":sheetToRec();render();break;
+    case "impOk":confirmQuadro();break;
+    case "impCancel":S.imp=null;render();break;
+    case "qOpen":S.qOpen=S.qOpen===id?null:id;render();break;
+    case "cOk":saveCampus();break;
+    case "cCancel":S.impC=null;render();break;
+    case "cAdd":S.impC.linhas.push({cargo:"",nivel:"",qtd:1,obs:""});render();break;
+    case "cDel":S.impC.linhas.splice(n(id),1);render();break;
+    case "cEdit":{const d=S.desej[id];S.impC={u:id,arquivo:d.arquivo,estrategicos:d.estrategicos||[],linhas:clone(d.linhas)};render();window.scrollTo(0,0);break}
+    case "cManual":S.impC={u:id,arquivo:"",linhas:[{cargo:"",nivel:"",qtd:1,obs:""}]};render();window.scrollTo(0,0);break;
+    case "genAll":S.confirm="genAll";render();break;
+    case "genAllYes":S.base.unidades.forEach(u=>genCargos(u.id));S.confirm=null;markDirty();break;
+    case "toggleAll":S.showAllCargos=!S.showAllCargos;render();break;
+    case "cadd":{S.cur.cargos=S.cur.cargos||{};(S.cur.cargos[b.dataset.u]=S.cur.cargos[b.dataset.u]||[]).push({id:uid(),cargo:"",nivel:"D",qtd:1,status:"discutir",obs:""});markDirty();break}
+    case "cgen":genCargos(b.dataset.u);markDirty();break;
+    case "cdel":S.cur.cargos[b.dataset.u]=(S.cur.cargos[b.dataset.u]||[]).filter(l=>l.id!==id);markDirty();break;
+    case "initBase":S.base={tipologias:[],unidades:[],agrupamentos:[],vagas:[],lotes:[]};S.tab="cadastros";touchBase();break;
+    case "tAdd":B.tipologias.push({id:uid(),nome:"Nova tipologia",ref:{C:0,D:0,E:0}});touchBase();break;
+    case "tDel":S.confirm="tdel:"+id;render();break;
+    case "tDelYes":B.tipologias=B.tipologias.filter(t=>t.id!==id);S.confirm=null;touchBase();break;
+    case "uAdd":B.unidades.push({id:uid(),sigla:"NOVA",nome:"Nova unidade",tipologia:B.tipologias[0]?.id||"",ocup:{C:0,D:0,E:0},ab:0});touchBase();break;
+    case "uDel":S.confirm="udel:"+id;render();break;
+    case "uDelYes":B.unidades=B.unidades.filter(u=>u.id!==id);S.confirm=null;touchBase();break;
+    case "agAdd":{const g={id:uid(),nome:"Novo agrupamento",grupos:[]};B.agrupamentos.push(g);S.editGrouping=g.id;touchBase();break}
+    case "agDel":S.confirm="agdel:"+id;render();break;
+    case "agDelYes":B.agrupamentos=B.agrupamentos.filter(g=>g.id!==id);if(S.grouping===id)S.grouping="tip";S.confirm=null;S.editGrouping=null;touchBase();break;
+    case "grAdd":{const ag=B.agrupamentos.find(g=>g.id===id);ag.grupos.push({id:uid(),nome:"Grupo "+(ag.grupos.length+1),unidades:[]});touchBase();break}
+    case "grDel":{const ag=B.agrupamentos.find(g=>g.id===b.dataset.ag);ag.grupos=ag.grupos.filter(g=>g.id!==id);touchBase();break}
+    case "vAdd":B.vagas.push({codigo:"",nivel:"D",cargo:"",unidade:"",obs:"",considerar:true});touchBase();break;
+    case "vDel":B.vagas.splice(n(b.dataset.ix),1);touchBase();break;
+    case "lAdd":B.lotes.push({id:uid(),ato:"",cargo:"",nivel:"D",qtd:0,codigos:""});touchBase();break;
+    case "lDel":B.lotes=B.lotes.filter(l=>l.id!==id);touchBase();break;
+  }
+});
+document.addEventListener("change",e=>{
+  const t=e.target;const a=t.dataset.act;if(!a)return;const id=t.dataset.id,f=t.dataset.f,B=S.base;
+  switch(a){
+    case "defProp":S.defPropId=t.value;render();break;
+    case "upUnit":S.upUnit=t.value;render();break;
+    case "dset":setDef(t.dataset.u,t.dataset.c,t.dataset.l,n(t.value));render();break;
+    case "fQuadro":if(t.files[0])importQuadroFile(t.files[0]);break;
+    case "fCampus":if(t.files[0])importCampusFile(t.files[0],id);window.scrollTo(0,0);break;
+    case "impSheet":S.imp.sheet=t.value;loadSheet();render();break;
+    case "impCol":S.imp.cols[id]=n(t.value);break;
+    case "impU":S.imp.units[n(id)].u=t.value;render();break;
+    case "cEd":{const l=S.impC.linhas[n(id)];l[f]=f==="qtd"?Math.max(0,n(t.value)):t.value;break}
+    case "grp":S.grouping=t.value;save("dim.grp",S.grouping);render();break;
+    case "pname":S.cur.nome=t.value||"Proposta sem nome";markDirty();break;
+    case "pdesc":S.cur.descricao=t.value;markDirty();break;
+    case "meta":S.cur.metas=S.cur.metas||{};if(t.value==="")delete S.cur.metas[id];else S.cur.metas[id]=n(t.value);markDirty();break;
+    case "aloc":{S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[t.dataset.l]=Math.max(0,n(t.value));markDirty();break}
+    case "excl":{const s=new Set(S.cur.excluidas||[]);t.checked?s.add(id):s.delete(id);S.cur.excluidas=[...s];markDirty();break}
+    case "cl":{const ln=(S.cur.cargos[t.dataset.u]||[]).find(l=>l.id===id);if(ln){ln[f]=f==="qtd"?Math.max(0,n(t.value)):t.value;markDirty()}break}
+    case "vnota":S.cur.vagaNotas=S.cur.vagaNotas||{};S.cur.vagaNotas[id]=t.value;markDirty();break;
+    case "tEd":{const x=B.tipologias.find(q=>q.id===id);if(f==="nome")x.nome=t.value;else x.ref[f]=Math.max(0,n(t.value));touchBase();break}
+    case "uEd":{const u=B.unidades.find(q=>q.id===id);if(f[0]==="o"&&f.length===2){u.ocup=u.ocup||{};u.ocup[f[1]]=Math.max(0,n(t.value))}else if(f[0]==="r"&&f.length===2){u.ref=u.ref||{};if(t.value==="")delete u.ref[f[1]];else u.ref[f[1]]=n(t.value);if(!Object.keys(u.ref).length)delete u.ref}else if(f==="ab")u.ab=Math.max(0,n(t.value));else u[f]=t.value;touchBase();break}
+    case "egSel":S.editGrouping=t.value;render();break;
+    case "agName":B.agrupamentos.find(g=>g.id===id).nome=t.value;touchBase();break;
+    case "grName":{const ag=B.agrupamentos.find(g=>g.id===t.dataset.ag);ag.grupos.find(g=>g.id===id).nome=t.value;touchBase();break}
+    case "grAssign":{const ag=B.agrupamentos.find(g=>g.id===t.dataset.ag);ag.grupos.forEach(g=>g.unidades=(g.unidades||[]).filter(x=>x!==id));if(t.value)ag.grupos.find(g=>g.id===t.value).unidades.push(id);touchBase();break}
+    case "vEd":{const v=B.vagas[n(t.dataset.ix)];v[f]=f==="considerar"?t.checked:t.value;touchBase();break}
+    case "lEd":{const lt=B.lotes.find(q=>q.id===id);lt[f]=f==="qtd"?Math.max(0,n(t.value)):t.value;touchBase();break}
+  }
+});
+window.addEventListener("beforeunload",e=>{if(S.dirty||S.defDirty){e.preventDefault();e.returnValue=""}});
+
+/* ---------- inicialização ---------- */
+render();
+(async()=>{
+  let db=null;try{db=await window.claude?.use?.("db")}catch(_){}
+  if(!db){S.dbState="none";render();$("#status").innerHTML=`<div class="toast">Não foi possível conectar ao banco de dados. Verifique a conexão e recarregue a página.</div>`;return}
+  S.db=db;
+  window.claude.use("sample").then(x=>{S.sample=x}).catch(()=>{});
+  db.doc("quadro/atual").onSnapshot(sn=>{if(sn.exists){S.quadro=clone(sn.data());render()}},()=>{});
+  db.collection("desejado").onSnapshot(qs=>{S.desej={};qs.docs.forEach(d=>S.desej[d.id]=clone(d.data()));render()},()=>{});
+  db.collection("definicoes").onSnapshot(qs=>{if(S.defDirty)return;S.defs={};qs.docs.forEach(d=>S.defs[d.id]=clone(d.data()));render()},()=>{});
+  const timer=setTimeout(()=>{if(!S.base)$("#status").innerHTML=`<div class="toast">Os dados ainda não responderam. Verifique a conexão; a página continua tentando.</div>`},10000);
+  db.doc("ws/base").onSnapshot(snap=>{
+    if(!snap.metadata.fromCache){clearTimeout(timer);S.dbState="ok"}
+    if(snap.exists){if(!baseLocal||!S.base)S.base=clone(snap.data())}else if(!snap.metadata.fromCache)S.dbState="empty";
+    if(S.base)["tipologias","unidades","agrupamentos","vagas","lotes"].forEach(k=>S.base[k]=S.base[k]||[]);
+    render();
+  },err=>{clearTimeout(timer);S.dbState="empty";flash("Erro ao carregar os cadastros: "+err.code,"warn");render()});
+  db.collection("propostas").onSnapshot(qs=>{
+    S.props=qs.docs.map(d=>({id:d.id,...clone(d.data())}));
+    if(!S.cur&&S.props.length){const last=[...S.props].sort((a,b)=>(b.atualizadaEm||"").localeCompare(a.atualizadaEm||""))[0];S.cur=strip(last);S.curId=last.id}
+    else if(S.curId&&!S.dirty){const p=propById(S.curId);if(p)S.cur=strip(p)}
+    render();
+  },err=>flash("Erro ao carregar as propostas: "+err.code,"warn"));
+})();
+</script>
+
+</body>
+</html>
