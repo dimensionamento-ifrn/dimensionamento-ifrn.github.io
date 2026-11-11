@@ -92,6 +92,11 @@ input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
 .ulist{display:flex;flex-direction:column;gap:8px}
 .urow{background:var(--surface);border-radius:18px;box-shadow:var(--shadow);padding:12px 16px;display:grid;grid-template-columns:minmax(140px,1fr) minmax(150px,1.3fr) auto 172px;gap:14px;align-items:center}
 .urow.out{opacity:.72}
+.psec{margin-bottom:22px}.psec-h{display:flex;align-items:center;gap:10px;margin:0 4px 12px}.psec-h h3{font-size:16px}.cnt{background:var(--soft-2);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;color:var(--fg-2)}.psec-e{padding:14px 18px;background:var(--surface);border-radius:18px;box-shadow:var(--shadow)}
+.dcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.dcard{background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:12px;border:2px dashed var(--line);min-width:0}.dcard.cur{border:2px solid var(--warn)}
+.dprog{height:10px;border-radius:99px;background:var(--soft-2);overflow:hidden}.dprog i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.plist{display:flex;flex-direction:column;gap:8px}.pitem{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border-radius:16px;padding:12px 16px;background:var(--soft);white-space:normal}.pitem span{font-size:12.5px;font-weight:500;color:var(--fg-3)}
 .gsaldo,.rsaldo{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap}.rsaldo{margin-top:6px;justify-content:center;width:100%}.gsaldo{margin-left:auto}
 .sml{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--fg-3)}
 .smn{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;padding:2px 9px 2px 3px;border-radius:999px;background:var(--soft-2)}.smn .lvdot{width:18px;height:18px;font-size:10px}.smn.zero{opacity:.55}.smn.neg{background:var(--bad-bg);color:var(--bad)}
@@ -384,23 +389,38 @@ const strip=p=>{const {id,...d}=p;return clone(d)};
 let baseTimer=null,baseWriting=false,basePending=false,baseLocal=false;
 function touchBase(){render();if(!S.db)return;baseLocal=true;clearTimeout(baseTimer);baseTimer=setTimeout(flushBase,700)}
 async function flushBase(){if(baseWriting){basePending=true;return}baseWriting=true;try{await S.db.doc("ws/base").set(clone(S.base))}catch(e){flash("Não foi possível salvar os cadastros: "+(e.message||e.code),"warn")}baseWriting=false;if(basePending){basePending=false;flushBase()}else baseLocal=false}
-function markDirty(){S.dirty=true;render()}
+const isDraft=p=>p&&p.situacao==="rascunho";
+let propTimer=null,propWriting=false,propPending=false;
+function markDirty(){S.dirty=true;render();clearTimeout(propTimer);propTimer=setTimeout(flushProp,900)}
+async function flushProp(){
+  clearTimeout(propTimer);if(!S.cur||!S.curId||!S.dirty)return;
+  if(propWriting){propPending=true;return}
+  propWriting=true;S.saveState="saving";
+  const id=S.curId,doc=clone(S.cur);doc.atualizadaEm=new Date().toISOString();S.cur.atualizadaEm=doc.atualizadaEm;S.dirty=false;
+  const i=S.props.findIndex(p=>p.id===id);const rec={id,...clone(doc)};if(i>=0)S.props[i]=rec;else S.props.push(rec);
+  if(!S.db){S.saveState="local";propWriting=false;render();return}
+  render();
+  try{await S.db.doc("propostas/"+id).set(doc);S.saveState="ok"}catch(e){S.dirty=true;S.saveState="err";flash("Não foi possível salvar: "+(e.message||e.code),"warn")}
+  propWriting=false;render();if(propPending){propPending=false;flushProp()}
+}
 async function saveProp(asCopy){
-  if(!S.cur)return;const now=new Date().toISOString();let id=S.curId,doc=clone(S.cur);
-  if(asCopy||!id){id=uid();if(asCopy)doc.nome=doc.nome+" (cópia)";doc.criadaEm=now}
-  doc.atualizadaEm=now;S.cur=doc;S.curId=id;S.dirty=false;
-  const i=S.props.findIndex(p=>p.id===id);const rec={id,...clone(doc)};if(i>=0)S.props[i]=rec;else S.props.push(rec);render();
-  if(!S.db){flash("Armazenamento indisponível nesta visualização: a proposta ficou só nesta tela.","warn");return}
-  try{await S.db.doc("propostas/"+id).set(doc);flash(asCopy?"Cópia salva":"Proposta salva","ok")}catch(e){S.dirty=true;render();flash("Não foi possível salvar: "+(e.message||e.code),"warn")}
+  if(!S.cur)return;await flushProp();
+  if(!asCopy)return;
+  const now=new Date().toISOString();const id=uid();const doc=clone(S.cur);doc.nome=doc.nome+" (cópia)";doc.criadaEm=now;doc.atualizadaEm=now;doc.aprovada=false;doc.situacao="rascunho";
+  S.props.push({id,...clone(doc)});openProp(id,doc);
+  if(S.db)try{await S.db.doc("propostas/"+id).set(doc);flash("Cópia criada e aberta para preenchimento","ok")}catch(e){flash("Não foi possível criar a cópia: "+(e.message||e.code),"warn")}
 }
-function editProp(id,force){
-  if(S.dirty&&!force&&S.curId!==id){S.confirm="switch:"+id;render();return}
-  const p=propById(id);if(!p)return;S.cur=strip(p);S.curId=id;S.dirty=false;S.confirm=null;S.tab="construir";save("dim2.tab","construir");render();
+function openProp(id,doc){S.cur=clone(doc||strip(propById(id)));S.curId=id;S.dirty=false;S.saveState="ok";S.confirm=null;S.tab="construir";save("dim2.tab","construir");save("dim2.cur",id);render();window.scrollTo(0,0)}
+async function editProp(id){if(id!==S.curId)await flushProp();const p=propById(id);if(!p)return;if(id===S.curId&&S.cur){S.tab="construir";save("dim2.tab","construir");render();window.scrollTo(0,0);return}openProp(id)}
+async function newProp(){
+  await flushProp();const now=new Date().toISOString();const id=uid();
+  const doc={nome:"Proposta "+(S.props.length+1)+" – "+today(),descricao:"",metas:{},excluidas:[],aloc:{},autoAloc:{},cargos:{},vagaNotas:{},situacao:"rascunho",criadaEm:now,atualizadaEm:now};
+  S.props.push({id,...clone(doc)});S.step=1;openProp(id,doc);
+  if(S.db)try{await S.db.doc("propostas/"+id).set(doc)}catch(e){flash("Não foi possível criar a proposta: "+(e.message||e.code),"warn")}
 }
-function newProp(force){
-  if(S.dirty&&!force){S.confirm="new";render();return}
-  S.cur={nome:"Proposta "+(S.props.length+1)+" – "+today(),descricao:"",metas:{},excluidas:[],aloc:{},cargos:{},vagaNotas:{}};
-  S.curId=null;S.dirty=true;S.confirm=null;S.tab="construir";S.step=1;save("dim2.tab","construir");render();
+async function setSituacao(id,sit){
+  if(id===S.curId&&S.cur){S.cur.situacao=sit;S.dirty=true;await flushProp()}
+  else{const p=propById(id);if(!p)return;p.situacao=sit;render();if(S.db)try{await S.db.doc("propostas/"+id).update({situacao:sit})}catch(e){flash("Não foi possível gravar.","warn")}}
 }
 let flashT=null;
 function flash(msg,kind){$("#status").innerHTML=`<div class="toast ${kind==="ok"?"ok":""}" role="status">${esc(msg)}</div>`;clearTimeout(flashT);flashT=setTimeout(()=>{$("#status").innerHTML=""},4000)}
@@ -456,25 +476,34 @@ function panoramaHTML(P,title){
 
 /* ---------- tela: propostas prontas ---------- */
 function viewProntas(){
-  let h=`<div class="card-h"><div><h2>Propostas salvas</h2><div class="muted">Aqui ficam todas as propostas gravadas. Para alterar uma, toque em <b>Editar</b>: ela abre em "Construir proposta", e o botão <b>Salvar proposta</b> grava de volta aqui.</div></div><button class="pri" data-act="new">Nova proposta</button></div>`;
-  if(S.confirm==="new")h+=`<div class="toast">A proposta em construção tem alterações não salvas. <button data-act="newForce">Descartar e começar nova</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`;
-  if(!S.props.length)return h+`<div class="empty">Nenhuma proposta salva ainda.<br><br><button class="pri" data-act="new">Construir a primeira proposta</button></div>`;
-  const list=[...S.props].sort((a,b)=>(b.atualizadaEm||"").localeCompare(a.atualizadaEm||""));
+  let h=`<div class="card-h"><div><h2>Propostas</h2><div class="muted">Tudo é salvo automaticamente. As propostas que você está montando ficam em <b>Em preenchimento</b>; ao tocar em <b>Concluir</b>, elas passam para <b>Concluídas</b>, onde podem ser comparadas e aprovadas.</div></div><button class="pri" data-act="new">Nova proposta</button></div>`;
+  if(!S.props.length)return h+`<div class="empty">Nenhuma proposta ainda.<br><br><button class="pri" data-act="new">Começar a primeira proposta</button></div>`;
+  const all=[...S.props].sort((a,b)=>(b.atualizadaEm||"").localeCompare(a.atualizadaEm||""));
+  const drafts=all.filter(isDraft),list=all.filter(p=>!isDraft(p));
   if(!S.cmp)S.cmp=list.slice(0,4).map(p=>p.id);
-  const G=groups();
+  const G=groups();const rec=sum3(pool({aloc:{}}).rec);const fmt=d=>d?new Date(d).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"–";
+  h+=`<section class="psec"><div class="psec-h"><h3>Em preenchimento</h3><span class="cnt">${drafts.length}</span></div>`;
+  if(!drafts.length)h+=`<div class="muted psec-e">Nenhuma proposta em preenchimento. Use <b>Nova proposta</b> ou <b>Duplicar</b> uma concluída para começar.</div>`;
+  else{h+=`<div class="dcards">`;for(const p of drafts){const s=stats(p);const pc=rec?Math.round(s.aloc/rec*100):0;const cur=p.id===S.curId;
+    h+=`<article class="dcard ${cur?"cur":""}"><div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap"><div style="min-width:0"><h3>${esc(p.nome)}</h3><div class="muted">Última alteração ${fmt(p.atualizadaEm)}</div></div>${cur?'<span class="chip warn">Aberta agora</span>':'<span class="chip mute">Rascunho</span>'}</div>
+    <div><div class="dprog"><i style="width:${Math.min(100,pc)}%"></i></div><div class="small muted" style="margin-top:6px">${s.aloc} de ${rec} vagas distribuídas · saldo ${LV.map(l=>l+" "+s.pool.sd[l]).join(" · ")} · meta ${s.ok}/${s.meta}</div></div>
+    ${S.confirm==="del:"+p.id?`<div class="toast" style="margin:0">Excluir este rascunho? <button class="danger" data-act="delYes" data-id="${esc(p.id)}">Excluir</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`:""}
+    <div class="acts"><button class="pri" data-act="edit" data-id="${esc(p.id)}">${cur?"Voltar ao preenchimento":"Continuar preenchendo"}</button><button data-act="concluir" data-id="${esc(p.id)}">Concluir</button><button class="ghost danger" data-act="del" data-id="${esc(p.id)}">Excluir</button></div></article>`}
+    h+=`</div>`}
+  h+=`</section><section class="psec"><div class="psec-h"><h3>Concluídas</h3><span class="cnt">${list.length}</span></div>`;
+  if(!list.length)h+=`<div class="muted psec-e">Nenhuma proposta concluída ainda.</div>`;
   h+=`<div class="pcards">`;
   for(const p of list){
     const s=stats(p);const byG=G.map((g,ix)=>({nome:g.nome,c:GC[ix%GC.length],v:g.units.reduce((a,u)=>a+sum3(alocOf(u.id,p)),0)}));const tot=Math.max(1,byG.reduce((a,x)=>a+x.v,0));
     const sel=S.cmp.includes(p.id);
-    h+=`<article class="pcard ${S.focusId===p.id?"focus":""}"><div class="row" style="justify-content:space-between;align-items:flex-start"><div style="min-width:0"><h3>${esc(p.nome)}</h3><div class="muted">Atualizada em ${p.atualizadaEm?new Date(p.atualizadaEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"–"}</div></div><span class="row">${p.aprovada?'<span class="chip ok">Aprovada</span>':""}${p.id===S.curId?`<span class="chip warn">${S.dirty?"Em edição (não salva)":"Aberta no construtor"}</span>`:""}</span></div>
+    h+=`<article class="pcard ${S.focusId===p.id?"focus":""}"><div class="row" style="justify-content:space-between;align-items:flex-start"><div style="min-width:0"><h3>${esc(p.nome)}</h3><div class="muted">Atualizada em ${p.atualizadaEm?new Date(p.atualizadaEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"–"}</div></div><span class="row">${p.aprovada?'<span class="chip ok">Aprovada</span>':""}${p.id===S.curId?'<span class="chip warn">Aberta agora</span>':""}</span></div>
     ${p.descricao?`<div class="small" style="color:var(--fg-2)">${esc(p.descricao)}</div>`:""}
     <div class="mini"><div><b>${s.aloc}</b><span>alocadas</span></div><div title="Unidades com meta mínima definida que chegam ao mínimo"><b>${s.ok} de ${s.meta}</b><span>atingem a meta</span></div><div title="Soma do que falta, em todas as unidades, para chegar à referência da tipologia"><b>${s.def}</b><span>falta p/ referência</span></div></div>
     <div><div class="eyebrow" style="margin-bottom:6px">Para onde vão as vagas</div><div class="share">${byG.map(x=>x.v?`<i style="width:${x.v/tot*100}%;background:${x.c}" title="${esc(x.nome)}: ${x.v}"></i>`:"").join("")}</div><div class="slg" style="margin-top:6px">${byG.filter(x=>x.v).map(x=>`<span><i class="sw" style="background:${x.c}"></i>${esc(x.nome)} ${x.v}</span>`).join("")}</div></div>
-    ${S.confirm==="switch:"+p.id?`<div class="toast" style="margin:0">O construtor tem alterações não salvas. <button data-act="editForce" data-id="${esc(p.id)}">Abrir mesmo assim</button></div>`:""}
     ${S.confirm==="del:"+p.id?`<div class="toast" style="margin:0">Excluir esta proposta? <button class="danger" data-act="delYes" data-id="${esc(p.id)}">Excluir</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`:""}
-    <div class="acts"><button class="pri" data-act="edit" data-id="${esc(p.id)}">Editar</button><button data-act="focus" data-id="${esc(p.id)}">Ver panorama</button><button class="${sel?"on":""}" data-act="cmpT" data-id="${esc(p.id)}" aria-pressed="${sel}">${sel?"Comparando":"Comparar"}</button><button class="ghost" data-act="aprov" data-id="${esc(p.id)}">${p.aprovada?"Retirar aprovação":"Marcar como aprovada"}</button><button class="ghost" data-act="dup" data-id="${esc(p.id)}">Duplicar</button><button class="ghost danger" data-act="del" data-id="${esc(p.id)}">Excluir</button></div></article>`;
+    <div class="acts"><button class="pri" data-act="edit" data-id="${esc(p.id)}">Abrir e editar</button><button data-act="focus" data-id="${esc(p.id)}">Ver panorama</button><button class="${sel?"on":""}" data-act="cmpT" data-id="${esc(p.id)}" aria-pressed="${sel}">${sel?"Comparando":"Comparar"}</button><button class="ghost" data-act="aprov" data-id="${esc(p.id)}">${p.aprovada?"Retirar aprovação":"Marcar como aprovada"}</button><button class="ghost" data-act="dup" data-id="${esc(p.id)}">Duplicar</button><button class="ghost" data-act="reabrir" data-id="${esc(p.id)}">Voltar para preenchimento</button><button class="ghost danger" data-act="del" data-id="${esc(p.id)}">Excluir</button></div></article>`;
   }
-  h+=`</div>`;
+  h+=`</div></section>`;
   if(S.focusId&&propById(S.focusId))h+=panoramaHTML(propById(S.focusId),propById(S.focusId).nome);
   const C=S.cmp.map(propById).filter(Boolean);const LET="ABCDEFGH";const PC=["var(--g1)","var(--g2)","var(--g3)","var(--g4)","var(--g5)","var(--g6)"];
   const mode=S.cmpMode==="campi"?"campi":"prop";
@@ -526,24 +555,25 @@ function viewProntas(){
 
 /* ---------- tela: construir ---------- */
 function viewConstruir(){
-  if(!S.cur)return `<div class="empty">Nenhuma proposta em construção.<br><br><button class="pri" data-act="new">Começar nova proposta</button></div>`;
-  const p=pool();const s=stats();const saved=S.curId&&propById(S.curId);
-  const when=saved&&saved.atualizadaEm?new Date(saved.atualizadaEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"";
-  const stChip=!S.curId?'<span class="chip warn">Ainda não salva</span>':S.dirty?'<span class="chip warn">Alterações não salvas</span>':`<span class="chip ok">Salva ${when}</span>`;
-  let h=`<div class="card"><div class="card-h" style="margin:0"><div style="flex:1;min-width:240px"><div class="eyebrow">${S.curId?"Você está editando uma proposta salva":"Você está criando uma proposta nova"}</div><input type="text" class="namebox" id="pname" aria-label="Nome da proposta" data-act="pname" value="${esc(S.cur.nome)}"></div>
-  <div class="row">${S.curId?'<button data-act="saveAs">Salvar como cópia</button>':""}<button class="ghost" data-act="new">Nova proposta</button><button class="ghost" data-go="prontas">Abrir outra proposta salva</button></div></div>
-  <div class="where"><b>Onde fica salva:</b> o botão <b>Salvar proposta</b> (na barra abaixo, que acompanha a tela) grava a proposta na aba <b>Propostas</b>, junto com as demais. <b>Para editar depois:</b> abra <b>Propostas</b> e toque em <b>Editar</b> no cartão — ela volta para esta tela. ${S.curId?"Salvar agora substitui a versão gravada; <b>Salvar como cópia</b> mantém a original.":"Até salvar, ela existe só nesta tela."}</div></div>`;
-  if(S.confirm==="new")h+=`<div class="toast">Há alterações não salvas. <button data-act="newForce">Descartar e começar nova</button> <button class="ghost" data-act="cancel">Cancelar</button></div>`;
+  const drafts=S.props.filter(isDraft).sort((a,b)=>(b.atualizadaEm||"").localeCompare(a.atualizadaEm||""));
+  if(!S.cur||!S.curId)return `<div class="card"><h2 style="margin-bottom:6px">Qual proposta você quer preencher?</h2><div class="muted" style="margin-bottom:14px">Tudo o que você lança é salvo automaticamente.</div>${drafts.length?`<div class="eyebrow" style="margin-bottom:8px">Em preenchimento</div><div class="plist">${drafts.map(p=>`<button class="pitem" data-act="edit" data-id="${esc(p.id)}"><b>${esc(p.nome)}</b><span>${stats(p).aloc} vagas distribuídas · alterada em ${p.atualizadaEm?new Date(p.atualizadaEm).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"–"}</span></button>`).join("")}</div>`:""}<div class="row" style="margin-top:14px"><button class="pri" data-act="new">Nova proposta</button><button class="ghost" data-go="prontas">Ver todas as propostas</button></div></div>`;
+  const p=pool();const s=stats();const draft=isDraft(S.cur);
+  const tm=S.cur.atualizadaEm?new Date(S.cur.atualizadaEm).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"";
+  const stChip=S.saveState==="err"?'<span class="chip bad">Erro ao salvar — tentando de novo ao alterar</span>':(S.dirty||S.saveState==="saving")?'<span class="chip mute">Salvando…</span>':S.saveState==="local"?'<span class="chip warn">Sem armazenamento nesta visualização</span>':`<span class="chip ok">Salvo automaticamente ${tm}</span>`;
+  const others=drafts.filter(x=>x.id!==S.curId);
+  let h=`<div class="card"><div class="card-h" style="margin:0"><div style="flex:1;min-width:240px"><div class="eyebrow">${draft?"Proposta em preenchimento":"Proposta concluída"+(S.cur.aprovada?" e aprovada":"")+" — alterações são gravadas nela"}</div><input type="text" class="namebox" id="pname" aria-label="Nome da proposta" data-act="pname" value="${esc(S.cur.nome)}"></div>
+  <div class="row">${others.length?`<select id="swProp" data-act="swProp" aria-label="Trocar de proposta"><option value="">Trocar para outra em preenchimento…</option>${others.map(o=>`<option value="${esc(o.id)}">${esc(o.nome)}</option>`).join("")}</select>`:""}<button class="ghost" data-act="new">Nova proposta</button><button class="ghost" data-go="prontas">Todas as propostas</button></div></div>
+  <div class="where">${draft?`Esta proposta fica em <b>Propostas › Em preenchimento</b> e é salva automaticamente a cada alteração — pode sair e voltar quando quiser. Quando terminar, toque em <b>Concluir proposta</b> para movê-la para as concluídas.`:`Esta proposta já está em <b>Propostas › Concluídas</b>. O que você mudar aqui é gravado nela automaticamente. Para testar mudanças sem alterá-la, use <b>Fazer uma cópia</b>.`}</div></div>`;
   const xr=(S.confirm||"").startsWith("exclRet:")?S.confirm.slice(8):null;const xu=xr&&S.base.unidades.find(u=>u.id===xr);const xa=xr?alocOf(xr):null;
   h+=`<div class="dock"><div class="dk-saldo"><span class="dk-l">Saldo para distribuir</span>${LV.map(l=>`<span class="dk-n ${p.sd[l]<0?"neg":p.sd[l]===0?"zero":""}" title="Nível ${l}: recebidas ${p.rec[l]}, alocadas ${p.al[l]}"><span class="lvdot lv-${l}">${l}</span><b>${p.sd[l]}</b></span>`).join("")}<span class="dk-m" title="Unidades com meta definida que chegam ao mínimo">meta ${s.ok}/${s.meta}</span></div>
-  <div class="dk-act">${stChip}<button class="pri" data-act="save">Salvar proposta</button></div>
+  <div class="dk-act">${stChip}${draft?`<button class="pri" data-act="concluir" data-id="${esc(S.curId)}">Concluir proposta</button>`:`<button data-act="saveAs">Fazer uma cópia</button>`}</div>
   ${LV.some(l=>p.sd[l]<0)?`<div class="dk-msg bad">Mais vagas alocadas do que recebidas no nível ${LV.filter(l=>p.sd[l]<0).join(", ")}.</div>`:""}
   ${xu?`<div class="dk-msg">${esc(xu.nome)} saiu da meta, mas ainda tem ${sum3(xa)} vaga${sum3(xa)>1?"s":""} lançada${sum3(xa)>1?"s":""} (${LV.filter(l=>xa[l]).map(l=>l+" "+xa[l]).join(", ")}). <button class="danger" data-act="exclRetYes" data-id="${esc(xr)}">Devolver ao saldo</button> <button class="ghost" data-act="cancel">Manter</button></div>`:""}</div>`;
   h+=`<div class="steps" role="tablist">${[[1,"Diretrizes e metas"],[2,"Distribuição por nível"]].map(([k,t])=>`<button class="step" role="tab" aria-selected="${S.step===k}" data-act="step" data-id="${k}"><b>${k}</b>${t}</button>`).join("")}</div>`;
   return h+(S.step===1?stepMetas():stepNiveis());
 }
 function stepMetas(){
-  const others=S.props.filter(x=>x.id!==S.curId);
+  const others=S.props.filter(x=>x.id!==S.curId&&!isDraft(x));
   let h=`<div class="card"><h2 style="margin-bottom:6px">Diretriz</h2><div class="muted" style="margin-bottom:10px">Descreva o critério que orienta esta proposta.</div><input type="text" id="pdesc" data-act="pdesc" placeholder="Ex.: campi 70/45 com ao menos 42 servidores; campi novos com 15" value="${esc(S.cur.descricao||"")}" style="width:100%"></div>`;
   h+=`<div class="card"><div class="card-h"><div><h2>Metas por tipologia</h2><div class="muted">Mínimo de servidores por unidade (ocupados + vagas existentes + vagas novas). Deixe em branco para não aplicar meta.</div></div></div><div class="tiles">${S.base.tipologias.map(t=>{const us=S.base.unidades.filter(u=>u.tipologia===t.id);return `<div class="tile"><span class="tt">${esc(t.nome)}</span><span class="muted">Referência ${sum3(t.ref)} · ${us.length} unidade${us.length===1?"":"s"}</span><div class="row"><label class="small" for="meta-${esc(t.id)}">Meta mínima</label><input type="number" min="0" step="1" id="meta-${esc(t.id)}" data-act="meta" data-id="${esc(t.id)}" value="${S.cur.metas?.[t.id]??""}" placeholder="–"></div></div>`}).join("")}</div></div>`;
   h+=`<div class="card"><h2 style="margin-bottom:6px">Unidades fora da meta</h2><div class="muted" style="margin-bottom:12px">Toque para excluir uma unidade das metas, como campi novos que terão quantidade definida à parte.</div><div class="toggles">${S.base.unidades.map(u=>{const x=(S.cur.excluidas||[]).includes(u.id);return `<button class="tog" data-act="exclT" data-id="${esc(u.id)}" aria-pressed="${x}">${esc(u.nome)}</button>`}).join("")}</div></div>`;
@@ -712,7 +742,7 @@ async function saveCampus(){const c=S.impC;const doc={unidade:c.u,arquivo:c.arqu
   if(S.db){try{await S.db.doc("desejado/"+c.u).set(doc);flash("Proposta do campus salva","ok")}catch(e){flash("Não foi possível salvar: "+(e.message||e.code),"warn")}}}
 
 /* comparação e definição */
-function defProp(){return propById(S.defPropId)||S.props.find(p=>p.aprovada)||[...S.props].sort((a,b)=>(b.atualizadaEm||"").localeCompare(a.atualizadaEm||""))[0]||null}
+function defProp(){return propById(S.defPropId)||S.props.find(p=>p.aprovada)||[...S.props].filter(p=>!isDraft(p)).sort((a,b)=>(b.atualizadaEm||"").localeCompare(a.atualizadaEm||""))[0]||null}
 function defsOf(pid){return S.defs[pid]||(S.defs[pid]={unidades:{}})}
 function unitRows(u,P){
   const rows={};const get=(c,l)=>{const k=normC(c);if(!k)return null;return rows[k]||(rows[k]={k,cargo:niceC(c),nivel:l||"",atual:0,desejado:null,exist:0,def:0})};
@@ -750,7 +780,7 @@ function chosenOf(u,P){return (defsOf(P.id).unidades[u.id]?.linhas||[]).filter(l
 function viewDefinir(){
   const P=defProp();
   let h=`<div class="card"><div class="card-h" style="margin:0"><div style="min-width:0"><div class="eyebrow">Definição de cargos</div><h2>Proposta de cargos para as vagas</h2><div class="muted">As escolhas ficam gravadas junto da proposta de dimensionamento selecionada.</div></div>
-  <div class="row"><label class="small" for="defProp">Proposta de dimensionamento</label><select id="defProp" data-act="defProp">${S.props.map(p=>`<option value="${esc(p.id)}"${P&&P.id===p.id?" selected":""}>${esc(p.nome)}${p.aprovada?" (aprovada)":""}</option>`).join("")||"<option>Nenhuma proposta</option>"}</select></div></div>
+  <div class="row"><label class="small" for="defProp">Proposta de dimensionamento</label><select id="defProp" data-act="defProp">${S.props.filter(p=>!isDraft(p)).map(p=>`<option value="${esc(p.id)}"${P&&P.id===p.id?" selected":""}>${esc(p.nome)}${p.aprovada?" (aprovada)":""}</option>`).join("")||"<option>Nenhuma proposta</option>"}</select></div></div>
   ${P?`<div class="defbar">${defStatus(P)}<div class="row"><div class="seg" role="tablist"><button role="tab" aria-selected="${S.defView!=="resumo"}" data-act="defView" data-id="unidade">Por unidade</button><button role="tab" aria-selected="${S.defView==="resumo"}" data-act="defView" data-id="resumo">Resumo da proposta</button></div><button class="pri" data-act="defPdf">Gerar PDF</button></div></div>`:""}</div>`;
   if(!P)return h+`<div class="empty">Salve uma proposta em Dimensionamento para definir os cargos.</div>`;
   if(!P.aprovada)h+=`<div class="toast">Esta proposta de dimensionamento ainda não está marcada como aprovada.</div>`;
@@ -875,7 +905,7 @@ function viewInicio(){
   const q=S.quadro?`${S.quadro.linhas.reduce((a,r)=>a+n(r.qtd),0)} servidores importados`:"ainda não importado";
   return `<div class="home"><p class="home-lead">O que você quer fazer?</p><div class="homegrid">
   <article class="hcard"><div class="hicon" aria-hidden="true">1</div><h2>Dimensionamento quantitativo</h2><p>Distribuir as vagas recebidas entre as unidades por nível de classificação (C, D e E), com metas por tipologia, e comparar propostas.</p>
-   <ul class="hst"><li>${S.props.length} proposta(s) salva(s)</li><li>${P?"Aprovada: "+esc(P.nome):"Nenhuma proposta aprovada"}</li></ul>
+   <ul class="hst"><li>${S.props.filter(p=>!isDraft(p)).length} proposta(s) concluída(s) · ${S.props.filter(isDraft).length} em preenchimento</li><li>${P?"Aprovada: "+esc(P.nome):"Nenhuma proposta aprovada"}</li></ul>
    <div class="hacts"><button class="pri" data-go="prontas">Ver propostas</button><button data-go="construir">Construir proposta</button></div></article>
   <article class="hcard"><div class="hicon" aria-hidden="true">2</div><h2>Definição de cargos</h2><p>Escolher os cargos das vagas da proposta aprovada, comparando o quadro atual de cada unidade com a proposta enviada pelo campus.</p>
    <ul class="hst"><li>Quadro atual: ${q}</li><li>Propostas dos campi: ${nd} de ${nU} unidades</li></ul>
@@ -920,9 +950,11 @@ document.addEventListener("click",e=>{
     case "editForce":editProp(id,true);break;
     case "focus":S.focusId=S.focusId===id?null:id;render();break;
     case "cmpT":{const s=new Set(S.cmp||[]);s.has(id)?s.delete(id):s.add(id);S.cmp=[...s];render();break}
-    case "dup":{const p=propById(id);if(!p)break;if(S.dirty&&S.curId!==id){S.confirm="switch:"+id;render();break}S.cur=strip(p);S.curId=id;saveProp(true);break}
+    case "dup":(async()=>{await flushProp();const p=propById(id);if(!p)return;const now=new Date().toISOString();const nid=uid();const doc=strip(p);doc.nome=doc.nome+" (cópia)";doc.criadaEm=now;doc.atualizadaEm=now;doc.aprovada=false;doc.situacao="rascunho";S.props.push({id:nid,...clone(doc)});openProp(nid,doc);if(S.db)try{await S.db.doc("propostas/"+nid).set(doc);flash("Cópia criada em Em preenchimento","ok")}catch(e){flash("Não foi possível criar a cópia.","warn")}})();break;
+    case "concluir":(async()=>{await setSituacao(id,"pronta");if(S.curId===id){S.tab="prontas";save("dim2.tab","prontas")}if(S.cmp&&!S.cmp.includes(id))S.cmp.push(id);flash("Proposta concluída: agora está em Propostas › Concluídas","ok");render();window.scrollTo(0,0)})();break;
+    case "reabrir":setSituacao(id,"rascunho").then(()=>flash("A proposta voltou para Em preenchimento","ok"));break;
     case "del":S.confirm="del:"+id;render();break;
-    case "delYes":{S.props=S.props.filter(x=>x.id!==id);if(S.cmp)S.cmp=S.cmp.filter(x=>x!==id);if(S.focusId===id)S.focusId=null;if(S.curId===id){S.curId=null;S.cur=null;S.dirty=false}S.confirm=null;render();if(S.db)S.db.doc("propostas/"+id).delete().catch(()=>flash("Não foi possível excluir a proposta.","warn"));break}
+    case "delYes":{S.props=S.props.filter(x=>x.id!==id);if(S.cmp)S.cmp=S.cmp.filter(x=>x!==id);if(S.focusId===id)S.focusId=null;if(S.curId===id){clearTimeout(propTimer);S.curId=null;S.cur=null;S.dirty=false;save("dim2.cur","")}S.confirm=null;render();if(S.db)S.db.doc("propostas/"+id).delete().catch(()=>flash("Não foi possível excluir a proposta.","warn"));break}
     case "step":S.step=n(id);save("dim2.step",String(S.step));S.confirm=null;render();window.scrollTo(0,0);break;
     case "auto":autoDist();break;
     case "clearAloc":S.confirm="clearAloc";render();break;
@@ -998,6 +1030,7 @@ document.addEventListener("change",e=>{
     case "cEd":{const l=S.impC.linhas[n(id)];l[f]=f==="qtd"?Math.max(0,n(t.value)):t.value;break}
     case "grp":S.grouping=t.value;save("dim.grp",S.grouping);render();break;
     case "pname":S.cur.nome=t.value||"Proposta sem nome";markDirty();break;
+    case "swProp":if(t.value)editProp(t.value);break;
     case "pdesc":S.cur.descricao=t.value;markDirty();break;
     case "meta":S.cur.metas=S.cur.metas||{};if(t.value==="")delete S.cur.metas[id];else S.cur.metas[id]=n(t.value);markDirty();break;
     case "aloc":{S.cur.aloc=S.cur.aloc||{};const o=S.cur.aloc[id]||(S.cur.aloc[id]={C:0,D:0,E:0});o[t.dataset.l]=Math.max(0,n(t.value));markDirty();break}
@@ -1014,7 +1047,8 @@ document.addEventListener("change",e=>{
     case "lEd":{const lt=B.lotes.find(q=>q.id===id);lt[f]=f==="qtd"?Math.max(0,n(t.value)):t.value;touchBase();break}
   }
 });
-window.addEventListener("beforeunload",e=>{if(S.dirty||S.defDirty){e.preventDefault();e.returnValue=""}});
+window.addEventListener("beforeunload",e=>{if(S.dirty)flushProp();if(S.dirty||S.defDirty){e.preventDefault();e.returnValue=""}});
+document.addEventListener("visibilitychange",()=>{if(document.hidden&&S.dirty)flushProp()});
 
 /* ---------- inicialização ---------- */
 render();
@@ -1036,8 +1070,8 @@ render();
   },err=>{clearTimeout(timer);S.dbState="empty";flash("Erro ao carregar os cadastros: "+err.code,"warn");render()});
   db.collection("propostas").onSnapshot(qs=>{
     S.props=qs.docs.map(d=>({id:d.id,...clone(d.data())}));
-    if(!S.cur&&S.props.length){const last=[...S.props].sort((a,b)=>(b.atualizadaEm||"").localeCompare(a.atualizadaEm||""))[0];S.cur=strip(last);S.curId=last.id}
-    else if(S.curId&&!S.dirty){const p=propById(S.curId);if(p)S.cur=strip(p)}
+    if(!S.cur){let id=null;try{id=localStorage.getItem("dim2.cur")}catch(_){}const p=id&&propById(id);if(p){S.cur=strip(p);S.curId=p.id;S.saveState="ok"}}
+    else if(S.curId&&!S.dirty&&!propWriting){const p=propById(S.curId);if(p)S.cur=strip(p);else{S.cur=null;S.curId=null}}
     render();
   },err=>flash("Erro ao carregar as propostas: "+err.code,"warn"));
 })();
@@ -1045,7 +1079,7 @@ render();
 
 <script>
 /* aviso de nova versão publicada */
-(function(){const BUILD="2026-11-11-1925";let shown=false;
+(function(){const BUILD="2026-11-11-1935";let shown=false;
 async function chk(){if(shown)return;try{const r=await fetch(location.pathname+"?v="+Date.now(),{cache:"no-store"});const t=await r.text();const m=t.match(/const BUILD="([^"]+)"/);if(m&&m[1]!==BUILD){shown=true;const d=document.createElement("div");d.className="newver";d.innerHTML='Há uma versão nova do sistema. <button type="button">Atualizar agora</button>';d.querySelector("button").onclick=()=>location.reload();document.body.appendChild(d)}}catch(e){}}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)chk()});setInterval(chk,180000);setTimeout(chk,5000);})();
 </script>
