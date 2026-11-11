@@ -208,6 +208,7 @@ table.plain input.n{width:60px}
 .mrow-f{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .mrow-f .stp input{width:36px!important}.mrow-f .stp button{width:30px!important;height:30px!important}
 @media (max-width:760px){.dtab{display:none}.mlist{display:flex}.budget{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bud{flex-direction:column;align-items:center;text-align:center;gap:4px;padding:10px 6px}.bud b{font-size:20px}.bud .muted{font-size:11px}}
+.dgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.dgrid div{background:var(--soft);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}.dgrid span{font-size:11.5px;color:var(--fg-3);font-weight:600}.dgrid b{overflow-wrap:anywhere}@media (max-width:600px){.dgrid{grid-template-columns:minmax(0,1fr)}}
 .star{color:var(--vag);font-size:14px}
 .lnk{color:var(--accent-ink);font-weight:600;font-size:12.5px}
 .clist{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:8px}
@@ -527,11 +528,13 @@ async function importQuadroFile(file){
       setProg("Lendo a planilha…");await loadScript(XLSXJS);const wb=window.XLSX.read(await file.arrayBuffer(),{type:"array"});
       S.imp.wb=wb;S.imp.sheet=wb.SheetNames[0];loadSheet();
     }else{
-      const pages=await pdfText(file);const ch=await chunksOf(pages);const agg={};
+      const pages=await pdfText(file);const ch=await chunksOf(pages);const items=[];S.imp.extraApo=0;S.imp.extraOut=0;
       for(let i=0;i<ch.length;i++){setProg(`Identificando servidores com IA: parte ${i+1} de ${ch.length}`);
-        const r=await askJSON(`Você recebe o texto extraído de um relatório de servidores do IFRN (colunas separadas por " | "). Conte os servidores TÉCNICO-ADMINISTRATIVOS por unidade de lotação/exercício (campus ou Reitoria), cargo e nível de classificação (A a E). Ignore professores/docentes, estagiários, terceirizados, cabeçalhos e totais. Responda somente com um array JSON de objetos {"unidade":"...","cargo":"...","nivel":"C","qtd":3}, agrupando linhas iguais. Use nível vazio "" quando não constar.\n\nTEXTO:\n${ch[i]}`);
-        for(const x of Array.isArray(r)?r:[]){const k=[x.unidade,normC(x.cargo),x.nivel].join("|");agg[k]=agg[k]||{unidade:String(x.unidade||""),cargo:niceC(x.cargo),nivel:String(x.nivel||"").toUpperCase(),qtd:0};agg[k].qtd+=n(x.qtd)||1}}
-      S.imp.rec=Object.values(agg);prepMapping();
+        const r=await askJSON(`Você recebe o texto extraído de um relatório de servidores do IFRN (colunas separadas por " | "). Considere só servidores TÉCNICO-ADMINISTRATIVOS; ignore professores/docentes, estagiários, terceirizados, cabeçalhos e totais. Classifique cada servidor: (a) APOSENTADO/INATIVO/instituidor de pensão; (b) servidor de OUTRO ÓRGÃO em exercício no IFRN (requisitado, exercício provisório, colaboração técnica, cedido ao IFRN etc.); (c) servidor ATIVO do quadro do IFRN; (d) DÚVIDA, quando a situação não permitir ter certeza (ex.: cedido, sem vínculo, situação ausente ou ambígua). Responda somente com JSON no formato {"grupos":[{"unidade":"...","cargo":"...","nivel":"C","qtd":3}],"aposentados":0,"outros_orgaos":0,"duvidas":[{"nome":"...","matricula":"...","unidade":"...","cargo":"...","nivel":"D","situacao":"...","motivo":"..."}]}. Em "grupos" agrupe só os ativos do IFRN (c) por unidade de lotação/exercício, cargo e nível (A a E; vazio se não constar). Em "duvidas" liste cada servidor do caso (d) individualmente.\n\nTEXTO:\n${ch[i]}`);
+        for(const x of (r&&r.grupos)||[])items.push({unidade:String(x.unidade||""),cargo:niceC(x.cargo),nivel:String(x.nivel||"").toUpperCase().slice(0,1),qtd:n(x.qtd)||1,cls:"inc",dec:null});
+        for(const x of (r&&r.duvidas)||[])items.push({unidade:String(x.unidade||""),cargo:niceC(x.cargo),nivel:String(x.nivel||"").toUpperCase().slice(0,1),qtd:1,nome:String(x.nome||""),mat:String(x.matricula||""),sit:String(x.situacao||""),org:"",cls:"duv",mot:String(x.motivo||x.situacao||""),dec:null});
+        S.imp.extraApo+=n(r&&r.aposentados);S.imp.extraOut+=n(r&&r.outros_orgaos)}
+      S.imp.items=items;finishItems();
     }
   }catch(e){S.imp.erro=e.message||String(e.code||e)}
   setProg("");render();
@@ -540,15 +543,31 @@ function loadSheet(){const ws=S.imp.wb.Sheets[S.imp.sheet];const rows=window.XLS
   let hi=0;for(let i=0;i<Math.min(15,rows.length);i++){if(rows[i].filter(c=>String(c).trim()).length>=3){hi=i;break}}
   S.imp.header=rows[hi].map(String);S.imp.rows=rows.slice(hi+1);
   const f=re=>S.imp.header.findIndex(h=>re.test(normU(h)));
-  S.imp.cols={u:f(/lotac|exercicio|unidade|campus|setor/),c:f(/cargo/),l:f(/nivel|classe/),q:f(/qtd|quantidade|total/)};}
+  S.imp.cols={u:f(/lotac|exercicio|unidade|campus|setor/),c:f(/cargo/),l:f(/nivel|classe/),q:f(/qtd|quantidade|total/),n:f(/^nome|servidor/),s:f(/situac|vinculo|regime|ativid/),o:f(/orgao|origem/),m:f(/matric|siape/)};}
+function classify(sit,org){const st=normU(sit),o=normU(org);
+  if(/aposent|inativ|pensao|pensionista|instituidor|falecid|obito/.test(st))return["apo","Aposentado ou inativo"];
+  if(o&&!/ifrn|rio grande do norte|instituto federal do rn/.test(o))return["out","Servidor de outro órgão ("+org+")"];
+  if(/requisitad|cedido ao ifrn|cedido para o ifrn|de outro orgao/.test(st))return["out","Servidor de outro órgão ("+sit+")"];
+  if(/requisitad|exercicio provisorio|colaboracao tecnica|exercicio descentralizado|lotacao provisoria|cedid|outro orgao|sem vinculo|temporari|contratad|estagiari|visitante|substitut|anistiad|excedente|disponibilidade|nomeado/.test(st))return["duv","Situação: "+sit];
+  if(!st||/ativo|estatutari|efetivo|em exercicio|permanente/.test(st))return["inc",""];
+  return["duv","Situação: "+sit];}
+function finishItems(){const I=S.imp;I.duv=I.items.map((x,i)=>x.cls==="duv"?i:-1).filter(i=>i>=0);I.duvIx=0;I.cnt={apo:I.items.filter(x=>x.cls==="apo").reduce((a,x)=>a+x.qtd,0)+(I.extraApo||0),out:I.items.filter(x=>x.cls==="out").reduce((a,x)=>a+x.qtd,0)+(I.extraOut||0)};if(!I.duv.length)aggItems()}
+function aggItems(){const I=S.imp;const agg={};for(const x of I.items){if(x.cls==="apo"||x.cls==="out")continue;if(x.cls==="duv"&&x.dec!=="manter")continue;const k=[x.unidade,normC(x.cargo),x.nivel].join("|");agg[k]=agg[k]||{unidade:x.unidade,cargo:niceC(x.cargo),nivel:x.nivel,qtd:0};agg[k].qtd+=x.qtd}
+  I.cnt.duvM=I.items.filter(x=>x.cls==="duv"&&x.dec==="manter").length;I.cnt.duvE=I.items.filter(x=>x.cls==="duv"&&x.dec==="excluir").length;I.rec=Object.values(agg);prepMapping()}
 function sheetToRec(){const c=S.imp.cols;if(c.u<0||c.c<0){S.imp.erro="Escolha as colunas de unidade e de cargo.";return}
+  if(c.s<0&&c.o<0){S.imp.aviso="A planilha não tem coluna de situação nem de órgão de origem: não foi possível identificar aposentados e servidores de outros órgãos."}else S.imp.aviso=null;
+  const items=[];for(const r of S.imp.rows){const un=String(r[c.u]||"").trim(),cg=String(r[c.c]||"").trim();if(!un||!cg)continue;const lv=c.l>=0?String(r[c.l]||"").trim().toUpperCase().replace(/[^A-E]/g,"").slice(0,1):"";const q=c.q>=0?(n(r[c.q])||1):1;
+    const sit=c.s>=0?String(r[c.s]||"").trim():"",org=c.o>=0?String(r[c.o]||"").trim():"";const [cls,mot]=classify(sit,org);
+    items.push({unidade:un,cargo:cg,nivel:lv,qtd:q,nome:c.n>=0?String(r[c.n]||"").trim():"",mat:c.m>=0?String(r[c.m]||"").trim():"",sit,org,cls,mot,dec:null})}
+  S.imp.items=items;S.imp.erro=null;finishItems();}
+function sheetToRecOld(){const c=S.imp.cols;if(c.u<0||c.c<0){S.imp.erro="Escolha as colunas de unidade e de cargo.";return}
   const agg={};for(const r of S.imp.rows){const un=String(r[c.u]||"").trim(),cg=String(r[c.c]||"").trim();if(!un||!cg)continue;let lv=c.l>=0?String(r[c.l]||"").trim().toUpperCase().replace(/[^A-E]/g,"").slice(0,1):"";const q=c.q>=0?n(r[c.q]):1;const k=[un,normC(cg),lv].join("|");agg[k]=agg[k]||{unidade:un,cargo:niceC(cg),nivel:lv,qtd:0};agg[k].qtd+=q||1}
   S.imp.rec=Object.values(agg);S.imp.erro=null;prepMapping();}
 function prepMapping(){const nm=nivelMap();S.imp.rec.forEach(r=>{if(!r.nivel)r.nivel=nm[normC(r.cargo)]||""});const vals={};S.imp.rec.forEach(r=>{vals[r.unidade]=(vals[r.unidade]||0)+r.qtd});S.imp.units=Object.entries(vals).map(([v,q])=>({v,q,u:matchUnit(v)})).sort((a,b)=>b.q-a.q)}
 async function confirmQuadro(){
   const mapU={};S.imp.units.forEach(x=>mapU[x.v]=x.u);S.base.mapUnidades=S.base.mapUnidades||{};S.imp.units.forEach(x=>{S.base.mapUnidades[normU(x.v)]=x.u});
   const agg={};for(const r of S.imp.rec){const u=mapU[r.unidade];if(!u)continue;const k=[u,normC(r.cargo),r.nivel].join("|");agg[k]=agg[k]||{u,cargo:r.cargo,nivel:r.nivel,qtd:0};agg[k].qtd+=r.qtd}
-  const doc={arquivo:S.imp.arquivo,importadoEm:new Date().toISOString(),linhas:Object.values(agg)};S.quadro=doc;S.imp=null;touchBase();
+  const doc={arquivo:S.imp.arquivo,importadoEm:new Date().toISOString(),exclusoes:clone(S.imp.cnt||{}),linhas:Object.values(agg)};S.quadro=doc;S.imp=null;touchBase();
   if(S.db){try{await S.db.doc("quadro/atual").set(doc);flash("Quadro atual importado","ok")}catch(e){flash("Não foi possível salvar o quadro: "+(e.message||e.code),"warn")}}
 }
 
@@ -643,9 +662,13 @@ function viewQuadro(){
   if(I){
     if(I.erro)h+=`<div class="toast">${esc(I.erro)}</div>`;
     if(I.rows&&!I.rec){const opt=(sel)=>`<option value="-1">—</option>`+I.header.map((c,ix)=>`<option value="${ix}"${sel===ix?" selected":""}>${esc(c||"Coluna "+(ix+1))}</option>`).join("");
-      h+=`<div class="card"><h2 style="margin-bottom:10px">Colunas da planilha</h2><div class="tiles">${I.wb.SheetNames.length>1?`<label class="tile"><span class="tt">Aba</span><select id="impSheet" data-act="impSheet">${I.wb.SheetNames.map(s=>`<option${s===I.sheet?" selected":""}>${esc(s)}</option>`).join("")}</select></label>`:""}${[["u","Unidade de exercício/lotação"],["c","Cargo"],["l","Nível de classificação (opcional)"],["q","Quantidade (opcional)"]].map(([k,t])=>`<label class="tile"><span class="tt">${t}</span><select id="impCol-${k}" data-act="impCol" data-id="${k}">${opt(I.cols[k])}</select></label>`).join("")}</div><div class="muted" style="margin:10px 0">${I.rows.length} linhas encontradas. Sem coluna de quantidade, cada linha conta como um servidor.</div><button class="pri" data-act="impRead">Continuar</button> <button class="ghost" data-act="impCancel">Cancelar</button></div>`}
+      h+=`<div class="card"><h2 style="margin-bottom:10px">Colunas da planilha</h2><div class="tiles">${I.wb.SheetNames.length>1?`<label class="tile"><span class="tt">Aba</span><select id="impSheet" data-act="impSheet">${I.wb.SheetNames.map(s=>`<option${s===I.sheet?" selected":""}>${esc(s)}</option>`).join("")}</select></label>`:""}${[["u","Unidade de exercício/lotação"],["c","Cargo"],["l","Nível de classificação (opcional)"],["s","Situação funcional / vínculo"],["o","Órgão de origem (opcional)"],["n","Nome do servidor (para confirmar dúvidas)"],["m","Matrícula SIAPE (opcional)"],["q","Quantidade (opcional)"]].map(([k,t])=>`<label class="tile"><span class="tt">${t}</span><select id="impCol-${k}" data-act="impCol" data-id="${k}">${opt(I.cols[k])}</select></label>`).join("")}</div><div class="muted" style="margin:10px 0">${I.rows.length} linhas encontradas. Sem coluna de quantidade, cada linha conta como um servidor. Aposentados e servidores de outros órgãos são excluídos pela situação funcional e pelo órgão de origem; os casos duvidosos você confirma um a um.</div><button class="pri" data-act="impRead">Continuar</button> <button class="ghost" data-act="impCancel">Cancelar</button></div>`}
+    if(I.items&&!I.rec&&I.duv&&I.duv.length){const x=I.items[I.duv[I.duvIx]];
+      h+=`<div class="card dcard"><div class="card-h"><div><div class="eyebrow">Confirmação ${I.duvIx+1} de ${I.duv.length}</div><h2>Este servidor deve entrar no quadro do IFRN?</h2><div class="muted">Já excluídos automaticamente: ${I.cnt.apo} aposentado(s) ou inativo(s) e ${I.cnt.out} de outros órgãos.</div></div></div>
+      <div class="dgrid"><div><span>Servidor</span><b>${esc(x.nome||"(sem nome no arquivo)")}${x.mat?" · "+esc(x.mat):""}</b></div><div><span>Unidade</span><b>${esc(x.unidade)}</b></div><div><span>Cargo</span><b>${esc(niceC(x.cargo))}${x.nivel?" · nível "+esc(x.nivel):""}</b></div><div><span>Motivo da dúvida</span><b>${esc(x.mot||x.sit||"Situação não informada")}</b></div></div>
+      <div class="row" style="margin-top:14px"><button class="pri" data-act="duvDec" data-id="manter">Manter no quadro</button><button class="danger" data-act="duvDec" data-id="excluir">Excluir</button>${I.duvIx>0?'<button class="ghost" data-act="duvBack">Voltar ao anterior</button>':""}<button class="ghost" data-act="impCancel">Cancelar importação</button></div></div>`}
     if(I.rec){const tot=I.rec.reduce((a,r)=>a+r.qtd,0);const um=I.units.filter(x=>!x.u);
-      h+=`<div class="card"><div class="card-h"><div><h2>Revise antes de gravar</h2><div class="muted">${tot} servidores em ${I.units.length} valores de unidade. Associe cada valor a uma unidade do sistema; os que ficarem em branco são ignorados.</div></div><div class="row"><button class="pri" data-act="impOk">Gravar quadro atual</button><button class="ghost" data-act="impCancel">Cancelar</button></div></div>${um.length?`<div class="toast">${um.length} valor(es) sem unidade associada.</div>`:""}<div class="tiles">${I.units.map((x,ix)=>`<label class="tile"><span class="tt small">${esc(x.v)}</span><span class="muted">${x.q} servidor(es)</span><select id="impU-${ix}" data-act="impU" data-id="${ix}" style="background:var(--surface)"><option value="">Ignorar</option>${S.base.unidades.map(u=>`<option value="${esc(u.id)}"${x.u===u.id?" selected":""}>${esc(u.nome)}</option>`).join("")}</select></label>`).join("")}</div>
+      h+=`<div class="card"><div class="card-h"><div><h2>Revise antes de gravar</h2><div class="muted">${tot} servidores em ${I.units.length} valores de unidade. Associe cada valor a uma unidade do sistema; os que ficarem em branco são ignorados.</div></div><div class="row"><button class="pri" data-act="impOk">Gravar quadro atual</button><button class="ghost" data-act="impCancel">Cancelar</button></div></div>${I.cnt?`<div class="toast ok">Excluídos: ${I.cnt.apo} aposentado(s) ou inativo(s), ${I.cnt.out} de outros órgãos${I.duv&&I.duv.length?` e ${I.cnt.duvE||0} confirmado(s) por você; ${I.cnt.duvM||0} caso(s) em dúvida mantido(s)`:""}.</div>`:""}${I.aviso?`<div class="toast">${esc(I.aviso)}</div>`:""}${um.length?`<div class="toast">${um.length} valor(es) sem unidade associada.</div>`:""}<div class="tiles">${I.units.map((x,ix)=>`<label class="tile"><span class="tt small">${esc(x.v)}</span><span class="muted">${x.q} servidor(es)</span><select id="impU-${ix}" data-act="impU" data-id="${ix}" style="background:var(--surface)"><option value="">Ignorar</option>${S.base.unidades.map(u=>`<option value="${esc(u.id)}"${x.u===u.id?" selected":""}>${esc(u.nome)}</option>`).join("")}</select></label>`).join("")}</div>
       ${I.rec.some(r=>!r.nivel)?`<div class="toast" style="margin-top:12px">Há cargos sem nível identificado: ${esc([...new Set(I.rec.filter(r=>!r.nivel).map(r=>r.cargo))].slice(0,12).join(", "))}. Eles aparecem no quadro, mas não entram nas contas por nível.</div>`:""}</div>`}
   }
   if(!S.quadro)return h+(I?"":`<div class="empty">Nenhuma base importada ainda.</div>`);
@@ -743,6 +766,8 @@ document.addEventListener("click",e=>{
     case "dinc":{const P=defProp();if(!P)break;const k=normC(b.dataset.c);const cur=n((defsOf(P.id).unidades[b.dataset.u]?.linhas||[]).find(l=>normC(l.cargo)===k)?.qtd);setDef(b.dataset.u,b.dataset.c,b.dataset.l,cur+n(b.dataset.d));render();break}
     case "defAdd":{const P=defProp();const c=$("#newCargo")?.value.trim();if(!P||!c)break;const d=defsOf(P.id);const U=d.unidades[id]||(d.unidades[id]={linhas:[]});if(!U.linhas.find(l=>normC(l.cargo)===normC(c)))U.linhas.push({cargo:niceC(c),nivel:$("#newCargoL").value,qtd:0,manual:true});S.defDirty=true;render();break}
     case "impRead":sheetToRec();render();break;
+    case "duvDec":{const I=S.imp;I.items[I.duv[I.duvIx]].dec=id;if(I.duvIx<I.duv.length-1)I.duvIx++;else aggItems();render();break}
+    case "duvBack":if(S.imp.duvIx>0)S.imp.duvIx--;render();break;
     case "impOk":confirmQuadro();break;
     case "impCancel":S.imp=null;render();break;
     case "qOpen":S.qOpen=S.qOpen===id?null:id;render();break;
